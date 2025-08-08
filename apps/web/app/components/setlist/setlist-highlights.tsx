@@ -38,7 +38,7 @@ export function SetlistHighlights({ setlist }: SetlistHighlightsProps) {
         {allTimerTracks.length > 0 && (
           <div>
             <h3 className="text-lg font-medium text-content-text-primary flex items-center gap-2 mb-3">
-              <Flame className="h-5 w-5 text-warning" />
+              <Flame className="h-5 w-5 text-orange-500" />
               <span>All-Timers</span>
             </h3>
             <ul className="space-y-2">

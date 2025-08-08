@@ -147,7 +147,7 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
             <FormItem>
               <FormLabel className="text-content-text-primary">Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter title" {...field} className="bg-content-bg-secondary border-content-bg-secondary text-white" />
+                <Input placeholder="Enter title" {...field} className="glass-content text-content-text-primary" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -166,7 +166,7 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
                   {...field}
                   value={field.value || ""}
                   onChange={(e) => field.onChange(e.target.value || null)}
-                  className="bg-content-bg-secondary border-content-bg-secondary text-white min-h-[100px]"
+                  className="glass-content text-content-text-primary min-h-[100px]"
                 />
               </FormControl>
               <FormMessage />
@@ -191,7 +191,7 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
                     e.target.style.height = "auto";
                     e.target.style.height = `${e.target.scrollHeight}px`;
                   }}
-                  className="bg-content-bg-secondary border-content-bg-secondary text-white min-h-[300px] font-mono resize-none overflow-hidden"
+                  className="glass-content text-content-text-primary min-h-[300px] font-mono resize-none overflow-hidden"
                 />
               </FormControl>
               <FormMessage />
@@ -207,15 +207,15 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
               <FormLabel className="text-content-text-primary">State</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-white">
+                  <SelectTrigger className="glass-content text-content-text-primary">
                     <SelectValue placeholder="Select state" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="bg-content-bg-secondary border-content-bg-secondary">
-                  <SelectItem value={BlogPostState.DRAFT} className="text-white">
+                <SelectContent className="glass-content">
+                  <SelectItem value={BlogPostState.DRAFT} className="text-content-text-primary">
                     Draft
                   </SelectItem>
-                  <SelectItem value={BlogPostState.PUBLISHED} className="text-white">
+                  <SelectItem value={BlogPostState.PUBLISHED} className="text-content-text-primary">
                     Published
                   </SelectItem>
                 </SelectContent>
@@ -232,7 +232,7 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
               bucket="uploads"
               folder="blog"
               onUploadComplete={handleFileUpload}
-              className="bg-content-bg-secondary border-content-bg-secondary"
+              className="glass-content"
               accept="image/*"
             />
             {uploadedFiles.length > 0 && (
@@ -283,7 +283,7 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
           <Button
             type="button"
             onClick={form.handleSubmit(onSubmit)}
-            className="bg-brand hover:bg-hover-accent text-white"
+            className="btn-primary"
           >
             {submitLabel}
           </Button>
@@ -291,7 +291,7 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
             type="button"
             variant="outline"
             onClick={() => navigate(cancelHref)}
-            className="border-gray-600 text-content-text-primary hover:bg-content-bg-secondary hover:text-white"
+            className="btn-secondary"
           >
             Cancel
           </Button>

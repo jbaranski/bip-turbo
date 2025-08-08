@@ -20,6 +20,10 @@ export class BlogPostService {
     return this.repository.findBySlug(slug);
   }
 
+  async findBySlugWithFiles(slug: string) {
+    return this.repository.findBySlugWithFiles(slug);
+  }
+
   async findMany(filter: QueryOptions<BlogPost>) {
     // const cachedBlogPosts = await this.redis.get<BlogPost[]>(BLOG_POSTS_CACHE_KEY);
     // if (cachedBlogPosts) {
@@ -27,6 +31,12 @@ export class BlogPostService {
     // }
     const blogPosts = await this.repository.findMany(filter);
     await this.redis.set<BlogPost[]>(BLOG_POSTS_CACHE_KEY, blogPosts, { EX: 60 * 60 * 24 });
+    return blogPosts;
+  }
+
+  async findManyWithUser(filter: QueryOptions<BlogPost>) {
+    // For now, skip caching when we need user data
+    const blogPosts = await this.repository.findManyWithUser(filter);
     return blogPosts;
   }
 

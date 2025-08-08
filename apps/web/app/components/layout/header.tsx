@@ -44,14 +44,18 @@ export function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/95 backdrop-blur-sm border-b border-border/10">
       <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Home Icon */}
+        {/* Logo */}
         <div className="flex items-center">
           <Link 
             to="/" 
-            className="flex items-center justify-center h-10 w-10 rounded-lg bg-brand-primary/20 hover:bg-brand-primary/30 transition-colors"
+            className="flex items-center justify-center h-10 w-10 rounded-lg hover:opacity-80 transition-opacity"
             title="Home"
           >
-            <Home className="h-5 w-5 text-brand-primary" />
+            <img 
+              src="/bip.png" 
+              alt="Biscuits Internet Project" 
+              className="h-8 w-8 object-contain"
+            />
           </Link>
         </div>
 
@@ -62,7 +66,7 @@ export function Header() {
               <Link
                 key={item.href}
                 to={item.href}
-                className="flex items-center rounded-md px-4 py-2 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+                className="flex items-center rounded-md px-4 py-2 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
               >
                 <item.icon className="h-4 w-4 mr-2" />
                 <span>{item.name}</span>
@@ -132,7 +136,7 @@ export function Header() {
                   key={item.href}
                   to={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+                  className="flex items-center rounded-md px-4 py-3 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
                 >
                   <item.icon className="h-5 w-5 mr-3" />
                   <span>{item.name}</span>

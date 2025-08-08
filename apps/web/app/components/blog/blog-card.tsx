@@ -1,13 +1,11 @@
-import type { BlogPost } from "@bip/domain";
+import type { BlogPostWithUser } from "@bip/domain";
 import Markdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 interface BlogCardProps {
-  blogPost: BlogPost & {
-    coverImage?: string;
-  };
+  blogPost: BlogPostWithUser;
   compact?: boolean;
 }
 
@@ -43,6 +41,9 @@ export function BlogCard({ blogPost, compact = false }: BlogCardProps) {
         <div className="flex justify-between items-start">
           <div className="flex items-center text-md text-content-text-secondary">
             <span>{formatDate(blogPost.publishedAt)}</span>
+          </div>
+          <div className="text-sm text-content-text-tertiary">
+            by @{blogPost.user.username}
           </div>
         </div>
         <CardTitle className={`${compact ? "text-lg" : "text-xl"} mt-4 text-brand-primary`}>{blogPost.title}</CardTitle>

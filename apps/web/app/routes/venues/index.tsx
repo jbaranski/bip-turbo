@@ -387,9 +387,9 @@ export default function VenuesPage() {
   const hasMore = displayCount < filteredVenues.length;
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-content-text-primary">Venues</h1>
+    <div className="space-y-6 md:space-y-8">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Venues</h1>
         <AdminOnly>
           <Button asChild size="sm" className="btn-primary">
             <Link to="/venues/new" className="flex items-center gap-1">
@@ -399,8 +399,6 @@ export default function VenuesPage() {
           </Button>
         </AdminOnly>
       </div>
-
-      <div className="space-y-6 md:space-y-8">
         {/* Stats Grid */}
         <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatBox icon={<MapPin className="h-4 w-4" />} label="Total Venues" value={stats.totalVenues} />
@@ -527,7 +525,6 @@ export default function VenuesPage() {
             )}
           </>
         )}
-      </div>
     </div>
   );
 }

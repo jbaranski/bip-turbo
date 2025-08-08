@@ -232,29 +232,27 @@ export default function Show() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-content-text-primary">{formatDateLong(setlist.show.date)}</h1>
-          <AdminOnly>
-            <Button variant="outline" size="sm" asChild className="btn-secondary">
-              <Link to={`/shows/${setlist.show.slug}/edit`} className="flex items-center gap-1">
-                <Edit className="h-4 w-4" />
-                <span>Edit Show</span>
-              </Link>
-            </Button>
-          </AdminOnly>
-        </div>
-        
-        {/* Subtle back link */}
-        <div className="flex justify-start">
-          <Link 
-            to="/shows" 
-            className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
-          >
-            <ArrowLeft className="h-3 w-3" />
-            <span>Back to shows</span>
-          </Link>
-        </div>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">{formatDateLong(setlist.show.date)}</h1>
+        <AdminOnly>
+          <Button variant="outline" size="sm" asChild className="btn-secondary">
+            <Link to={`/shows/${setlist.show.slug}/edit`} className="flex items-center gap-1">
+              <Edit className="h-4 w-4" />
+              <span>Edit Show</span>
+            </Link>
+          </Button>
+        </AdminOnly>
+      </div>
+      
+      {/* Subtle back link */}
+      <div className="flex justify-start">
+        <Link 
+          to="/shows" 
+          className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
+        >
+          <ArrowLeft className="h-3 w-3" />
+          <span>Back to shows</span>
+        </Link>
       </div>
 
       {/* Main content area with responsive grid */}

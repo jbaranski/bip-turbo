@@ -40,7 +40,7 @@ export function LoginForm({ className, onSubmit, onGoogleClick, ...props }: Logi
                     type="email"
                     placeholder="m@example.com"
                     required
-                    className="border-content-bg-secondary bg-black/50 pl-9 text-content-text-secondary placeholder:text-content-text-tertiary focus:border-focus-ring focus:ring-focus-ring/20"
+                    className="glass-content pl-9 text-content-text-primary placeholder:text-content-text-tertiary"
                   />
                 </div>
               </div>
@@ -60,14 +60,14 @@ export function LoginForm({ className, onSubmit, onGoogleClick, ...props }: Logi
                     name="password"
                     type="password"
                     required
-                    className="border-content-bg-secondary bg-black/50 pl-9 text-content-text-secondary focus:border-focus-ring focus:ring-focus-ring/20"
+                    className="glass-content pl-9 text-content-text-primary"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <Button type="submit" className="w-full bg-brand-primary text-content-text-primary hover:bg-hover-accent">
+              <Button type="submit" className="w-full btn-primary">
                 Sign in
               </Button>
               <div className="relative">
@@ -80,7 +80,7 @@ export function LoginForm({ className, onSubmit, onGoogleClick, ...props }: Logi
               </div>
               <Button
                 variant="outline"
-                className="w-full border-content-bg-secondary bg-transparent text-content-text-secondary hover:bg-content-bg-secondary hover:text-content-text-primary"
+                className="w-full btn-secondary"
                 type="button"
                 onClick={onGoogleClick}
               >

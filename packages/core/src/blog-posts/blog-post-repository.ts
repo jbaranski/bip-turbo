@@ -44,6 +44,33 @@ export class BlogPostRepository {
     return result ? mapBlogPostToDomainEntity(result) : null;
   }
 
+  async findBySlugWithFiles(slug: string): Promise<any | null> {
+    const result = await this.db.blogPost.findFirst({
+      where: { slug },
+      include: {
+        files: {
+          include: {
+            file: true,
+          },
+        },
+      },
+    });
+    
+    if (!result) return null;
+
+    const files = result.files || [];
+    const coverFile = files.find((f: any) => f.isCover);
+    const coverImage = coverFile ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}` : undefined;
+    
+    const imageUrls = files.map((f: any) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${f.file.path}`);
+
+    return {
+      ...mapBlogPostToDomainEntity(result),
+      coverImage,
+      imageUrls,
+    };
+  }
+
   async findMany(options?: QueryOptions<BlogPost>): Promise<BlogPost[]> {
     const where = options?.filters ? buildWhereClause(options.filters) : {};
     const orderBy = options?.sort ? buildOrderByClause(options.sort) : [{ publishedAt: "desc" }];
@@ -80,6 +107,53 @@ export class BlogPostRepository {
         });
       blogPost.imageUrls = imgUrls;
     }
+    return domainBlogPosts;
+  }
+
+  async findManyWithUser(options?: QueryOptions<BlogPost>): Promise<any[]> {
+    const where = options?.filters ? buildWhereClause(options.filters) : {};
+    const orderBy = options?.sort ? buildOrderByClause(options.sort) : [{ publishedAt: "desc" }];
+    const skip =
+      options?.pagination?.page && options?.pagination?.limit
+        ? (options.pagination.page - 1) * options.pagination.limit
+        : undefined;
+    const take = options?.pagination?.limit;
+
+    const blogPosts = await this.db.blogPost.findMany({
+      where,
+      orderBy,
+      skip,
+      take,
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+        files: {
+          include: {
+            file: true,
+          },
+        },
+      },
+    });
+
+    const domainBlogPosts = blogPosts.map((blogPost: any) => {
+      const files = blogPost.files || [];
+      const coverFile = files.find((f: any) => f.isCover);
+      const coverImage = coverFile ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}` : undefined;
+      
+      const imageUrls = files.map((f: any) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${f.file.path}`);
+
+      return {
+        ...mapBlogPostToDomainEntity(blogPost),
+        user: blogPost.user,
+        coverImage,
+        imageUrls,
+      };
+    });
+
     return domainBlogPosts;
   }
 

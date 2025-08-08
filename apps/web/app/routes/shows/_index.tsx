@@ -1,8 +1,8 @@
 import type { Setlist } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrowUp, Loader2, Plus, Search, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams, useSubmit } from "react-router-dom";
+import { ArrowUp, Plus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { AdminOnly } from "~/components/admin/admin-only";
 import { SetlistCard } from "~/components/setlist/setlist-card";
@@ -79,11 +79,6 @@ export function meta() {
 export default function Shows() {
   const { setlists, year, searchQuery } = useSerializedLoaderData<LoaderData>();
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const submit = useSubmit();
-  const pendingSearchRef = useRef<AbortController | null>(null);
   const queryClient = useQueryClient();
 
   // Log initial render
@@ -190,160 +185,51 @@ export default function Shows() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // Clear search and return to year view
-  const clearSearch = useCallback(() => {
-    if (searchInputRef.current) {
-      searchInputRef.current.value = "";
-    }
-
-    // Cancel any pending search
-    if (pendingSearchRef.current) {
-      pendingSearchRef.current.abort();
-      pendingSearchRef.current = null;
-    }
-
-    setIsSearching(false);
-
-    const params = new URLSearchParams();
-    if (year) {
-      params.set("year", year.toString());
-    }
-    submit(params, { method: "get", replace: true });
-  }, [year, submit]);
-
-  // Perform search with the current input value
-  const performSearch = useCallback(() => {
-    const value = searchInputRef.current?.value || "";
-
-    // Cancel any pending search
-    if (pendingSearchRef.current) {
-      pendingSearchRef.current.abort();
-      pendingSearchRef.current = null;
-    }
-
-    if (value.length >= MIN_SEARCH_CHARS) {
-      setIsSearching(true);
-
-      const formData = new FormData();
-      formData.append("q", value);
-      submit(formData, { method: "get", replace: true });
-    } else if (value.length === 0 && searchQuery) {
-      clearSearch();
-    }
-  }, [submit, searchQuery, clearSearch]);
-
-  // Handle search input change with debounce
-  const handleSearchInputChange = useCallback(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    const value = searchInputRef.current?.value || "";
-
-    if (value.length === 0 && searchQuery) {
-      clearSearch();
-      return;
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      performSearch();
-    }, 1000);
-  }, [performSearch, searchQuery, clearSearch]);
-
-  // Reset loading state and initialize search input when query changes
-  useEffect(() => {
-    setIsSearching(false);
-
-    // Initialize search input from URL
-    if (searchInputRef.current) {
-      searchInputRef.current.value = searchQuery || "";
-    }
-
-    return () => {
-      // Clean up any pending searches and timeouts
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-      if (pendingSearchRef.current) {
-        pendingSearchRef.current.abort();
-        pendingSearchRef.current = null;
-      }
-    };
-  }, [searchQuery]);
 
   return (
     <div className="relative">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-white">Shows</h1>
-        <AdminOnly>
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/shows/new" className="flex items-center gap-1">
-              <Plus className="h-4 w-4" />
-              <span>New Show</span>
-            </Link>
-          </Button>
-        </AdminOnly>
-      </div>
-
       <div className="space-y-6 md:space-y-8">
         {/* Header Section */}
-        <div className="flex flex-col space-y-4">
+        <div className="flex justify-between items-start">
           <div className="flex flex-wrap items-baseline gap-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-white">Shows</h1>
-            {!searchQuery && <span className="text-content-text-secondary text-lg">{year}</span>}
+            <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Shows</h1>
+            {!searchQuery && <span className="text-content-text-secondary text-xl font-medium">{year}</span>}
             {searchQuery && (
-              <div className="flex items-center gap-2">
-                <span className="text-content-text-secondary text-lg">Search results for "{searchQuery}"</span>
-                <Button variant="outline" size="sm" onClick={clearSearch} disabled={isSearching}>
-                  Clear
-                </Button>
-              </div>
+              <span className="text-content-text-secondary text-lg">Search results for "{searchQuery}"</span>
             )}
           </div>
+          <AdminOnly>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/shows/new" className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                <span>New Show</span>
+              </Link>
+            </Button>
+          </AdminOnly>
         </div>
 
-        {/* Search */}
-        <div className="bg-content-bg rounded-lg border border-content-bg-secondary p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-content-text-tertiary" />
-            <input
-              ref={searchInputRef}
-              type="search"
-              placeholder="Search by venue, city, state, song (min 4 characters)..."
-              className="w-full pl-9 bg-transparent border border-content-bg-secondary focus:border-brand rounded-md text-white placeholder:text-content-text-tertiary text-sm h-9 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
-              onChange={handleSearchInputChange}
-            />
-            {searchInputRef.current?.value && (
-              <button
-                type="button"
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-content-text-tertiary hover:text-content-text-secondary transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-            {isSearching && searchInputRef.current?.value && (
-              <div className="absolute right-10 top-1/2 -translate-y-1/2">
-                <Loader2 className="h-4 w-4 animate-spin text-content-text-tertiary" />
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Navigation - Only show when not searching */}
         {!searchQuery && (
-          <div className="bg-content-bg rounded-lg border border-content-bg-secondary p-4">
+          <div className="bg-content-bg rounded-lg border border-content-bg-secondary overflow-hidden">
             {/* Year navigation */}
-            <div className="mb-6">
-              <h2 className="text-sm font-medium text-content-text-secondary mb-3">Filter by Year</h2>
-              <div className="flex flex-wrap gap-2">
+            <div className="p-6 border-b border-content-bg-secondary">
+              <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                Filter by Year
+                <span className="text-xs font-normal text-content-text-tertiary bg-content-bg-secondary px-2 py-1 rounded-full">
+                  {years.length} years
+                </span>
+              </h2>
+              <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2">
                 {years.map((y) => (
                   <Link
                     key={y}
                     to={`/shows?year=${y}`}
                     className={cn(
-                      "px-3 py-1 text-sm rounded-md transition-colors",
-                      y === year ? "bg-brand text-white" : "text-content-text-secondary hover:bg-accent/10 hover:text-white",
+                      "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 text-center relative overflow-hidden",
+                      y === year 
+                        ? "text-brand bg-brand/10 border border-brand/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-brand/20 before:to-transparent before:translate-x-[-100%] before:animate-pulse" 
+                        : "text-content-text-secondary bg-content-bg-secondary hover:bg-content-bg-tertiary hover:text-white"
                     )}
                   >
                     {y}
@@ -353,18 +239,23 @@ export default function Shows() {
             </div>
 
             {/* Month navigation */}
-            <div>
-              <h2 className="text-sm font-medium text-content-text-secondary mb-3">Jump to Month</h2>
-              <div className="flex flex-wrap gap-2">
+            <div className="p-6">
+              <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                Jump to Month
+                <span className="text-xs font-normal text-content-text-tertiary bg-content-bg-secondary px-2 py-1 rounded-full">
+                  {monthsWithShows.length} active
+                </span>
+              </h2>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
                 {months.map((month, index) => (
                   <a
                     key={month}
                     href={monthsWithShows.includes(index) ? `#month-${index}` : undefined}
                     className={cn(
-                      "px-3 py-1 text-sm rounded-md transition-colors",
+                      "px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 text-center",
                       monthsWithShows.includes(index)
-                        ? "text-content-text-secondary hover:bg-accent/10 hover:text-white cursor-pointer"
-                        : "text-content-text-tertiary cursor-not-allowed",
+                        ? "text-content-text-secondary bg-content-bg-secondary hover:bg-accent/20 hover:text-white cursor-pointer hover:scale-105"
+                        : "text-content-text-tertiary bg-transparent cursor-not-allowed opacity-40"
                     )}
                   >
                     {month}
@@ -376,21 +267,16 @@ export default function Shows() {
         )}
 
         {/* Results Section */}
-        <div className="relative min-h-[200px]">
-          {/* Search Results Count - Fade in/out */}
-          <div
-            className={cn(
-              "absolute w-full transition-opacity duration-200",
-              searchQuery && !isSearching ? "opacity-100" : "opacity-0",
-            )}
-          >
-            <div className="text-content-text-secondary mb-4">
+        <div className="space-y-4">
+          {/* Search Results Count */}
+          {searchQuery && (
+            <div className="text-content-text-secondary">
               Found {setlists.length} {setlists.length === 1 ? "show" : "shows"}
             </div>
-          </div>
+          )}
 
           {/* Results Content */}
-          <div className={cn("transition-all duration-300", isSearching ? "opacity-50" : "opacity-100")}>
+          <div>
             {/* Setlist cards */}
             <div className="space-y-8">
               {setlists.length === 0 ? (
@@ -408,10 +294,7 @@ export default function Shows() {
                       userAttendance={null}
                       userRating={null}
                       showRating={setlist.show.averageRating}
-                      className={cn(
-                        "transition-all duration-300 transform",
-                        isSearching ? "opacity-50 scale-[0.98] translate-y-2" : "opacity-100 scale-100 translate-y-0",
-                      )}
+                      className="transition-all duration-300 transform hover:scale-[1.01]"
                     />
                   ))}
                 </div>
@@ -440,18 +323,6 @@ export default function Shows() {
             </div>
           </div>
 
-          {/* Loading Overlay */}
-          <div
-            className={cn(
-              "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
-              isSearching ? "opacity-100" : "opacity-0 pointer-events-none",
-            )}
-          >
-            <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-content-bg/50 backdrop-blur-sm border border-content-bg-secondary">
-              <Loader2 className="h-5 w-5 animate-spin text-brand" />
-              <span className="text-content-text-primary">Searching...</span>
-            </div>
-          </div>
         </div>
       </div>
 

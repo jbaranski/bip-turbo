@@ -166,7 +166,7 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
                               )}
                             >
                               {track.allTimer && (
-                                <Flame className="h-4 w-4 text-chart-accent inline-block mr-1 transform -translate-y-0.5" />
+                                <Flame className="h-4 w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
                               )}
                               <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
                               {trackAnnotationMap.has(track.id) && (
