@@ -123,7 +123,7 @@ const Mixes: React.FC = () => {
     <div className="">
       <div className="space-y-6 md:space-y-8">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-content-text-primary">Running Mixes</h1>
+          <h1 className="page-heading">RUNNING MIXES</h1>
         </div>
 
         <Card title="About These Mixes">

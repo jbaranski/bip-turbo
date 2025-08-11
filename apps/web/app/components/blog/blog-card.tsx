@@ -1,8 +1,7 @@
 import type { BlogPostWithUser } from "@bip/domain";
 import Markdown from "react-markdown";
 import { Link } from "react-router-dom";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 
 interface BlogCardProps {
   blogPost: BlogPostWithUser;
@@ -32,48 +31,35 @@ export function BlogCard({ blogPost, compact = false }: BlogCardProps) {
   const coverImage = blogPost.coverImage || blogPost.imageUrls?.[0];
 
   return (
-    <Card
-      key={blogPost.id}
-      className="card-premium overflow-hidden flex flex-col h-full hover:border-brand-tertiary/60 transition-all duration-300"
-    >
-      {/* Card Header */}
-      <CardHeader className={compact ? "p-4 pb-2" : "pb-2"}>
-        <div className="flex justify-between items-start">
-          <div className="flex items-center text-md text-content-text-secondary">
-            <span>{formatDate(blogPost.publishedAt)}</span>
-          </div>
-          <div className="text-sm text-content-text-tertiary">
-            by @{blogPost.user.username}
-          </div>
-        </div>
-        <CardTitle className={`${compact ? "text-lg" : "text-xl"} mt-4 text-brand-primary`}>{blogPost.title}</CardTitle>
-        {coverImage && (
-          <div className="w-full my-3">
+    <Link to={`/blog/${blogPost.slug}`} className="block h-full no-underline">
+      <Card className="h-full card-premium hover:border-brand-primary/60 transition-all duration-300 overflow-hidden">
+        <div className={`relative ${compact ? "h-[300px]" : "h-[400px]"} overflow-hidden`}>
+          {coverImage ? (
             <img
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
               src={coverImage}
               alt={blogPost.title}
-              className={`w-full ${compact ? "h-32" : "h-40"} object-cover rounded-md`}
             />
-          </div>
-        )}
-      </CardHeader>
-
-      {/* Card Content */}
-      <CardContent className="flex-grow flex flex-col h-full">
-        <div className="flex-grow">
-          <div className="text-content-text-secondary text-sm">
-            <div className="line-clamp-5 prose prose-invert prose-sm">
-              <Markdown>{blogPost.blurb}</Markdown>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-brand-primary/20 via-brand-secondary/10 to-brand-tertiary/20" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          <div className="absolute top-4 left-4 right-4">
+            <div className="flex justify-between items-start text-white/80 text-sm">
+              <span>{formatDate(blogPost.publishedAt || blogPost.createdAt)}</span>
+              <span>by @{blogPost.user.username}</span>
             </div>
           </div>
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <h2 className={`${compact ? "text-xl" : "text-2xl"} font-bold mb-3 text-white`}>{blogPost.title}</h2>
+            {blogPost.blurb && (
+              <div className="text-sm text-white/90 line-clamp-4 prose prose-invert prose-sm">
+                <Markdown>{blogPost.blurb}</Markdown>
+              </div>
+            )}
+          </div>
         </div>
-
-        <Button variant="outline" size="sm" className="btn-secondary w-full mt-4">
-          <Link to={`/blog/${blogPost.slug}`} className="w-full">
-            Read More
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
+      </Card>
+    </Link>
   );
 }

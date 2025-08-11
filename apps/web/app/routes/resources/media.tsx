@@ -31,8 +31,8 @@ export default function MediaResources(): ReactElement {
   return (
     <div className="">
       <div className="space-y-6 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">News from Nowhere</h1>
+        <div>
+          <h1 className="page-heading">NEWS FROM NOWHERE</h1>
         </div>
 
         <div className="overflow-x-auto rounded-lg border border-content-bg-secondary glass-content">

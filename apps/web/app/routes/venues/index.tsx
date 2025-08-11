@@ -388,16 +388,18 @@ export default function VenuesPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Venues</h1>
-        <AdminOnly>
-          <Button asChild size="sm" className="btn-primary">
-            <Link to="/venues/new" className="flex items-center gap-1">
-              <Plus className="h-4 w-4" />
-              <span>Create Venue</span>
-            </Link>
-          </Button>
-        </AdminOnly>
+      <div className="relative">
+        <h1 className="page-heading">VENUES</h1>
+        <div className="absolute top-0 right-0">
+          <AdminOnly>
+            <Button asChild size="sm" className="btn-primary">
+              <Link to="/venues/new" className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                <span>Create Venue</span>
+              </Link>
+            </Button>
+          </AdminOnly>
+        </div>
       </div>
         {/* Stats Grid */}
         <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

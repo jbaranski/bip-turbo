@@ -781,6 +781,24 @@
     text-stroke: 1px hsl(var(--brand-primary));
   }
 
+  /* Main page heading class - consistent Tron-style centered headings */
+  .page-heading {
+    font-size: 2.25rem;
+    font-weight: 700;
+    font-family: 'Audiowide', monospace;
+    color: #000;
+    margin-bottom: 2rem;
+    text-align: center;
+    -webkit-text-stroke: 1px hsl(var(--brand-primary));
+    text-stroke: 1px hsl(var(--brand-primary));
+  }
+
+  @media (min-width: 768px) {
+    .page-heading {
+      font-size: 3rem;
+    }
+  }
+
   .tron-gradient-cyan {
     background: linear-gradient(135deg, #00ffff 0%, #0080ff 50%, #00ffff 100%);
     background-clip: text;

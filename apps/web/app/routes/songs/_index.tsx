@@ -182,16 +182,18 @@ export default function Songs() {
   return (
     <div className="">
       <div className="space-y-6 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Songs</h1>
-          <AdminOnly>
-            <Button asChild className="btn-primary">
-              <Link to="/songs/new" className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                New Song
-              </Link>
-            </Button>
-          </AdminOnly>
+        <div className="relative">
+          <h1 className="page-heading">SONGS</h1>
+          <div className="absolute top-0 right-0">
+            <AdminOnly>
+              <Button asChild className="btn-primary">
+                <Link to="/songs/new" className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  New Song
+                </Link>
+              </Button>
+            </AdminOnly>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

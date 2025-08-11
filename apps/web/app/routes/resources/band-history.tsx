@@ -48,8 +48,8 @@ const BandHistory: React.FC = () => {
   return (
     <div className="">
       <div className="space-y-6 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-content-text-primary">Band History</h1>
+        <div>
+          <h1 className="page-heading">BAND HISTORY</h1>
         </div>
 
         <div className="glass-content rounded-lg p-6">

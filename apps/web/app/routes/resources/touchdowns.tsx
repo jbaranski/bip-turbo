@@ -54,8 +54,8 @@ export default function Touchdowns() {
   return (
     <div className="">
       <div className="space-y-6 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-content-text-primary mb-6">Touchdowns All Day Podcast</h1>
+        <div>
+          <h1 className="page-heading">TOUCHDOWNS ALL DAY PODCAST</h1>
         </div>
         
         {/* Subtle back link */}

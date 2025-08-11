@@ -5,6 +5,12 @@ export default [
   // Root index route
   index("routes/_index.tsx"),
 
+  // Legal and info pages
+  route("about", "routes/about.tsx"),
+  route("terms", "routes/terms.tsx"),
+  route("privacy", "routes/privacy.tsx"),
+  route("community", "routes/community.tsx"),
+
   // add test-styles route
   route("test-styles", "routes/test-styles.tsx"),
 

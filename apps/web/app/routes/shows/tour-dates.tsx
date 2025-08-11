@@ -35,8 +35,8 @@ export default function TourDates() {
   return (
     <div className="">
       <div className="space-y-6 md:space-y-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Tour Dates</h1>
+        <div>
+          <h1 className="page-heading">TOUR DATES</h1>
         </div>
 
         <Card className="card-premium">

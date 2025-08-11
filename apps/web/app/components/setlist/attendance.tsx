@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import type { Attendance } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useRevalidator } from "react-router-dom";
+import { toast } from "sonner";
 
 interface AttendanceData {
   attendances: Attendance[];
@@ -14,14 +16,17 @@ interface Props {
 }
 
 export function AttendanceToggle({ showId, initialAttendance }: Props) {
-  console.log("AttendanceToggle", showId, initialAttendance);
+  console.log("AttendanceToggle render:", { showId, initialAttendance });
   const [isAttending, setIsAttending] = useState(!!initialAttendance);
   const [currentAttendance, setCurrentAttendance] = useState<Attendance | null>(initialAttendance);
   const queryClient = useQueryClient();
+  const revalidator = useRevalidator();
 
-  // Keep currentAttendance in sync with initialAttendance
+  // Keep currentAttendance and isAttending in sync with initialAttendance
   useEffect(() => {
+    console.log("useEffect triggered:", { initialAttendance });
     setCurrentAttendance(initialAttendance);
+    setIsAttending(!!initialAttendance);
   }, [initialAttendance]);
 
   const createMutation = useMutation({
@@ -44,8 +49,12 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
     onMutate: () => {
       // Optimistically update
       setIsAttending(true);
+      toast.loading("Marking attendance...");
     },
     onSuccess: (data) => {
+      console.log("Create success:", data);
+      toast.dismiss();
+      toast.success("Attendance marked! 🎵");
       setCurrentAttendance(data.attendance);
       setIsAttending(true);
       queryClient.setQueryData(["attendances", showId], (old: AttendanceData | undefined) => {
@@ -54,8 +63,14 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
           attendances: [...oldAttendances, data.attendance],
         };
       });
+      // Also invalidate any queries that might be loading this data
+      queryClient.invalidateQueries({ queryKey: ["shows"] });
+      // Force a revalidation of the current route data
+      revalidator.revalidate();
     },
-    onError: () => {
+    onError: (error) => {
+      toast.dismiss();
+      toast.error(`Failed to mark attendance: ${error.message}`);
       setIsAttending(false);
       setCurrentAttendance(null);
     },
@@ -87,10 +102,13 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
       // Optimistically update
       setIsAttending(false);
       setCurrentAttendance(null);
+      toast.loading("Removing attendance...");
       return { previousAttendance };
     },
     onError: (error, variables, context) => {
       console.error("Delete failed:", error);
+      toast.dismiss();
+      toast.error(`Failed to remove attendance: ${error.message}`);
       // Revert optimistic update
       if (context?.previousAttendance) {
         setCurrentAttendance(context.previousAttendance);
@@ -98,6 +116,9 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
       }
     },
     onSuccess: (result) => {
+      console.log("Delete success:", result);
+      toast.dismiss();
+      toast.success("Attendance removed");
       setIsAttending(false);
       setCurrentAttendance(null);
       queryClient.setQueryData(["attendances", showId], (old: AttendanceData | undefined) => {
@@ -106,6 +127,10 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
           attendances: oldAttendances.filter((a) => a.id !== result.deletedId),
         };
       });
+      // Also invalidate any queries that might be loading this data
+      queryClient.invalidateQueries({ queryKey: ["shows"] });
+      // Force a revalidation of the current route data
+      revalidator.revalidate();
     },
   });
 

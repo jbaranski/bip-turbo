@@ -34,7 +34,7 @@ const Perfume: React.FC = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-8  text-content-text-primary">The Perfume</h1>
+      <h1 className="page-heading">THE PERFUME</h1>
 
       <div className="glass-content rounded-lg shadow-md overflow-hidden mb-8 p-6">
         <p className="mb-6 text-content-text-secondary leading-relaxed">

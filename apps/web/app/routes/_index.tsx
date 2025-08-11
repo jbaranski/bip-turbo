@@ -34,7 +34,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const allTourDates = Array.isArray(await services.tourDatesService.getTourDates())
     ? await services.tourDatesService.getTourDates()
     : [];
-  
+
   // Limit to next 8 upcoming dates for home page
   const tourDates = allTourDates.slice(0, 8);
 
@@ -85,7 +85,9 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   // Fetch latest podcast episode
   let latestEpisode: AcastEpisode | null = null;
   try {
-    const response = await fetch("https://feeder.acast.com/api/v1/shows/d690923d-524e-5c8b-b29f-d66517615b5b?limit=1&from=0");
+    const response = await fetch(
+      "https://feeder.acast.com/api/v1/shows/d690923d-524e-5c8b-b29f-d66517615b5b?limit=1&from=0",
+    );
     const data = await response.json();
     latestEpisode = data.episodes?.[0] || null;
   } catch (error) {
@@ -148,7 +150,7 @@ export default function Index() {
         <div className="lg:col-span-4 order-2 lg:order-1">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Recent Shows</h2>
-            <Link to="/shows" className="flex items-center" style={{color: "hsl(var(--brand-tertiary))"}}>
+            <Link to="/shows" className="flex items-center" style={{ color: "hsl(var(--brand-tertiary))" }}>
               View all <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </div>
@@ -178,12 +180,16 @@ export default function Index() {
           {latestEpisode && (
             <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Latest Episode</h2>
-                <Link to="/resources/touchdowns" className="flex items-center" style={{color: "hsl(var(--brand-tertiary))"}}>
+                <h2 className="text-2xl font-bold">Touchdowns All Day Podcast</h2>
+                <Link
+                  to="/resources/touchdowns"
+                  className="flex items-center"
+                  style={{ color: "hsl(var(--brand-tertiary))" }}
+                >
                   View all <ArrowRight className="ml-1 h-4 w-4" />
                 </Link>
               </div>
-              
+
               <div className="card-premium rounded-lg overflow-hidden">
                 {latestEpisode.image && (
                   <div className="relative">
@@ -196,18 +202,23 @@ export default function Index() {
                 )}
 
                 <div className="p-6">
-                  <div 
+                  <div
                     className="text-content-text-secondary mb-4 line-clamp-3"
                     dangerouslySetInnerHTML={{ __html: latestEpisode.description }}
                   />
-                  
+
                   <div className="text-content-text-tertiary text-sm mb-6 space-y-1">
                     <div>Duration: {Math.floor(latestEpisode.duration / 60)} minutes</div>
-                    <div>Published: {latestEpisode.publishDate ? new Date(latestEpisode.publishDate).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    }) : 'Date unavailable'}</div>
+                    <div>
+                      Published:{" "}
+                      {latestEpisode.publishDate
+                        ? new Date(latestEpisode.publishDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })
+                        : "Date unavailable"}
+                    </div>
                   </div>
 
                   <div>
@@ -229,7 +240,11 @@ export default function Index() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Upcoming Tour Dates</h2>
-              <Link to="/shows/tour-dates" className="flex items-center" style={{color: "hsl(var(--brand-tertiary))"}}>
+              <Link
+                to="/shows/tour-dates"
+                className="flex items-center"
+                style={{ color: "hsl(var(--brand-tertiary))" }}
+              >
                 View more <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>
@@ -275,7 +290,7 @@ export default function Index() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold">Latest from the Blog</h2>
-              <Link to="/blog" className="flex items-center" style={{color: "hsl(var(--brand-primary))"}}>
+              <Link to="/blog" className="flex items-center" style={{ color: "hsl(var(--brand-primary))" }}>
                 View all <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </div>

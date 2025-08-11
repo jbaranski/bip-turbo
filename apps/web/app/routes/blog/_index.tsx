@@ -47,8 +47,11 @@ export default function BlogPosts() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Blog</h1>
+      <div>
+        <h1 className="page-heading">BLOG</h1>
+      </div>
+      
+      <div className="flex justify-end items-center">
         <AdminOnly>
           <Button asChild className="bg-brand hover:bg-hover-accent text-content-text-primary">
             <Link to="/blog/new" className="flex items-center gap-2">

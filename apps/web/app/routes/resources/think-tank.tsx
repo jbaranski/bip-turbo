@@ -78,7 +78,7 @@ export default function ThinkTank() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-content-text-primary mb-6">Think Tank Dubs</h1>
+      <h1 className="page-heading">THINK TANK DUBS</h1>
 
       <div className="glass-content rounded-lg shadow-md p-6 mb-8">
         <h2 className="text-2xl font-semibold text-brand-secondary mb-4">The Basement Sessions</h2>

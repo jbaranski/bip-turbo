@@ -6,6 +6,7 @@ import {
   FileText,
   Headphones,
   Home,
+  Mail,
   Menu,
   TrendingUp,
   UsersRound,
@@ -24,13 +25,13 @@ import { cn } from "~/lib/utils";
 
 const navigation = [
   { name: "shows", href: "/shows", icon: Headphones },
-  { name: "top rated", href: "/shows/top-rated", icon: TrendingUp },
   { name: "songs", href: "/songs", icon: Disc },
   { name: "venues", href: "/venues", icon: Building2 },
-  { name: "tour dates", href: "/shows/tour-dates", icon: CalendarDays },
-  { name: "resources", href: "/resources", icon: BookOpen },
   { name: "community", href: "/community", icon: UsersRound },
+  { name: "resources", href: "/resources", icon: BookOpen },
   { name: "blog", href: "/blog", icon: FileText },
+  { name: "top rated", href: "/shows/top-rated", icon: TrendingUp },
+  { name: "tour dates", href: "/shows/tour-dates", icon: CalendarDays },
 ];
 
 export function Header() {
@@ -62,7 +63,7 @@ export function Header() {
         {/* Desktop Navigation */}
         {!isMobile && (
           <nav className="hidden md:flex items-center space-x-2">
-            {navigation.slice(0, 6).map((item) => (
+            {navigation.slice(0, 7).map((item) => (
               <Link
                 key={item.href}
                 to={item.href}

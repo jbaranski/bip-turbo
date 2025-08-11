@@ -190,22 +190,24 @@ export default function Shows() {
     <div className="relative">
       <div className="space-y-6 md:space-y-8">
         {/* Header Section */}
-        <div className="flex justify-between items-start">
-          <div className="flex flex-wrap items-baseline gap-4">
-            <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">Shows</h1>
+        <div className="relative">
+          <h1 className="page-heading">SHOWS</h1>
+          <div className="absolute top-0 right-0">
+            <AdminOnly>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/shows/new" className="flex items-center gap-1">
+                  <Plus className="h-4 w-4" />
+                  <span>New Show</span>
+                </Link>
+              </Button>
+            </AdminOnly>
+          </div>
+          <div className="flex flex-wrap items-baseline justify-center gap-4 -mt-4">
             {!searchQuery && <span className="text-content-text-secondary text-xl font-medium">{year}</span>}
             {searchQuery && (
               <span className="text-content-text-secondary text-lg">Search results for "{searchQuery}"</span>
             )}
           </div>
-          <AdminOnly>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/shows/new" className="flex items-center gap-1">
-                <Plus className="h-4 w-4" />
-                <span>New Show</span>
-              </Link>
-            </Button>
-          </AdminOnly>
         </div>
 
 

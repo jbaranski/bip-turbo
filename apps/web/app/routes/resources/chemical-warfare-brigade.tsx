@@ -486,7 +486,7 @@ const ChemicalWarfareBrigade: React.FC = () => {
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-content-text-primary">The Chemical Warfare Brigade</h1>
+        <h1 className="page-heading">THE CHEMICAL WARFARE BRIGADE</h1>
       </div>
 
       <div className="space-y-6">

@@ -62,7 +62,10 @@ export const action = protectedAction(async ({ request, params, context }) => {
       }
 
       await services.attendances.delete(id);
-      return new Response(null, { status: 204 });
+      return new Response(JSON.stringify({ deletedId: id }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
       logger.error("Error deleting attendance:", error);
       return new Response(JSON.stringify({ error: "Failed to delete attendance" }), {
