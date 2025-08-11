@@ -1,8 +1,21 @@
-import type { Review, ReviewMinimal } from "@bip/domain";
+import type { Review, ReviewMinimal, Show, Venue } from "@bip/domain";
 import type { DbClient, DbReview, DbUser } from "../_shared/database/models";
 import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
 import { mapToUserMinimal } from "../users/user-repository";
+
+export interface ReviewWithShow extends Omit<Review, 'showId'> {
+  show: {
+    id: string;
+    slug: string;
+    date: string;
+    venue: {
+      name: string;
+      city: string | null;
+      state: string | null;
+    };
+  } | null;
+}
 
 export function mapReviewToDomainEntity(dbReview: DbReview): Review {
   const { createdAt, updatedAt, ...rest } = dbReview;
@@ -87,6 +100,48 @@ export class ReviewRepository {
     });
 
     return results.map((result: DbReview) => this.mapToDomainEntity(result));
+  }
+
+  async findByUserIdWithShow(userId: string, options?: QueryOptions<Review>): Promise<ReviewWithShow[]> {
+    const orderBy = options?.sort ? buildOrderByClause(options.sort) : [{ createdAt: "desc" }];
+    const skip =
+      options?.pagination?.page && options?.pagination?.limit
+        ? (options.pagination.page - 1) * options.pagination.limit
+        : undefined;
+    const take = options?.pagination?.limit;
+
+    const results = await this.db.review.findMany({
+      where: { userId },
+      orderBy,
+      skip,
+      take,
+      include: {
+        show: {
+          include: {
+            venue: true,
+          },
+        },
+      },
+    });
+
+    return results.map((result: any) => ({
+      id: result.id,
+      content: result.content,
+      status: result.status,
+      userId: result.userId,
+      createdAt: new Date(result.createdAt),
+      updatedAt: new Date(result.updatedAt),
+      show: result.show ? {
+        id: result.show.id,
+        slug: result.show.slug,
+        date: result.show.date,
+        venue: {
+          name: result.show.venue.name,
+          city: result.show.venue.city,
+          state: result.show.venue.state,
+        },
+      } : null,
+    }));
   }
 
   async findMany(options?: QueryOptions<Review>): Promise<Review[]> {

@@ -260,6 +260,7 @@ model Review {
   likesCount Int      @default(0) @map("likes_count")
   showId     String?  @map("show_id") @db.Uuid
   user       User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reviews_users_user_id")
+  show       Show?    @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reviews_shows_show_id")
 
   @@unique([showId, userId])
   @@index([likesCount])
@@ -328,6 +329,7 @@ model Show {
   reviewsCount      Int           @default(0) @map("reviews_count")
   attendances       Attendance[]
   favorites         Favorite[]
+  reviews           Review[]
   showPhotos        ShowPhoto[]
   showYoutubes      ShowYoutube[]
   band              Band?         @relation(fields: [bandId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_bands_band_id")

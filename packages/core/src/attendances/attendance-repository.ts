@@ -4,6 +4,19 @@ import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-
 import type { QueryOptions } from "../_shared/database/types";
 import { mapToUserMinimal } from "../users/user-repository";
 
+export interface AttendanceWithShow extends Attendance {
+  show: {
+    id: string;
+    slug: string | null;
+    date: string;
+    venue: {
+      name: string | null;
+      city: string | null;
+      state: string | null;
+    } | null;
+  };
+}
+
 export function mapAttendanceToDomainEntity(dbAttendance: DbAttendance): Attendance {
   const { createdAt, updatedAt, ...rest } = dbAttendance;
 
@@ -86,6 +99,47 @@ export class AttendanceRepository {
       },
     });
     return mapAttendanceToDomainEntity(result);
+  }
+
+  async findByUserIdWithShow(userId: string, options?: QueryOptions<Attendance>): Promise<AttendanceWithShow[]> {
+    const orderBy = options?.sort ? buildOrderByClause(options.sort) : [{ createdAt: "desc" }];
+    const skip =
+      options?.pagination?.page && options?.pagination?.limit
+        ? (options.pagination.page - 1) * options.pagination.limit
+        : undefined;
+    const take = options?.pagination?.limit;
+
+    const results = await this.db.attendance.findMany({
+      where: { userId },
+      orderBy,
+      skip,
+      take,
+      include: {
+        show: {
+          include: {
+            venue: true,
+          },
+        },
+      },
+    });
+
+    return results.map((result: any) => ({
+      id: result.id,
+      userId: result.userId,
+      showId: result.showId,
+      createdAt: new Date(result.createdAt),
+      updatedAt: new Date(result.updatedAt),
+      show: {
+        id: result.show.id,
+        slug: result.show.slug,
+        date: result.show.date,
+        venue: result.show.venue ? {
+          name: result.show.venue.name,
+          city: result.show.venue.city,
+          state: result.show.venue.state,
+        } : null,
+      },
+    }));
   }
 
   async delete(id: string): Promise<boolean> {

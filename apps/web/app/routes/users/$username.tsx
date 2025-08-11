@@ -45,32 +45,58 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
 
   // Get user's reviews with show data
-  const reviews = await services.reviews.findByUserId(user.id, {
+  const reviews = await services.reviews.findByUserIdWithShow(user.id, {
     sort: [{ field: "createdAt", direction: "desc" }],
-    pagination: { page: 1, limit: 10 },
   });
 
   // Get user's blog posts (simplified - we'll enhance this later)
   const blogPosts: any[] = []; // TODO: Implement blog post retrieval
 
-  // Get user's attendance count (simplified - we'll enhance this later)
-  const userAttendances: any[] = []; // TODO: Implement attendance retrieval
+  // Get user's attendances with show data
+  const userAttendances = await services.attendances.findByUserIdWithShow(user.id, {
+    sort: [{ field: "createdAt", direction: "desc" }],
+  });
+
+  // Get user's ratings with show and track data
+  const [showRatings, trackRatings] = await Promise.all([
+    services.ratings.findShowRatingsByUserId(user.id),
+    services.ratings.findTrackRatingsByUserId(user.id),
+  ]);
 
   const attendanceCount = userAttendances.length;
   const reviewCount = reviews.length;
+  const showRatingsCount = showRatings.length;
+  const trackRatingsCount = trackRatings.length;
 
   return {
     user,
     reviews,
     blogPosts,
+    userAttendances,
+    showRatings,
+    trackRatings,
     attendanceCount,
     reviewCount,
+    showRatingsCount,
+    trackRatingsCount,
     isOwnProfile: sessionUser?.id === user.id,
   };
 }
 
 export default function UserProfile() {
-  const { user, reviews, blogPosts, attendanceCount, reviewCount, isOwnProfile } = useLoaderData<typeof loader>();
+  const { 
+    user, 
+    reviews, 
+    blogPosts, 
+    userAttendances, 
+    showRatings, 
+    trackRatings,
+    attendanceCount, 
+    reviewCount, 
+    showRatingsCount,
+    trackRatingsCount,
+    isOwnProfile 
+  } = useLoaderData<typeof loader>();
 
   return (
     <div className="w-full space-y-6">
@@ -144,12 +170,20 @@ export default function UserProfile() {
           <TabsTrigger value="reviews" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
             Reviews ({reviewCount})
           </TabsTrigger>
-          <TabsTrigger value="blog" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
-            Blog Posts ({blogPosts.length})
+          <TabsTrigger value="show-ratings" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+            Show Ratings ({showRatingsCount})
+          </TabsTrigger>
+          <TabsTrigger value="track-ratings" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+            Song Version Ratings ({trackRatingsCount})
           </TabsTrigger>
           <TabsTrigger value="shows" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
             Shows Attended ({attendanceCount})
           </TabsTrigger>
+          {blogPosts.length > 0 && (
+            <TabsTrigger value="blog" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+              Blog Posts ({blogPosts.length})
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Reviews Tab */}
@@ -160,13 +194,31 @@ export default function UserProfile() {
                 <Card key={review.id} className="card-premium">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-lg text-brand-primary">
-                        Show Review
+                      <CardTitle className="text-lg">
+                        {review.show ? (
+                          <Link 
+                            to={`/shows/${review.show.slug}`}
+                            className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
+                          >
+                            {review.show.venue.name}
+                          </Link>
+                        ) : (
+                          <span className="text-brand-primary">Show Review</span>
+                        )}
                       </CardTitle>
                       <span className="text-sm text-content-text-tertiary">
                         {formatDateLong(review.createdAt.toISOString())}
                       </span>
                     </div>
+                    {review.show && (
+                      <div className="flex items-center gap-2 text-sm text-content-text-secondary mt-1">
+                        <CalendarDays className="w-4 h-4" />
+                        <span>{formatDateLong(review.show.date)}</span>
+                        {review.show.venue.city && review.show.venue.state && (
+                          <span>• {review.show.venue.city}, {review.show.venue.state}</span>
+                        )}
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent>
                     <div className="prose prose-invert max-w-none">
@@ -187,6 +239,137 @@ export default function UserProfile() {
                   {isOwnProfile 
                     ? "You haven't written any reviews yet. Check out some shows and share your thoughts!"
                     : `${user.username} hasn't written any reviews yet.`
+                  }
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Show Ratings Tab */}
+        <TabsContent value="show-ratings" className="space-y-4">
+          {showRatings.length > 0 ? (
+            <div className="space-y-4">
+              {showRatings.map((rating) => (
+                <Card key={rating.id} className="card-premium">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">
+                        {rating.show.slug ? (
+                          <Link 
+                            to={`/shows/${rating.show.slug}`}
+                            className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
+                          >
+                            {rating.show.venue?.name || "Unknown Venue"}
+                          </Link>
+                        ) : (
+                          <span className="text-brand-primary">
+                            {rating.show.venue?.name || "Unknown Venue"}
+                          </span>
+                        )}
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-rating-gold fill-rating-gold" />
+                          <span className="font-bold text-rating-gold">{rating.value}</span>
+                        </div>
+                        <span className="text-sm text-content-text-tertiary">
+                          {formatDateLong(rating.createdAt.toISOString())}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-content-text-secondary mt-1">
+                      <CalendarDays className="w-4 h-4" />
+                      <span>{formatDateLong(rating.show.date)}</span>
+                      {rating.show.venue?.city && rating.show.venue?.state && (
+                        <span>• {rating.show.venue.city}, {rating.show.venue.state}</span>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="card-premium">
+              <CardContent className="py-12 text-center">
+                <Star className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-content-text-primary mb-2">No Show Ratings Yet</h3>
+                <p className="text-content-text-secondary">
+                  {isOwnProfile 
+                    ? "You haven't rated any shows yet. Browse shows and share your thoughts!"
+                    : `${user.username} hasn't rated any shows yet.`
+                  }
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Song Version Ratings Tab */}
+        <TabsContent value="track-ratings" className="space-y-4">
+          {trackRatings.length > 0 ? (
+            <div className="space-y-4">
+              {trackRatings.map((rating) => (
+                <Card key={rating.id} className="card-premium">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">
+                        {rating.track.slug ? (
+                          <Link 
+                            to={`/tracks/${rating.track.slug}`}
+                            className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
+                          >
+                            {rating.track.song.title}
+                          </Link>
+                        ) : (
+                          <Link 
+                            to={`/songs/${rating.track.song.slug}`}
+                            className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
+                          >
+                            {rating.track.song.title}
+                          </Link>
+                        )}
+                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          <Star className="w-4 h-4 text-rating-gold fill-rating-gold" />
+                          <span className="font-bold text-rating-gold">{rating.value}</span>
+                        </div>
+                        <span className="text-sm text-content-text-tertiary">
+                          {formatDateLong(rating.createdAt.toISOString())}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-content-text-secondary mt-1">
+                      <span className="bg-content-bg px-2 py-1 rounded text-xs font-medium">
+                        Set {rating.track.set} • #{rating.track.position}
+                      </span>
+                      {rating.track.show.slug ? (
+                        <Link 
+                          to={`/shows/${rating.track.show.slug}`}
+                          className="hover:underline"
+                        >
+                          {rating.track.show.venue?.name || "Unknown Venue"} • {formatDateLong(rating.track.show.date)}
+                        </Link>
+                      ) : (
+                        <span>
+                          {rating.track.show.venue?.name || "Unknown Venue"} • {formatDateLong(rating.track.show.date)}
+                        </span>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="card-premium">
+              <CardContent className="py-12 text-center">
+                <Star className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-content-text-primary mb-2">No Song Version Ratings Yet</h3>
+                <p className="text-content-text-secondary">
+                  {isOwnProfile 
+                    ? "You haven't rated any song versions yet. Listen to shows and rate individual songs!"
+                    : `${user.username} hasn't rated any song versions yet.`
                   }
                 </p>
               </CardContent>
@@ -247,18 +430,41 @@ export default function UserProfile() {
 
         {/* Shows Attended Tab */}
         <TabsContent value="shows" className="space-y-4">
-          {attendanceCount > 0 ? (
-            <Card className="card-premium">
-              <CardContent className="py-12 text-center">
-                <CalendarDays className="w-12 h-12 text-brand-tertiary mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-content-text-primary mb-2">
-                  {attendanceCount} Shows Attended
-                </h3>
-                <p className="text-content-text-secondary">
-                  Detailed show attendance list coming soon!
-                </p>
-              </CardContent>
-            </Card>
+          {userAttendances.length > 0 ? (
+            <div className="space-y-4">
+              {userAttendances.map((attendance) => (
+                <Card key={attendance.id} className="card-premium">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg">
+                        {attendance.show.slug ? (
+                          <Link 
+                            to={`/shows/${attendance.show.slug}`}
+                            className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
+                          >
+                            {attendance.show.venue?.name || "Unknown Venue"}
+                          </Link>
+                        ) : (
+                          <span className="text-brand-primary">
+                            {attendance.show.venue?.name || "Unknown Venue"}
+                          </span>
+                        )}
+                      </CardTitle>
+                      <span className="text-sm text-content-text-tertiary">
+                        Marked {formatDateLong(attendance.createdAt.toISOString())}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-content-text-secondary mt-1">
+                      <CalendarDays className="w-4 h-4" />
+                      <span>{formatDateLong(attendance.show.date)}</span>
+                      {attendance.show.venue?.city && attendance.show.venue?.state && (
+                        <span>• {attendance.show.venue.city}, {attendance.show.venue.state}</span>
+                      )}
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
           ) : (
             <Card className="card-premium">
               <CardContent className="py-12 text-center">

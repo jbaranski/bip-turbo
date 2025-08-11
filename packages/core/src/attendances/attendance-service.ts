@@ -1,6 +1,6 @@
 import type { Attendance, AttendanceWithUser, Logger } from "@bip/domain";
 import type { QueryOptions } from "../_shared/database/types";
-import type { AttendanceRepository } from "./attendance-repository";
+import type { AttendanceRepository, AttendanceWithShow } from "./attendance-repository";
 
 export class AttendanceService {
   constructor(
@@ -18,6 +18,10 @@ export class AttendanceService {
 
   async findByUserId(userId: string, options?: QueryOptions<Attendance>) {
     return this.repository.findByUserId(userId, options);
+  }
+
+  async findByUserIdWithShow(userId: string, options?: QueryOptions<Attendance>): Promise<AttendanceWithShow[]> {
+    return this.repository.findByUserIdWithShow(userId, options);
   }
 
   async findByUserIdAndShowId(userId: string, showId: string) {

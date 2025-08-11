@@ -3,6 +3,14 @@ import type { DbClient, DbUser } from "../_shared/database/models";
 import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
 
+export interface UserStats {
+  user: User;
+  reviewCount: number;
+  attendanceCount: number;
+  ratingCount: number;
+  averageRating: number | null;
+}
+
 export function mapUserToDomainEntity(dbUser: DbUser): User {
   return {
     id: dbUser.id,
@@ -84,5 +92,110 @@ export class UserRepository {
     } catch (error) {
       return false;
     }
+  }
+
+  async getUserStats(userId?: string): Promise<UserStats[]> {
+    const whereClause = userId ? { id: userId } : {};
+    
+    const users = await this.db.user.findMany({
+      where: whereClause,
+      include: {
+        _count: {
+          select: {
+            reviews: {
+              where: {
+                status: "published", // Only count published reviews
+              },
+            },
+            attendances: true, // Attendances are binary, so all are valid
+            ratings: {
+              where: {
+                value: {
+                  gte: 1, // Only count ratings >= 1 (valid ratings)
+                  lte: 5, // Only count ratings <= 5 (valid ratings)
+                },
+              },
+            },
+          },
+        },
+        ratings: {
+          select: {
+            value: true,
+          },
+          where: {
+            value: {
+              gte: 1,
+              lte: 5,
+            },
+          },
+        },
+      },
+    });
+
+    return users.map((user) => {
+      const averageRating = user.ratings.length > 0
+        ? user.ratings.reduce((sum, rating) => sum + rating.value, 0) / user.ratings.length
+        : null;
+
+      return {
+        user: mapUserToDomainEntity(user),
+        reviewCount: user._count.reviews,
+        attendanceCount: user._count.attendances,
+        ratingCount: user._count.ratings,
+        averageRating,
+      };
+    });
+  }
+
+  async getTopUsersByMetric(metric: 'reviews' | 'attendance' | 'ratings', limit: number = 10): Promise<UserStats[]> {
+    const userStats = await this.getUserStats();
+    
+    const sortedStats = userStats.sort((a, b) => {
+      switch (metric) {
+        case 'reviews':
+          return b.reviewCount - a.reviewCount;
+        case 'attendance':
+          return b.attendanceCount - a.attendanceCount;
+        case 'ratings':
+          return b.ratingCount - a.ratingCount;
+        default:
+          return 0;
+      }
+    });
+
+    return sortedStats.slice(0, limit);
+  }
+
+  async getCommunityTotals(): Promise<{
+    totalUsers: number;
+    totalReviews: number;
+    totalAttendances: number;
+    totalRatings: number;
+  }> {
+    // Get total counts across all users with same filtering as user stats
+    const [totalUsers, totalReviews, totalAttendances, totalRatings] = await Promise.all([
+      this.db.user.count(),
+      this.db.review.count({
+        where: {
+          status: "published", // Only count published reviews
+        },
+      }),
+      this.db.attendance.count(),
+      this.db.rating.count({
+        where: {
+          value: {
+            gte: 1, // Only count valid ratings
+            lte: 5,
+          },
+        },
+      }),
+    ]);
+
+    return {
+      totalUsers,
+      totalReviews,
+      totalAttendances,
+      totalRatings,
+    };
   }
 }

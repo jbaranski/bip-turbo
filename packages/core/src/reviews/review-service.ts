@@ -1,6 +1,6 @@
 import type { Logger, Review, ReviewMinimal } from "@bip/domain";
 import type { QueryOptions } from "../_shared/database/types";
-import type { ReviewRepository } from "./review-repository";
+import type { ReviewRepository, ReviewWithShow } from "./review-repository";
 
 export class ReviewService {
   constructor(
@@ -18,6 +18,10 @@ export class ReviewService {
 
   async findByUserId(userId: string, options?: QueryOptions<Review>) {
     return this.repository.findByUserId(userId, options);
+  }
+
+  async findByUserIdWithShow(userId: string, options?: QueryOptions<Review>) {
+    return this.repository.findByUserIdWithShow(userId, options);
   }
 
   async findMany(options?: QueryOptions<Review>) {

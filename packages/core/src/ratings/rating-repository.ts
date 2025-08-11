@@ -1,6 +1,43 @@
 import type { Rating } from "@bip/domain";
 import type { DbClient, DbRating } from "../_shared/database/models";
 
+export interface RatingWithShow extends Rating {
+  show: {
+    id: string;
+    slug: string | null;
+    date: string;
+    venue: {
+      name: string | null;
+      city: string | null;
+      state: string | null;
+    } | null;
+  };
+}
+
+export interface RatingWithTrack extends Rating {
+  track: {
+    id: string;
+    slug: string | null;
+    position: number;
+    set: string;
+    show: {
+      id: string;
+      slug: string | null;
+      date: string;
+      venue: {
+        name: string | null;
+        city: string | null;
+        state: string | null;
+      } | null;
+    };
+    song: {
+      id: string;
+      slug: string;
+      title: string;
+    };
+  };
+}
+
 export function mapRatingToDomainEntity(dbRating: DbRating): Rating {
   return {
     id: dbRating.id,
@@ -81,5 +118,101 @@ export class RatingRepository {
     });
 
     return result ? mapRatingToDomainEntity(result) : null;
+  }
+
+  async findShowRatingsByUserId(userId: string): Promise<RatingWithShow[]> {
+    const results = await this.db.rating.findMany({
+      where: { 
+        userId, 
+        rateableType: 'Show',
+        value: { gte: 1, lte: 5 } // Only valid ratings
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Get show data for all ratings
+    const showIds = results.map(r => r.rateableId);
+    const shows = await this.db.show.findMany({
+      where: { id: { in: showIds } },
+      include: { venue: true },
+    });
+
+    const showMap = new Map(shows.map(show => [show.id, show]));
+
+    return results
+      .map(rating => {
+        const show = showMap.get(rating.rateableId);
+        if (!show) return null;
+
+        return {
+          ...mapRatingToDomainEntity(rating),
+          show: {
+            id: show.id,
+            slug: show.slug,
+            date: show.date,
+            venue: show.venue ? {
+              name: show.venue.name,
+              city: show.venue.city,
+              state: show.venue.state,
+            } : null,
+          },
+        };
+      })
+      .filter((rating): rating is RatingWithShow => rating !== null);
+  }
+
+  async findTrackRatingsByUserId(userId: string): Promise<RatingWithTrack[]> {
+    const results = await this.db.rating.findMany({
+      where: { 
+        userId, 
+        rateableType: 'Track',
+        value: { gte: 1, lte: 5 } // Only valid ratings
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Get track data with show and song info
+    const trackIds = results.map(r => r.rateableId);
+    const tracks = await this.db.track.findMany({
+      where: { id: { in: trackIds } },
+      include: {
+        show: { include: { venue: true } },
+        song: true,
+      },
+    });
+
+    const trackMap = new Map(tracks.map(track => [track.id, track]));
+
+    return results
+      .map(rating => {
+        const track = trackMap.get(rating.rateableId);
+        if (!track) return null;
+
+        return {
+          ...mapRatingToDomainEntity(rating),
+          track: {
+            id: track.id,
+            slug: track.slug,
+            position: track.position,
+            set: track.set,
+            show: {
+              id: track.show.id,
+              slug: track.show.slug,
+              date: track.show.date,
+              venue: track.show.venue ? {
+                name: track.show.venue.name,
+                city: track.show.venue.city,
+                state: track.show.venue.state,
+              } : null,
+            },
+            song: {
+              id: track.song.id,
+              slug: track.song.slug,
+              title: track.song.title,
+            },
+          },
+        };
+      })
+      .filter((rating): rating is RatingWithTrack => rating !== null);
   }
 }

@@ -1,5 +1,5 @@
 import type { Logger } from "@bip/domain";
-import type { RatingRepository } from "./rating-repository";
+import type { RatingRepository, RatingWithShow, RatingWithTrack } from "./rating-repository";
 
 export class RatingService {
   constructor(
@@ -21,5 +21,13 @@ export class RatingService {
 
   async getByRateableIdAndUserId(rateableId: string, rateableType: string, userId: string) {
     return this.repository.getByRateableIdAndUserId(rateableId, rateableType, userId);
+  }
+
+  async findShowRatingsByUserId(userId: string): Promise<RatingWithShow[]> {
+    return this.repository.findShowRatingsByUserId(userId);
+  }
+
+  async findTrackRatingsByUserId(userId: string): Promise<RatingWithTrack[]> {
+    return this.repository.findTrackRatingsByUserId(userId);
   }
 }
