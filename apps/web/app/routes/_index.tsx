@@ -1,4 +1,4 @@
-import type { Attendance, BlogPost, Rating, Setlist, TourDate } from "@bip/domain";
+import type { Attendance, BlogPostWithUser, Rating, Setlist, TourDate } from "@bip/domain";
 import { ArrowRight, Calendar, FileText, MapPin, Music, Search } from "lucide-react";
 import { Link, redirect } from "react-router-dom";
 import { BlogCard } from "~/components/blog/blog-card";
@@ -22,7 +22,7 @@ interface AcastEpisode {
 interface LoaderData {
   tourDates: TourDate[];
   recentShows: Setlist[];
-  recentBlogPosts: Array<BlogPost & { coverImage?: string }>;
+  recentBlogPosts: Array<BlogPostWithUser>;
   attendancesByShowId: Record<string, Attendance>;
   ratingsByShowId: Record<string, Rating>;
   latestEpisode: AcastEpisode | null;
@@ -45,7 +45,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   });
 
   // Get recent blog posts (last 5)
-  const recentBlogPosts = await services.blogPosts.findMany({
+  const recentBlogPosts = await services.blogPosts.findManyWithUser({
     pagination: { limit: 5 },
     sort: [{ field: "createdAt", direction: "desc" }],
     filters: [
@@ -53,18 +53,6 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
       { field: "publishedAt", operator: "lte", value: new Date() },
     ],
   });
-
-  // Fetch cover images for all blog posts
-  const recentBlogPostsWithCoverImages = await Promise.all(
-    recentBlogPosts.map(async (blogPost) => {
-      const files = await services.files.findByBlogPostId(blogPost.id);
-      const coverImage = files.find((file) => file.isCover)?.url;
-      return {
-        ...blogPost,
-        coverImage,
-      };
-    }),
-  );
 
   const attendances = currentUser
     ? await services.attendances.findManyByUserIdAndShowIds(
@@ -107,7 +95,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   return {
     tourDates,
     recentShows,
-    recentBlogPosts: recentBlogPostsWithCoverImages,
+    recentBlogPosts,
     attendancesByShowId,
     ratingsByShowId,
     latestEpisode,
@@ -138,8 +126,8 @@ export default function Index() {
     <div className="w-full p-0">
       {/* Hero section */}
       <div className="py-2 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-tertiary bg-clip-text text-transparent font-header">
-          Biscuits Internet Project 3.0
+        <h1 className="text-4xl md:text-6xl font-bold font-tron-audiowide tron-outline-brand text-black mb-6">
+          BISCUITS INTERNET PROJECT 3.0
         </h1>
         <p className="text-xl text-content-text-secondary mb-8">
           Your ultimate resource for the Disco Biscuits - shows, setlists, stats, and more.
