@@ -13,14 +13,7 @@ interface SortableTrackItemProps {
 }
 
 export function SortableTrackItem({ track, onEdit, onDelete, isDeleting }: SortableTrackItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: track.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: track.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -33,7 +26,7 @@ export function SortableTrackItem({ track, onEdit, onDelete, isDeleting }: Sorta
       style={style}
       className={cn(
         "flex items-center justify-between p-3 bg-content-bg-secondary/50 rounded-lg border border-content-bg-secondary transition-all",
-        isDragging && "opacity-50 shadow-lg z-50"
+        isDragging && "opacity-50 shadow-lg z-50",
       )}
     >
       <div className="flex items-center space-x-4">
@@ -47,28 +40,16 @@ export function SortableTrackItem({ track, onEdit, onDelete, isDeleting }: Sorta
         </button>
 
         {/* Position Number - now just for display */}
-        <span className="text-content-text-secondary font-mono text-sm w-8">
-          {track.position}
-        </span>
+        <span className="text-content-text-secondary font-mono text-sm w-8">{track.position}</span>
 
         {/* Song Title */}
-        <span className="text-white font-medium">
-          {track.song?.title || "Unknown Song"}
-        </span>
+        <span className="text-white font-medium">{track.song?.title || "Unknown Song"}</span>
 
         {/* Segue */}
-        {track.segue && (
-          <span className="text-content-text-secondary text-sm">
-            {track.segue}
-          </span>
-        )}
+        {track.segue && <span className="text-content-text-secondary text-sm">{track.segue}</span>}
 
         {/* Notes */}
-        {track.note && (
-          <span className="text-content-text-secondary text-sm italic">
-            ({track.note})
-          </span>
-        )}
+        {track.note && <span className="text-content-text-secondary text-sm italic">({track.note})</span>}
       </div>
 
       {/* Action Buttons */}

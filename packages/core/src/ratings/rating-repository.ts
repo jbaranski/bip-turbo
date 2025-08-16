@@ -122,25 +122,25 @@ export class RatingRepository {
 
   async findShowRatingsByUserId(userId: string): Promise<RatingWithShow[]> {
     const results = await this.db.rating.findMany({
-      where: { 
-        userId, 
-        rateableType: 'Show',
-        value: { gte: 1, lte: 5 } // Only valid ratings
+      where: {
+        userId,
+        rateableType: "Show",
+        value: { gte: 1, lte: 5 }, // Only valid ratings
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     // Get show data for all ratings
-    const showIds = results.map(r => r.rateableId);
+    const showIds = results.map((r) => r.rateableId);
     const shows = await this.db.show.findMany({
       where: { id: { in: showIds } },
       include: { venue: true },
     });
 
-    const showMap = new Map(shows.map(show => [show.id, show]));
+    const showMap = new Map(shows.map((show) => [show.id, show]));
 
     return results
-      .map(rating => {
+      .map((rating) => {
         const show = showMap.get(rating.rateableId);
         if (!show) return null;
 
@@ -150,11 +150,13 @@ export class RatingRepository {
             id: show.id,
             slug: show.slug,
             date: show.date,
-            venue: show.venue ? {
-              name: show.venue.name,
-              city: show.venue.city,
-              state: show.venue.state,
-            } : null,
+            venue: show.venue
+              ? {
+                  name: show.venue.name,
+                  city: show.venue.city,
+                  state: show.venue.state,
+                }
+              : null,
           },
         };
       })
@@ -163,16 +165,16 @@ export class RatingRepository {
 
   async findTrackRatingsByUserId(userId: string): Promise<RatingWithTrack[]> {
     const results = await this.db.rating.findMany({
-      where: { 
-        userId, 
-        rateableType: 'Track',
-        value: { gte: 1, lte: 5 } // Only valid ratings
+      where: {
+        userId,
+        rateableType: "Track",
+        value: { gte: 1, lte: 5 }, // Only valid ratings
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     // Get track data with show and song info
-    const trackIds = results.map(r => r.rateableId);
+    const trackIds = results.map((r) => r.rateableId);
     const tracks = await this.db.track.findMany({
       where: { id: { in: trackIds } },
       include: {
@@ -181,10 +183,10 @@ export class RatingRepository {
       },
     });
 
-    const trackMap = new Map(tracks.map(track => [track.id, track]));
+    const trackMap = new Map(tracks.map((track) => [track.id, track]));
 
     return results
-      .map(rating => {
+      .map((rating) => {
         const track = trackMap.get(rating.rateableId);
         if (!track) return null;
 
@@ -199,11 +201,13 @@ export class RatingRepository {
               id: track.show.id,
               slug: track.show.slug,
               date: track.show.date,
-              venue: track.show.venue ? {
-                name: track.show.venue.name,
-                city: track.show.venue.city,
-                state: track.show.venue.state,
-              } : null,
+              venue: track.show.venue
+                ? {
+                    name: track.show.venue.name,
+                    city: track.show.venue.city,
+                    state: track.show.venue.state,
+                  }
+                : null,
             },
             song: {
               id: track.song.id,

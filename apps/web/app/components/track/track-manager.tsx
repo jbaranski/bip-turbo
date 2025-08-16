@@ -1,7 +1,15 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, Save, Trash, X, Edit2, Check } from "lucide-react";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import type { Track } from "@bip/domain";
@@ -26,7 +34,7 @@ interface TrackFormData {
   position: number;
   segue: string;
   note: string | null;
-  song?: Track['song'];
+  song?: Track["song"];
 }
 
 const SET_OPTIONS = [
@@ -58,10 +66,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
   const queryClient = useQueryClient();
 
   // Set up drag and drop sensors
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor)
-  );
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
   // Load tracks when component mounts
   useEffect(() => {
@@ -100,10 +105,12 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       return response.json();
     },
     onSuccess: (newTrack) => {
-      setTracks(prev => [...prev, newTrack].sort((a, b) => {
-        if (a.set !== b.set) return sortSets(a.set, b.set);
-        return a.position - b.position;
-      }));
+      setTracks((prev) =>
+        [...prev, newTrack].sort((a, b) => {
+          if (a.set !== b.set) return sortSets(a.set, b.set);
+          return a.position - b.position;
+        }),
+      );
       setIsAddingNew(false);
       resetForm();
       toast.success("Track added successfully");
@@ -127,12 +134,14 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       return response.json();
     },
     onSuccess: (updatedTrack) => {
-      setTracks(prev => prev.map(track => 
-        track.id === updatedTrack.id ? updatedTrack : track
-      ).sort((a, b) => {
-        if (a.set !== b.set) return sortSets(a.set, b.set);
-        return a.position - b.position;
-      }));
+      setTracks((prev) =>
+        prev
+          .map((track) => (track.id === updatedTrack.id ? updatedTrack : track))
+          .sort((a, b) => {
+            if (a.set !== b.set) return sortSets(a.set, b.set);
+            return a.position - b.position;
+          }),
+      );
       setEditingId(null);
       resetForm();
       toast.success("Track updated successfully");
@@ -149,7 +158,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       if (!response.ok) throw new Error("Failed to delete track");
     },
     onSuccess: (_, deletedId) => {
-      setTracks(prev => prev.filter(track => track.id !== deletedId));
+      setTracks((prev) => prev.filter((track) => track.id !== deletedId));
       toast.success("Track deleted successfully");
     },
     onError: () => toast.error("Failed to delete track"),
@@ -168,14 +177,16 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
     },
     onSuccess: (updatedTracks) => {
       // Update local state with new positions, preserving song data
-      setTracks(prev => prev.map(track => {
-        const updated = updatedTracks.find((t: Track) => t.id === track.id);
-        if (updated) {
-          // Merge updated track data with original track's song data
-          return { ...track, ...updated };
-        }
-        return track;
-      }));
+      setTracks((prev) =>
+        prev.map((track) => {
+          const updated = updatedTracks.find((t: Track) => t.id === track.id);
+          if (updated) {
+            // Merge updated track data with original track's song data
+            return { ...track, ...updated };
+          }
+          return track;
+        }),
+      );
       toast.success("Track order updated");
     },
     onError: () => toast.error("Failed to reorder tracks"),
@@ -184,11 +195,11 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
   // Helper function to sort sets properly (S1, S2, S3, E1, E2, E3)
   const sortSets = (a: string, b: string) => {
     const setOrder = { S: 0, E: 1 };
-    const aType = a.charAt(0) as 'S' | 'E';
-    const bType = b.charAt(0) as 'S' | 'E';
+    const aType = a.charAt(0) as "S" | "E";
+    const bType = b.charAt(0) as "S" | "E";
     const aNum = parseInt(a.slice(1));
     const bNum = parseInt(b.slice(1));
-    
+
     if (aType !== bType) {
       return setOrder[aType] - setOrder[bType];
     }
@@ -255,8 +266,8 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       return;
     }
 
-    const activeTrack = tracks.find(track => track.id === active.id);
-    const overTrack = tracks.find(track => track.id === over.id);
+    const activeTrack = tracks.find((track) => track.id === active.id);
+    const overTrack = tracks.find((track) => track.id === over.id);
 
     if (!activeTrack || !overTrack) {
       return;
@@ -268,14 +279,14 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       return;
     }
 
-    const currentSetTracks = tracks.filter(track => track.set === activeTrack.set);
-    const oldIndex = currentSetTracks.findIndex(track => track.id === active.id);
-    const newIndex = currentSetTracks.findIndex(track => track.id === over.id);
+    const currentSetTracks = tracks.filter((track) => track.set === activeTrack.set);
+    const oldIndex = currentSetTracks.findIndex((track) => track.id === active.id);
+    const newIndex = currentSetTracks.findIndex((track) => track.id === over.id);
 
     if (oldIndex !== newIndex) {
       // Reorder tracks within the set
       const reorderedSetTracks = arrayMove(currentSetTracks, oldIndex, newIndex);
-      
+
       // Update positions
       const updates = reorderedSetTracks.map((track, index) => ({
         id: track.id,
@@ -284,30 +295,33 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       }));
 
       // Optimistically update local state
-      const updatedTracks = tracks.map(track => {
-        const update = updates.find(u => u.id === track.id);
+      const updatedTracks = tracks.map((track) => {
+        const update = updates.find((u) => u.id === track.id);
         return update ? { ...track, position: update.position } : track;
       });
 
       setTracks(updatedTracks);
-      
+
       // Send updates to server
       reorderTracksMutation.mutate(updates);
     }
   };
 
   // Group tracks by set
-  const tracksBySet = tracks.reduce((acc, track) => {
-    if (!acc[track.set]) acc[track.set] = [];
-    acc[track.set].push(track);
-    return acc;
-  }, {} as Record<string, Track[]>);
+  const tracksBySet = tracks.reduce(
+    (acc, track) => {
+      if (!acc[track.set]) acc[track.set] = [];
+      acc[track.set].push(track);
+      return acc;
+    },
+    {} as Record<string, Track[]>,
+  );
 
   const renderTrackForm = () => {
     // Auto-calculate position for new tracks
-    const nextPosition = editingId 
-      ? formData.position 
-      : Math.max(0, ...tracks.filter(t => t.set === formData.set).map(t => t.position)) + 1;
+    const nextPosition = editingId
+      ? formData.position
+      : Math.max(0, ...tracks.filter((t) => t.set === formData.set).map((t) => t.position)) + 1;
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-content-bg/50 rounded-lg border border-content-bg-secondary">
@@ -315,24 +329,21 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
           <label className="block text-sm font-medium text-content-text-secondary mb-1">Song</label>
           <SongSearch
             value={formData.songId}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, songId: value }))}
+            onValueChange={(value) => setFormData((prev) => ({ ...prev, songId: value }))}
             placeholder="Select a song..."
             className="w-full"
             initialSong={formData.song}
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-content-text-secondary mb-1">Set</label>
-          <Select 
-            value={formData.set} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, set: value }))}
-          >
+          <Select value={formData.set} onValueChange={(value) => setFormData((prev) => ({ ...prev, set: value }))}>
             <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-content-bg-secondary border-content-bg-secondary">
-              {SET_OPTIONS.map(option => (
+              {SET_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value} className="text-content-text-primary">
                   {option.label}
                 </SelectItem>
@@ -343,15 +354,12 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
 
         <div>
           <label className="block text-sm font-medium text-content-text-secondary mb-1">Segue</label>
-          <Select 
-            value={formData.segue} 
-            onValueChange={(value) => setFormData(prev => ({ ...prev, segue: value }))}
-          >
+          <Select value={formData.segue} onValueChange={(value) => setFormData((prev) => ({ ...prev, segue: value }))}>
             <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-content-bg-secondary border-content-bg-secondary">
-              {SEGUE_OPTIONS.map(option => (
+              {SEGUE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value} className="text-content-text-primary">
                   {option.label}
                 </SelectItem>
@@ -396,16 +404,16 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {isAddingNew && renderTrackForm()}
-        
+
         {Object.keys(tracksBySet).length === 0 ? (
           <div className="text-center py-8 text-content-text-tertiary">
             No tracks added yet. Click "Add Track" to get started.
           </div>
         ) : (
-          <DndContext 
+          <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleDragEnd}
@@ -415,14 +423,14 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
               .sort(([a], [b]) => sortSets(a, b))
               .map(([setName, setTracks]) => {
                 const sortedTracks = setTracks.sort((a, b) => a.position - b.position);
-                const trackIds = sortedTracks.map(track => track.id);
-                
+                const trackIds = sortedTracks.map((track) => track.id);
+
                 return (
                   <div key={setName} className="space-y-2">
                     <h3 className="text-lg font-medium text-brand-secondary border-b border-content-bg-secondary pb-1">
-                      {SET_OPTIONS.find(opt => opt.value === setName)?.label || setName}
+                      {SET_OPTIONS.find((opt) => opt.value === setName)?.label || setName}
                     </h3>
-                    
+
                     <SortableContext items={trackIds} strategy={verticalListSortingStrategy}>
                       <div className="space-y-2">
                         {sortedTracks.map((track) => (

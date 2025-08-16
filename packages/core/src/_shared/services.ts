@@ -40,12 +40,12 @@ export interface Services {
 export function createServices(container: ServiceContainer): Services {
   // Create embedding service
   const embeddingService = new EmbeddingService(container.logger);
-  
+
   // Create search index service with embedding service
   const searchIndexService = new SearchIndexService(
     container.repositories.searchIndex,
     embeddingService,
-    container.logger
+    container.logger,
   );
 
   // Initialize the SearchIndexer with the SearchIndexService

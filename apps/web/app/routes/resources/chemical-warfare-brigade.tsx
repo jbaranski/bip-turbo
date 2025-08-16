@@ -498,7 +498,10 @@ const ChemicalWarfareBrigade: React.FC = () => {
             <p>
               The Chemical Warfare Brigade is the Disco Biscuits' second full-length rock opera, written by Marc
               Brownstein, and debuted on{" "}
-              <Link to="/shows/2000-12-30-vanderbilt-plainview-ny" className="text-brand-primary hover:text-brand-secondary">
+              <Link
+                to="/shows/2000-12-30-vanderbilt-plainview-ny"
+                className="text-brand-primary hover:text-brand-secondary"
+              >
                 12/30/00
               </Link>{" "}
               at the Vanderbilt on Long Island.

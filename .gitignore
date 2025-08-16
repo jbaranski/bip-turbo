@@ -7,3 +7,4 @@ dist
 build
 .coverage
 .next
+data-migrations

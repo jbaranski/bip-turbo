@@ -13,7 +13,7 @@ export class EmbeddingService {
 
   constructor(
     private readonly logger: Logger,
-    apiKey?: string
+    apiKey?: string,
   ) {
     this.openai = new OpenAI({
       apiKey: apiKey || process.env.OPENAI_API_KEY,
@@ -26,7 +26,7 @@ export class EmbeddingService {
   async generateEmbedding(text: string): Promise<EmbeddingResult> {
     try {
       this.logger.info(`Generating embedding for text (${text.length} chars)`);
-      
+
       const response = await this.openai.embeddings.create({
         model: this.model,
         input: text,
@@ -43,8 +43,10 @@ export class EmbeddingService {
         tokens,
       };
     } catch (error) {
-      this.logger.error(`Failed to generate embedding for text (${text.length} chars): ${error instanceof Error ? error.message : 'Unknown error'}`);
-      throw new Error(`Embedding generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to generate embedding for text (${text.length} chars): ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+      throw new Error(`Embedding generation failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
@@ -63,7 +65,7 @@ export class EmbeddingService {
 
     try {
       this.logger.info(`Generating embeddings for ${texts.length} texts`);
-      
+
       const response = await this.openai.embeddings.create({
         model: this.model,
         input: texts,
@@ -78,8 +80,10 @@ export class EmbeddingService {
         tokens: totalTokens / texts.length, // Approximate tokens per embedding
       }));
     } catch (error) {
-      this.logger.error(`Failed to generate batch embeddings for ${texts.length} texts: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      throw new Error(`Batch embedding generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to generate batch embeddings for ${texts.length} texts: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+      throw new Error(`Batch embedding generation failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
@@ -87,26 +91,26 @@ export class EmbeddingService {
    * Process large batches of texts by chunking them into smaller batches
    */
   async generateEmbeddingsInBatches(
-    texts: string[], 
+    texts: string[],
     batchSize: number = 100,
-    delayMs: number = 100
+    delayMs: number = 100,
   ): Promise<EmbeddingResult[]> {
     const results: EmbeddingResult[] = [];
-    
+
     for (let i = 0; i < texts.length; i += batchSize) {
       const batch = texts.slice(i, i + batchSize);
-      
+
       this.logger.info(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(texts.length / batchSize)}`);
-      
+
       const batchResults = await this.generateEmbeddings(batch);
       results.push(...batchResults);
-      
+
       // Add delay between batches to respect rate limits
       if (i + batchSize < texts.length && delayMs > 0) {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
-    
+
     return results;
   }
 
@@ -118,7 +122,7 @@ export class EmbeddingService {
     // Rough estimation: ~4 characters per token
     const estimatedTokens = texts.reduce((sum, text) => sum + Math.ceil(text.length / 4), 0);
     const estimatedCostUSD = (estimatedTokens / 1000) * 0.00002;
-    
+
     return {
       estimatedTokens,
       estimatedCostUSD,

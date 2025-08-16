@@ -122,7 +122,10 @@ function YearlyTrendingSongs() {
         <CardContent className="p-4">
           <div className="divide-y divide-glass-border/30">
             {yearlyTrendingSongs.map((song: TrendingSong, index: number) => (
-              <div key={song.id} className="py-2 flex items-center justify-between hover:bg-hover-glass transition-colors">
+              <div
+                key={song.id}
+                className="py-2 flex items-center justify-between hover:bg-hover-glass transition-colors"
+              >
                 <div className="flex items-center gap-3">
                   <span className="text-content-text-secondary font-medium w-5">{index + 1}</span>
                   <Link to={`/songs/${song.slug}`} className="text-brand-primary hover:text-brand-secondary">
@@ -215,7 +218,9 @@ export default function Songs() {
         <SearchForm onSearch={handleSearch} />
 
         {filteredSongs.length === 0 ? (
-          <p className="text-content-text-secondary">{searchQuery ? `No songs found matching "${searchQuery}"` : "No songs found"}</p>
+          <p className="text-content-text-secondary">
+            {searchQuery ? `No songs found matching "${searchQuery}"` : "No songs found"}
+          </p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

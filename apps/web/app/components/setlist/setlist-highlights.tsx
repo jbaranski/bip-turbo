@@ -77,7 +77,9 @@ export function SetlistHighlights({ setlist }: SetlistHighlightsProps) {
                       >
                         {track.song?.title}
                       </Link>
-                      <p className="text-sm text-content-text-tertiary mt-1 pl-1 border-l-2 border-glass-border ml-1">{track.note}</p>
+                      <p className="text-sm text-content-text-tertiary mt-1 pl-1 border-l-2 border-glass-border ml-1">
+                        {track.note}
+                      </p>
                     </div>
                   </div>
                 </li>

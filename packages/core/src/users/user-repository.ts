@@ -96,7 +96,7 @@ export class UserRepository {
 
   async getUserStats(userId?: string): Promise<UserStats[]> {
     const whereClause = userId ? { id: userId } : {};
-    
+
     const users = await this.db.user.findMany({
       where: whereClause,
       include: {
@@ -133,9 +133,10 @@ export class UserRepository {
     });
 
     return users.map((user) => {
-      const averageRating = user.ratings.length > 0
-        ? user.ratings.reduce((sum, rating) => sum + rating.value, 0) / user.ratings.length
-        : null;
+      const averageRating =
+        user.ratings.length > 0
+          ? user.ratings.reduce((sum, rating) => sum + rating.value, 0) / user.ratings.length
+          : null;
 
       return {
         user: mapUserToDomainEntity(user),
@@ -147,16 +148,16 @@ export class UserRepository {
     });
   }
 
-  async getTopUsersByMetric(metric: 'reviews' | 'attendance' | 'ratings', limit: number = 10): Promise<UserStats[]> {
+  async getTopUsersByMetric(metric: "reviews" | "attendance" | "ratings", limit: number = 10): Promise<UserStats[]> {
     const userStats = await this.getUserStats();
-    
+
     const sortedStats = userStats.sort((a, b) => {
       switch (metric) {
-        case 'reviews':
+        case "reviews":
           return b.reviewCount - a.reviewCount;
-        case 'attendance':
+        case "attendance":
           return b.attendanceCount - a.attendanceCount;
-        case 'ratings':
+        case "ratings":
           return b.ratingCount - a.ratingCount;
         default:
           return 0;

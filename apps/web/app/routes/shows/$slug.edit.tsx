@@ -22,7 +22,7 @@ interface LoaderData {
 export const loader = adminLoader(async ({ params }) => {
   const { slug } = params;
   const show = await services.shows.findBySlug(slug as string);
-  
+
   // TODO: Add band service when implemented
   const bands: Band[] = [];
 
@@ -39,16 +39,16 @@ export const loader = adminLoader(async ({ params }) => {
 export const action = adminLoader(async ({ request, params }) => {
   const { slug } = params;
   const formData = await request.formData();
-  
+
   const venueId = formData.get("venueId") as string;
   const bandId = formData.get("bandId") as string;
-  
+
   const data = {
     date: formData.get("date") as string,
     venueId: venueId === "none" ? undefined : venueId,
     bandId: bandId === "none" ? undefined : bandId,
-    notes: formData.get("notes") as string || null,
-    relistenUrl: formData.get("relistenUrl") as string || null,
+    notes: (formData.get("notes") as string) || null,
+    relistenUrl: (formData.get("relistenUrl") as string) || null,
   };
 
   // Update the show
@@ -79,7 +79,7 @@ export default function EditShow() {
 
   const handleSubmit = async (data: ShowFormValues) => {
     const loadingToast = toast.loading("Updating show...");
-    
+
     try {
       const formData = new FormData();
       formData.append("date", data.date);

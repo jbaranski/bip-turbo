@@ -39,9 +39,11 @@ export default function Touchdowns() {
   useEffect(() => {
     const fetchEpisodes = async () => {
       try {
-        const response = await fetch("https://feeder.acast.com/api/v1/shows/d690923d-524e-5c8b-b29f-d66517615b5b?limit=30&from=0");
+        const response = await fetch(
+          "https://feeder.acast.com/api/v1/shows/d690923d-524e-5c8b-b29f-d66517615b5b?limit=30&from=0",
+        );
         const data: AcastApiResponse = await response.json();
-        
+
         setEpisodes(data.episodes || []);
       } catch (error) {
         console.error("Error fetching episodes:", error);
@@ -57,11 +59,11 @@ export default function Touchdowns() {
         <div>
           <h1 className="page-heading">TOUCHDOWNS ALL DAY PODCAST</h1>
         </div>
-        
+
         {/* Subtle back link */}
         <div className="flex justify-start">
-          <Link 
-            to="/resources" 
+          <Link
+            to="/resources"
             className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
           >
             <ArrowLeft className="h-3 w-3" />
@@ -83,18 +85,23 @@ export default function Touchdowns() {
               )}
 
               <div className="p-6 flex-1 flex flex-col">
-                <div 
+                <div
                   className="text-content-text-secondary mb-4 line-clamp-3 flex-1"
                   dangerouslySetInnerHTML={{ __html: episode.description }}
                 />
-                
+
                 <div className="text-content-text-tertiary text-sm mb-6 space-y-1">
                   <div>Duration: {Math.floor(episode.duration / 60)} minutes</div>
-                  <div>Published: {episode.publishDate ? new Date(episode.publishDate).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  }) : 'Date unavailable'}</div>
+                  <div>
+                    Published:{" "}
+                    {episode.publishDate
+                      ? new Date(episode.publishDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "Date unavailable"}
+                  </div>
                 </div>
 
                 <div className="mt-auto">

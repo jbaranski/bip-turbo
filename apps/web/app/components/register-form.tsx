@@ -19,7 +19,9 @@ export function RegisterForm({ className, onSubmit, ...props }: RegisterFormProp
         <div className="absolute inset-0 rounded-[inherit] shadow-2xl shadow-brand/5" />
         <div className="absolute -inset-0.5 rounded-lg bg-gradient-to-b from-brand/5 to-brand/0 opacity-50" />
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold tracking-tight text-content-text-primary">Create an account</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tight text-content-text-primary">
+            Create an account
+          </CardTitle>
           <CardDescription className="text-base text-content-text-secondary">
             Enter your details to create your account
           </CardDescription>

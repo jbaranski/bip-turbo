@@ -78,12 +78,7 @@ export function LoginForm({ className, onSubmit, onGoogleClick, ...props }: Logi
                   <span className="bg-background px-2 text-content-text-tertiary">Or continue with</span>
                 </div>
               </div>
-              <Button
-                variant="outline"
-                className="w-full btn-secondary"
-                type="button"
-                onClick={onGoogleClick}
-              >
+              <Button variant="outline" className="w-full btn-secondary" type="button" onClick={onGoogleClick}>
                 Google
               </Button>
             </div>

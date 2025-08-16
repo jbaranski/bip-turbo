@@ -7,7 +7,7 @@ export interface SearchQuery {
   entityTypes?: string[];
   limit?: number;
   threshold?: number;
-  useModel?: 'small' | 'large';
+  useModel?: "small" | "large";
 }
 
 export interface SearchResultWithScore extends SearchResult {
@@ -32,7 +32,7 @@ export class SearchIndexService {
   constructor(
     private readonly repository: SearchIndexRepository,
     private readonly embeddingService: EmbeddingService,
-    private readonly logger: Logger
+    private readonly logger: Logger,
   ) {}
 
   /**
@@ -47,7 +47,7 @@ export class SearchIndexService {
    * Perform semantic search
    */
   async search(searchQuery: SearchQuery): Promise<SearchResultWithScore[]> {
-    const { query, entityTypes, limit = 20, threshold = 0.3, useModel = 'small' } = searchQuery;
+    const { query, entityTypes, limit = 20, threshold = 0.3, useModel = "small" } = searchQuery;
 
     this.logger.info(`Performing search for query: "${query}" using ${useModel} model`);
 
@@ -65,7 +65,7 @@ export class SearchIndexService {
       });
 
       // Convert similarity to a 0-100 score for better UX
-      const resultsWithScore = results.map(result => ({
+      const resultsWithScore = results.map((result) => ({
         ...result,
         score: Math.round(result.similarity * 100),
       }));
@@ -74,8 +74,10 @@ export class SearchIndexService {
 
       return resultsWithScore;
     } catch (error) {
-      this.logger.error(`Search failed for query "${query}": ${error instanceof Error ? error.message : 'Unknown error'}`);
-      throw new Error(`Search failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Search failed for query "${query}": ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+      throw new Error(`Search failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
@@ -110,12 +112,14 @@ export class SearchIndexService {
         content,
         embeddingSmall: embedding,
         embeddingLarge: undefined, // Can be added later if needed
-        modelUsed: 'text-embedding-3-small',
+        modelUsed: "text-embedding-3-small",
       });
 
       this.logger.info(`Successfully indexed ${entityType} ${entityId}`);
     } catch (error) {
-      this.logger.error(`Failed to index ${entityType} ${entityId}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to index ${entityType} ${entityId}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       throw error;
     }
   }
@@ -137,8 +141,8 @@ export class SearchIndexService {
 
     try {
       // Generate content for all entities
-      const contents = entities.map(entity => formatter.generateContent(entity));
-      const displayTexts = entities.map(entity => formatter.generateDisplayText(entity));
+      const contents = entities.map((entity) => formatter.generateContent(entity));
+      const displayTexts = entities.map((entity) => formatter.generateDisplayText(entity));
 
       // Generate embeddings in batch
       const embeddingResults = await this.embeddingService.generateEmbeddingsInBatches(contents);
@@ -152,7 +156,7 @@ export class SearchIndexService {
         content: contents[index],
         embeddingSmall: embeddingResults[index].embedding,
         embeddingLarge: undefined, // Can be added later if needed
-        modelUsed: 'text-embedding-3-small',
+        modelUsed: "text-embedding-3-small",
       }));
 
       // Create new entries in batch (using upsert logic)
@@ -160,7 +164,9 @@ export class SearchIndexService {
 
       this.logger.info(`Successfully batch indexed ${entities.length} ${entityType} entities`);
     } catch (error) {
-      this.logger.error(`Failed to batch index ${entities.length} ${entityType} entities: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to batch index ${entities.length} ${entityType} entities: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       throw error;
     }
   }
@@ -182,7 +188,9 @@ export class SearchIndexService {
       await this.repository.deleteByEntity(entityType, entityId);
       this.logger.info(`Removed ${entityType} ${entityId} from search index`);
     } catch (error) {
-      this.logger.error(`Failed to remove ${entityType} ${entityId} from search index: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to remove ${entityType} ${entityId} from search index: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       throw error;
     }
   }
@@ -204,7 +212,9 @@ export class SearchIndexService {
         isVectorExtensionAvailable,
       };
     } catch (error) {
-      this.logger.error(`Failed to get search index stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to get search index stats: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       throw error;
     }
   }
@@ -224,7 +234,9 @@ export class SearchIndexService {
 
       this.logger.info(`Successfully rebuilt index for ${entityType}`);
     } catch (error) {
-      this.logger.error(`Failed to rebuild index for ${entityType}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to rebuild index for ${entityType}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       throw error;
     }
   }
@@ -235,7 +247,7 @@ export class SearchIndexService {
   async initializeVectorSupport(): Promise<void> {
     try {
       const isAvailable = await this.repository.checkVectorExtension();
-      
+
       if (!isAvailable) {
         this.logger.warn("pgvector extension is not available. Vector search will not work.");
         return;
@@ -243,10 +255,12 @@ export class SearchIndexService {
 
       // Create vector index if it doesn't exist
       await this.repository.createVectorIndex();
-      
+
       this.logger.info("Vector support initialized successfully");
     } catch (error) {
-      this.logger.error(`Failed to initialize vector support: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to initialize vector support: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
       throw error;
     }
   }

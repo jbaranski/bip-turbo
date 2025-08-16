@@ -36,7 +36,7 @@ export function SupabaseProvider({ children, env }: SupabaseProviderProps) {
 
   useEffect(() => {
     if (!env?.SUPABASE_URL || !env?.SUPABASE_ANON_KEY) {
-      setState(prev => ({ ...prev, isLoaded: true }));
+      setState((prev) => ({ ...prev, isLoaded: true }));
       return;
     }
 

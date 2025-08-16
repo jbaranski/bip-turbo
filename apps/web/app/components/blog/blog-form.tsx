@@ -280,19 +280,10 @@ export function BlogPostForm({ defaultValues, submitLabel, cancelHref }: BlogPos
         </FormItem>
 
         <div className="flex gap-4 pt-2">
-          <Button
-            type="button"
-            onClick={form.handleSubmit(onSubmit)}
-            className="btn-primary"
-          >
+          <Button type="button" onClick={form.handleSubmit(onSubmit)} className="btn-primary">
             {submitLabel}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate(cancelHref)}
-            className="btn-secondary"
-          >
+          <Button type="button" variant="outline" onClick={() => navigate(cancelHref)} className="btn-secondary">
             Cancel
           </Button>
         </div>

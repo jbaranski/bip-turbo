@@ -45,168 +45,162 @@ export function Header() {
   const username = user?.user_metadata?.username ?? user?.email?.split("@")[0];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/95 backdrop-blur-sm border-b border-border/10">
-      <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link 
-            to="/" 
-            className="flex items-center justify-center h-10 w-10 rounded-lg hover:opacity-80 transition-opacity"
-            title="Home"
-          >
-            <img 
-              src="/bip.png" 
-              alt="Biscuits Internet Project" 
-              className="h-8 w-8 object-contain"
-            />
-          </Link>
-        </div>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-2">
-          {navigation.slice(0, 6).map((item) => (
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/95 backdrop-blur-sm border-b border-border/10">
+        <div className="flex h-full items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Logo */}
+          <div className="flex items-center">
             <Link
-              key={item.href}
-              to={item.href}
-              className="flex items-center rounded-md px-4 py-2 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+              to="/"
+              className="flex items-center justify-center h-10 w-10 rounded-lg hover:opacity-80 transition-opacity"
+              title="Home"
             >
-              <item.icon className="h-4 w-4 mr-2" />
-              <span>{item.name}</span>
+              <img src="/bip.png" alt="Biscuits Internet Project" className="h-8 w-8 object-contain" />
             </Link>
-          ))}
-        </nav>
+          </div>
 
-        {/* Search */}
-        <div className="flex-1 max-w-lg mx-2 md:mx-4">
-          <SearchButton 
-            variant="outline" 
-            size="sm" 
-            className="w-full max-w-md mx-auto"
-            showShortcut={!isMobile}
-          />
-        </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-2">
+            {navigation.slice(0, 6).map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="flex items-center rounded-md px-4 py-2 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+              >
+                <item.icon className="h-4 w-4 mr-2" />
+                <span>{item.name}</span>
+              </Link>
+            ))}
+          </nav>
 
-        {/* User Profile/Auth & Mobile Menu */}
-        <div className="flex items-center space-x-2">
-          {/* User Profile/Auth */}
-          {!loading && (
-            <div className="hidden sm:flex items-center space-x-2">
-              {user ? (
-                <UserDropdown user={user} />
-              ) : (
-                <Button variant="ghost" size="sm" asChild className="glass-secondary hover:glass-content transition-all duration-200">
-                  <Link to="/auth/login">Sign in</Link>
-                </Button>
-              )}
+          {/* Search */}
+          <div className="flex-1 max-w-lg mx-2 md:mx-4">
+            <SearchButton variant="outline" size="sm" className="w-full max-w-md mx-auto" showShortcut={!isMobile} />
+          </div>
+
+          {/* User Profile/Auth & Mobile Menu */}
+          <div className="flex items-center space-x-2">
+            {/* User Profile/Auth */}
+            {!loading && (
+              <div className="hidden sm:flex items-center space-x-2">
+                {user ? (
+                  <UserDropdown user={user} />
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    asChild
+                    className="glass-secondary hover:glass-content transition-all duration-200"
+                  >
+                    <Link to="/auth/login">Sign in</Link>
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-content-text-secondary hover:text-brand-primary"
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                <span className="sr-only">{mobileMenuOpen ? "Close" : "Open"} menu</span>
+              </Button>
             </div>
-          )}
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-content-text-secondary hover:text-brand-primary"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-              <span className="sr-only">{mobileMenuOpen ? "Close" : "Open"} menu</span>
-            </Button>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <>
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          
-          {/* Menu Panel */}
-          <div className="fixed top-16 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/10 md:hidden">
-            <nav className="p-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
-              {navigation.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center rounded-md px-4 py-3 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
-                >
-                  <item.icon className="h-5 w-5 mr-3" />
-                  <span>{item.name}</span>
-                </Link>
-              ))}
-              
-              {/* Mobile Auth & User Menu */}
-              <div className="border-t border-border/10 pt-4 mt-4">
-                {!loading && (
-                  user ? (
-                    <div className="space-y-1">
-                      {/* User Info */}
-                      <div className="flex items-center space-x-3 px-4 py-3 rounded-md bg-brand-primary/5">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={user.user_metadata?.avatar_url} />
-                          <AvatarFallback className="bg-brand-primary/20 text-brand-primary text-sm font-medium">
-                            {username?.slice(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-foreground">{username}</span>
-                          <span className="text-xs text-content-text-secondary">{user.email}</span>
-                        </div>
+        <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm block md:hidden">
+          <div className="absolute top-4 right-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-content-text-secondary hover:text-brand-primary"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <nav className="p-4 pt-20 space-y-1 h-full overflow-y-auto">
+            {navigation.map((item) => (
+              <Link
+                key={item.href}
+                to={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center rounded-md px-4 py-3 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+              >
+                <item.icon className="h-5 w-5 mr-3" />
+                <span>{item.name}</span>
+              </Link>
+            ))}
+
+            {/* Mobile Auth & User Menu */}
+            <div className="border-t border-border/10 pt-4 mt-4">
+              {!loading &&
+                (user ? (
+                  <div className="space-y-1">
+                    {/* User Info */}
+                    <div className="flex items-center space-x-3 px-4 py-3 rounded-md bg-brand-primary/5">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarFallback className="bg-brand-primary/20 text-brand-primary text-sm font-medium">
+                          {username?.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-foreground">{username}</span>
+                        <span className="text-xs text-content-text-secondary">{user.email}</span>
                       </div>
-                      
-                      {/* User Menu Items */}
-                      <Link
-                        to={`/users/${username}`}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
-                      >
-                        <Eye className="h-5 w-5 mr-3" />
-                        View Profile
-                      </Link>
-                      
-                      <Link
-                        to="/profile/edit"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-secondary hover:bg-hover-glass"
-                      >
-                        <Edit className="h-5 w-5 mr-3" />
-                        Edit Profile
-                      </Link>
-                      
-                      <Link
-                        to="/auth/logout"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center rounded-md px-4 py-3 text-base font-medium text-red-400 transition-all duration-200 hover:text-red-300 hover:bg-red-500/10"
-                      >
-                        <LogOut className="h-5 w-5 mr-3" />
-                        Sign out
-                      </Link>
                     </div>
-                  ) : (
+
+                    {/* User Menu Items */}
                     <Link
-                      to="/auth/login"
+                      to={`/users/${username}`}
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
                     >
-                      <User className="h-5 w-5 mr-3" />
-                      Sign in
+                      <Eye className="h-5 w-5 mr-3" />
+                      View Profile
                     </Link>
-                  )
-                )}
-              </div>
-            </nav>
-          </div>
-        </>
+
+                    <Link
+                      to="/profile/edit"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-secondary hover:bg-hover-glass"
+                    >
+                      <Edit className="h-5 w-5 mr-3" />
+                      Edit Profile
+                    </Link>
+
+                    <Link
+                      to="/auth/logout"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center rounded-md px-4 py-3 text-base font-medium text-red-400 transition-all duration-200 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <LogOut className="h-5 w-5 mr-3" />
+                      Sign out
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    to="/auth/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+                  >
+                    <User className="h-5 w-5 mr-3" />
+                    Sign in
+                  </Link>
+                ))}
+            </div>
+          </nav>
+        </div>
       )}
-    </header>
+    </>
   );
 }

@@ -39,7 +39,7 @@ export const action = adminAction(async ({ request }) => {
         segue: data.segue,
         note: data.note,
       });
-      
+
       console.log("Created track:", track.id);
       return track;
     } catch (error) {

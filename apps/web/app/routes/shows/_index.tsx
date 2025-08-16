@@ -185,7 +185,6 @@ export default function Shows() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-
   return (
     <div className="relative">
       <div className="space-y-6 md:space-y-8">
@@ -210,7 +209,6 @@ export default function Shows() {
           </div>
         </div>
 
-
         {/* Navigation - Only show when not searching */}
         {!searchQuery && (
           <div className="bg-content-bg rounded-lg border border-content-bg-secondary overflow-hidden">
@@ -229,9 +227,9 @@ export default function Shows() {
                     to={`/shows?year=${y}`}
                     className={cn(
                       "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 text-center relative overflow-hidden",
-                      y === year 
-                        ? "text-brand bg-brand/10 border border-brand/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-brand/20 before:to-transparent before:translate-x-[-100%] before:animate-pulse" 
-                        : "text-content-text-secondary bg-content-bg-secondary hover:bg-content-bg-tertiary hover:text-white"
+                      y === year
+                        ? "text-brand bg-brand/10 border border-brand/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-brand/20 before:to-transparent before:translate-x-[-100%] before:animate-pulse"
+                        : "text-content-text-secondary bg-content-bg-secondary hover:bg-content-bg-tertiary hover:text-white",
                     )}
                   >
                     {y}
@@ -257,7 +255,7 @@ export default function Shows() {
                       "px-3 py-2 text-xs font-medium rounded-lg transition-all duration-200 text-center",
                       monthsWithShows.includes(index)
                         ? "text-content-text-secondary bg-content-bg-secondary hover:bg-accent/20 hover:text-white cursor-pointer hover:scale-105"
-                        : "text-content-text-tertiary bg-transparent cursor-not-allowed opacity-40"
+                        : "text-content-text-tertiary bg-transparent cursor-not-allowed opacity-40",
                     )}
                   >
                     {month}
@@ -324,7 +322,6 @@ export default function Shows() {
               )}
             </div>
           </div>
-
         </div>
       </div>
 

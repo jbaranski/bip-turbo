@@ -20,21 +20,19 @@ export default function Privacy() {
       <Card className="glass-content">
         <CardContent className="p-6">
           <div className="prose prose-invert max-w-none space-y-6">
-            <p className="text-content-text-secondary text-sm">
-              Last updated: {new Date().toLocaleDateString()}
-            </p>
+            <p className="text-content-text-secondary text-sm">Last updated: {new Date().toLocaleDateString()}</p>
 
             <section>
               <p className="text-content-text-secondary">
-                The Biscuits Internet Project ("the BIP", "we", "us", or "our") respects your privacy and is committed to 
-                protecting your personal information. This Privacy Policy explains how we collect, use, share, and protect 
-                your information when you use our website and services.
+                The Biscuits Internet Project ("the BIP", "we", "us", or "our") respects your privacy and is committed
+                to protecting your personal information. This Privacy Policy explains how we collect, use, share, and
+                protect your information when you use our website and services.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">1. Information We Collect</h2>
-              
+
               <div className="space-y-4">
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">1.1 Account Information</h3>
@@ -43,13 +41,17 @@ export default function Privacy() {
                     <li>Email address (required for account creation)</li>
                     <li>Username and display name</li>
                     <li>Profile picture/avatar (if uploaded)</li>
-                    <li>Authentication information from third-party services (Google, Facebook) if you use social login</li>
+                    <li>
+                      Authentication information from third-party services (Google, Facebook) if you use social login
+                    </li>
                   </ul>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">1.2 User-Generated Content</h3>
-                  <p className="text-content-text-secondary mb-2">We collect and store content you create on the BIP, including:</p>
+                  <p className="text-content-text-secondary mb-2">
+                    We collect and store content you create on the BIP, including:
+                  </p>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>Show reviews and ratings</li>
                     <li>Comments and forum posts</li>
@@ -61,7 +63,9 @@ export default function Privacy() {
 
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">1.3 Usage and Analytics Data</h3>
-                  <p className="text-content-text-secondary mb-2">We automatically collect information about how you use the BIP:</p>
+                  <p className="text-content-text-secondary mb-2">
+                    We automatically collect information about how you use the BIP:
+                  </p>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>IP address and general location information</li>
                     <li>Browser type, operating system, and device information</li>
@@ -72,8 +76,12 @@ export default function Privacy() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-medium text-content-text-primary mb-2">1.4 Cookies and Tracking Technologies</h3>
-                  <p className="text-content-text-secondary mb-2">We use various technologies to collect information:</p>
+                  <h3 className="text-lg font-medium text-content-text-primary mb-2">
+                    1.4 Cookies and Tracking Technologies
+                  </h3>
+                  <p className="text-content-text-secondary mb-2">
+                    We use various technologies to collect information:
+                  </p>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>Essential cookies for website functionality</li>
                     <li>Authentication cookies to keep you logged in</li>
@@ -87,8 +95,10 @@ export default function Privacy() {
 
             <section>
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">2. How We Use Your Information</h2>
-              <p className="text-content-text-secondary mb-3">We use the information we collect for the following purposes:</p>
-              
+              <p className="text-content-text-secondary mb-3">
+                We use the information we collect for the following purposes:
+              </p>
+
               <div className="space-y-3">
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">2.1 Service Provision</h3>
@@ -122,7 +132,9 @@ export default function Privacy() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-medium text-content-text-primary mb-2">2.4 Security and Legal Compliance</h3>
+                  <h3 className="text-lg font-medium text-content-text-primary mb-2">
+                    2.4 Security and Legal Compliance
+                  </h3>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>Prevent fraud, spam, and abuse</li>
                     <li>Enforce our Terms of Service</li>
@@ -134,24 +146,29 @@ export default function Privacy() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-content-text-primary mb-3">3. Information Sharing and Disclosure</h2>
+              <h2 className="text-xl font-semibold text-content-text-primary mb-3">
+                3. Information Sharing and Disclosure
+              </h2>
               <p className="text-content-text-secondary mb-3">
-                <strong>We will never sell your personal data to third parties.</strong> We may share your information only in the following limited circumstances:
+                <strong>We will never sell your personal data to third parties.</strong> We may share your information
+                only in the following limited circumstances:
               </p>
-              
+
               <div className="space-y-3">
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">3.1 Public Information</h3>
                   <p className="text-content-text-secondary">
-                    Some information is publicly visible by design, including your username, profile information, 
-                    reviews, ratings, and show attendance records. This information is visible to other users and 
-                    search engines.
+                    Some information is publicly visible by design, including your username, profile information,
+                    reviews, ratings, and show attendance records. This information is visible to other users and search
+                    engines.
                   </p>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">3.2 Service Providers</h3>
-                  <p className="text-content-text-secondary mb-2">We share information with trusted service providers who help us operate the BIP:</p>
+                  <p className="text-content-text-secondary mb-2">
+                    We share information with trusted service providers who help us operate the BIP:
+                  </p>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>Cloud hosting providers (for website infrastructure)</li>
                     <li>Database and storage providers</li>
@@ -163,7 +180,9 @@ export default function Privacy() {
 
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">3.3 Legal Requirements</h3>
-                  <p className="text-content-text-secondary mb-2">We may disclose information when required by law or to:</p>
+                  <p className="text-content-text-secondary mb-2">
+                    We may disclose information when required by law or to:
+                  </p>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>Comply with legal process, court orders, or government requests</li>
                     <li>Enforce our Terms of Service</li>
@@ -175,8 +194,8 @@ export default function Privacy() {
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">3.4 Aggregated Data</h3>
                   <p className="text-content-text-secondary">
-                    We may share aggregated, anonymized statistics about the BIP community, such as total number 
-                    of reviews or popular shows, which cannot be used to identify individual users.
+                    We may share aggregated, anonymized statistics about the BIP community, such as total number of
+                    reviews or popular shows, which cannot be used to identify individual users.
                   </p>
                 </div>
               </div>
@@ -195,38 +214,49 @@ export default function Privacy() {
                 <li>Secure hosting infrastructure with reputable providers</li>
               </ul>
               <p className="text-content-text-secondary mt-3">
-                While we take security seriously, no method of transmission over the internet or electronic storage 
-                is 100% secure. We cannot guarantee absolute security but will notify users of any significant data breaches.
+                While we take security seriously, no method of transmission over the internet or electronic storage is
+                100% secure. We cannot guarantee absolute security but will notify users of any significant data
+                breaches.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-content-text-primary mb-3">5. Cookies and Tracking Technologies</h2>
+              <h2 className="text-xl font-semibold text-content-text-primary mb-3">
+                5. Cookies and Tracking Technologies
+              </h2>
               <div className="space-y-3">
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">5.1 Types of Cookies We Use</h3>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
-                    <li><strong>Essential Cookies:</strong> Required for basic website functionality</li>
-                    <li><strong>Authentication Cookies:</strong> Keep you logged into your account</li>
-                    <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
-                    <li><strong>Analytics Cookies:</strong> Google Analytics to understand website usage</li>
+                    <li>
+                      <strong>Essential Cookies:</strong> Required for basic website functionality
+                    </li>
+                    <li>
+                      <strong>Authentication Cookies:</strong> Keep you logged into your account
+                    </li>
+                    <li>
+                      <strong>Preference Cookies:</strong> Remember your settings and preferences
+                    </li>
+                    <li>
+                      <strong>Analytics Cookies:</strong> Google Analytics to understand website usage
+                    </li>
                   </ul>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">5.2 Managing Cookies</h3>
                   <p className="text-content-text-secondary">
-                    You can control cookies through your browser settings. However, disabling certain cookies 
-                    may affect website functionality, such as staying logged in or remembering your preferences.
+                    You can control cookies through your browser settings. However, disabling certain cookies may affect
+                    website functionality, such as staying logged in or remembering your preferences.
                   </p>
                 </div>
 
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">5.3 Third-Party Analytics</h3>
                   <p className="text-content-text-secondary">
-                    We use Google Analytics to understand how users interact with the BIP. Google Analytics 
-                    may use cookies to collect information about your usage patterns. You can opt out of 
-                    Google Analytics tracking by using Google's opt-out tools.
+                    We use Google Analytics to understand how users interact with the BIP. Google Analytics may use
+                    cookies to collect information about your usage patterns. You can opt out of Google Analytics
+                    tracking by using Google's opt-out tools.
                   </p>
                 </div>
               </div>
@@ -234,8 +264,10 @@ export default function Privacy() {
 
             <section>
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">6. Your Privacy Rights</h2>
-              <p className="text-content-text-secondary mb-3">You have the following rights regarding your personal information:</p>
-              
+              <p className="text-content-text-secondary mb-3">
+                You have the following rights regarding your personal information:
+              </p>
+
               <div className="space-y-3">
                 <div>
                   <h3 className="text-lg font-medium text-content-text-primary mb-2">6.1 Access and Portability</h3>
@@ -256,7 +288,9 @@ export default function Privacy() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-medium text-content-text-primary mb-2">6.3 Deletion and Account Termination</h3>
+                  <h3 className="text-lg font-medium text-content-text-primary mb-2">
+                    6.3 Deletion and Account Termination
+                  </h3>
                   <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
                     <li>Delete your account and associated personal data</li>
                     <li>Request removal of specific content you've contributed</li>
@@ -279,42 +313,56 @@ export default function Privacy() {
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">7. Data Retention</h2>
               <p className="text-content-text-secondary mb-3">We retain your information as follows:</p>
               <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4">
-                <li><strong>Account Information:</strong> Until you delete your account</li>
-                <li><strong>User Content:</strong> Until you delete it or close your account</li>
-                <li><strong>Usage Data:</strong> Up to 2 years for analytics purposes</li>
-                <li><strong>Support Communications:</strong> Up to 3 years for customer service</li>
-                <li><strong>Legal Compliance:</strong> As required by applicable law</li>
+                <li>
+                  <strong>Account Information:</strong> Until you delete your account
+                </li>
+                <li>
+                  <strong>User Content:</strong> Until you delete it or close your account
+                </li>
+                <li>
+                  <strong>Usage Data:</strong> Up to 2 years for analytics purposes
+                </li>
+                <li>
+                  <strong>Support Communications:</strong> Up to 3 years for customer service
+                </li>
+                <li>
+                  <strong>Legal Compliance:</strong> As required by applicable law
+                </li>
               </ul>
               <p className="text-content-text-secondary mt-3">
-                When you delete your account, we will remove your personal information within 30 days, 
-                though some anonymized data may be retained for community continuity and historical purposes.
+                When you delete your account, we will remove your personal information within 30 days, though some
+                anonymized data may be retained for community continuity and historical purposes.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-content-text-primary mb-3">8. Children's Privacy (COPPA Compliance)</h2>
+              <h2 className="text-xl font-semibold text-content-text-primary mb-3">
+                8. Children's Privacy (COPPA Compliance)
+              </h2>
               <p className="text-content-text-secondary">
-                The BIP is not directed at children under 13 years of age. We do not knowingly collect personal 
-                information from children under 13. If we discover that we have collected information from a child 
-                under 13, we will take immediate steps to delete such information. If you are a parent or guardian 
-                and believe your child has provided personal information to us, please contact us immediately.
+                The BIP is not directed at children under 13 years of age. We do not knowingly collect personal
+                information from children under 13. If we discover that we have collected information from a child under
+                13, we will take immediate steps to delete such information. If you are a parent or guardian and believe
+                your child has provided personal information to us, please contact us immediately.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">9. International Data Transfers</h2>
               <p className="text-content-text-secondary">
-                The BIP is operated in the United States. If you are accessing our service from outside the US, 
-                please be aware that your information may be transferred to, stored, and processed in the US where 
-                our servers and databases are located. By using the BIP, you consent to this transfer.
+                The BIP is operated in the United States. If you are accessing our service from outside the US, please
+                be aware that your information may be transferred to, stored, and processed in the US where our servers
+                and databases are located. By using the BIP, you consent to this transfer.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-content-text-primary mb-3">10. Changes to This Privacy Policy</h2>
+              <h2 className="text-xl font-semibold text-content-text-primary mb-3">
+                10. Changes to This Privacy Policy
+              </h2>
               <p className="text-content-text-secondary">
-                We may update this Privacy Policy periodically to reflect changes in our practices or applicable 
-                law. We will notify users of material changes by:
+                We may update this Privacy Policy periodically to reflect changes in our practices or applicable law. We
+                will notify users of material changes by:
               </p>
               <ul className="list-disc list-inside text-content-text-secondary space-y-1 ml-4 mt-2 mb-3">
                 <li>Posting the updated policy on this page with a new "Last updated" date</li>
@@ -322,27 +370,30 @@ export default function Privacy() {
                 <li>Displaying a prominent notice on the website</li>
               </ul>
               <p className="text-content-text-secondary">
-                Your continued use of the BIP after changes become effective constitutes acceptance of the updated policy.
+                Your continued use of the BIP after changes become effective constitutes acceptance of the updated
+                policy.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">11. California Privacy Rights</h2>
               <p className="text-content-text-secondary">
-                If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA), 
-                including the right to know what personal information we collect, the right to delete personal information, 
-                and the right to opt-out of the sale of personal information. We do not sell personal information to third parties.
+                If you are a California resident, you have additional rights under the California Consumer Privacy Act
+                (CCPA), including the right to know what personal information we collect, the right to delete personal
+                information, and the right to opt-out of the sale of personal information. We do not sell personal
+                information to third parties.
               </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-content-text-primary mb-3">12. Contact Information</h2>
               <p className="text-content-text-secondary">
-                If you have questions, concerns, or requests regarding this Privacy Policy or our privacy practices, 
+                If you have questions, concerns, or requests regarding this Privacy Policy or our privacy practices,
                 please contact us through our contact form. We will respond to privacy-related inquiries within 30 days.
               </p>
               <p className="text-content-text-secondary mt-3">
-                This Privacy Policy is governed by the laws of the Commonwealth of Massachusetts, consistent with our Terms of Service.
+                This Privacy Policy is governed by the laws of the Commonwealth of Massachusetts, consistent with our
+                Terms of Service.
               </p>
             </section>
           </div>

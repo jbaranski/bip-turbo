@@ -3,14 +3,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import type { Song } from "@bip/domain";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { 
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from "~/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "~/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 
 interface SongSearchProps {
@@ -21,12 +14,12 @@ interface SongSearchProps {
   initialSong?: Song;
 }
 
-export function SongSearch({ 
-  value, 
-  onValueChange, 
+export function SongSearch({
+  value,
+  onValueChange,
   placeholder = "Search songs...",
   className,
-  initialSong
+  initialSong,
 }: SongSearchProps) {
   const [open, setOpen] = useState(false);
   const [songs, setSongs] = useState<Song[]>(initialSong ? [initialSong] : []);
@@ -35,36 +28,39 @@ export function SongSearch({
 
   const selectedSong = songs.find((song) => song.id === value) || initialSong;
 
-  const searchSongs = useCallback(async (query: string) => {
-    if (!query || query.length < 2) {
-      setSongs(initialSong ? [initialSong] : []);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/songs?q=${encodeURIComponent(query)}`);
-      console.log("Song search response status:", response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Song search response data:", data);
-        
-        // Ensure the initialSong is included if it's not in the search results
-        const songsToSet = [...data];
-        if (initialSong && !data.find((song: Song) => song.id === initialSong.id)) {
-          songsToSet.unshift(initialSong);
-        }
-        
-        setSongs(songsToSet);
-      } else {
-        console.error("Song search failed with status:", response.status);
+  const searchSongs = useCallback(
+    async (query: string) => {
+      if (!query || query.length < 2) {
+        setSongs(initialSong ? [initialSong] : []);
+        return;
       }
-    } catch (error) {
-      console.error("Failed to search songs:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [initialSong]);
+
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/songs?q=${encodeURIComponent(query)}`);
+        console.log("Song search response status:", response.status);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Song search response data:", data);
+
+          // Ensure the initialSong is included if it's not in the search results
+          const songsToSet = [...data];
+          if (initialSong && !data.find((song: Song) => song.id === initialSong.id)) {
+            songsToSet.unshift(initialSong);
+          }
+
+          setSongs(songsToSet);
+        } else {
+          console.error("Song search failed with status:", response.status);
+        }
+      } catch (error) {
+        console.error("Failed to search songs:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [initialSong],
+  );
 
   useEffect(() => {
     const delayedSearch = setTimeout(() => {
@@ -83,7 +79,7 @@ export function SongSearch({
           aria-expanded={open}
           className={cn(
             "justify-between bg-content-bg-secondary border-content-bg-secondary text-white hover:bg-gray-700",
-            className
+            className,
           )}
         >
           {selectedSong ? selectedSong.title : placeholder}
@@ -112,15 +108,10 @@ export function SongSearch({
                 }}
                 className="text-white hover:bg-gray-700"
               >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === "none" ? "opacity-100" : "opacity-0"
-                  )}
-                />
+                <Check className={cn("mr-2 h-4 w-4", value === "none" ? "opacity-100" : "opacity-0")} />
                 No song
               </CommandItem>
-              
+
               {songs.map((song) => (
                 <CommandItem
                   key={song.id}
@@ -131,12 +122,7 @@ export function SongSearch({
                   }}
                   className="text-white hover:bg-gray-700"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === song.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <Check className={cn("mr-2 h-4 w-4", value === song.id ? "opacity-100" : "opacity-0")} />
                   {song.title}
                 </CommandItem>
               ))}

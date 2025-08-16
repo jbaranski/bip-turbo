@@ -27,7 +27,10 @@ export default function Tractorbeam() {
           <div className="space-y-4 text-content-text-secondary">
             <p className="leading-relaxed">
               Tractorbeam, like{" "}
-              <Link to="/resources/the-perfume" className="text-brand-primary hover:text-brand-secondary hover:underline">
+              <Link
+                to="/resources/the-perfume"
+                className="text-brand-primary hover:text-brand-secondary hover:underline"
+              >
                 The Perfume
               </Link>
               , is a pseudonym the Disco Biscuits perform under. Debuted on{" "}

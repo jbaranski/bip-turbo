@@ -31,7 +31,6 @@ interface ShowLoaderData {
   selectedRecordingId: string | null;
 }
 
-
 // Add interface for the beta search API response
 interface ArchiveSearchHit {
   _source: {
@@ -233,7 +232,9 @@ export default function Show() {
   return (
     <div className="space-y-6 md:space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">{formatDateLong(setlist.show.date)}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">
+          {formatDateLong(setlist.show.date)}
+        </h1>
         <AdminOnly>
           <Button variant="outline" size="sm" asChild className="btn-secondary">
             <Link to={`/shows/${setlist.show.slug}/edit`} className="flex items-center gap-1">
@@ -243,11 +244,11 @@ export default function Show() {
           </Button>
         </AdminOnly>
       </div>
-      
+
       {/* Subtle back link */}
       <div className="flex justify-start">
-        <Link 
-          to="/shows" 
+        <Link
+          to="/shows"
           className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />
@@ -266,7 +267,6 @@ export default function Show() {
             userRating={null}
             showRating={setlist.show.averageRating}
           />
-
 
           <div className="mt-6">
             {reviews && reviews.length === 0 && (

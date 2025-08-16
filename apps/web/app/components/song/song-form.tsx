@@ -71,7 +71,11 @@ export function SongForm({ defaultValues, submitLabel, cancelHref }: SongFormPro
             <FormItem>
               <FormLabel className="text-content-text-secondary">Song Title</FormLabel>
               <FormControl>
-                <Input placeholder="Enter song title" {...field} className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary" />
+                <Input
+                  placeholder="Enter song title"
+                  {...field}
+                  className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

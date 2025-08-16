@@ -216,15 +216,13 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
 
 function ReviewNote({ notes }: { notes: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Split by newlines to count lines, but also account for long lines that wrap
-  const lines = notes.split('\n');
+  const lines = notes.split("\n");
   const shouldTruncate = lines.length > 6;
-  
-  const displayText = isExpanded || !shouldTruncate 
-    ? notes 
-    : lines.slice(0, 6).join('\n');
-  
+
+  const displayText = isExpanded || !shouldTruncate ? notes : lines.slice(0, 6).join("\n");
+
   // Only show read more if we're actually truncating content
   const isTruncated = shouldTruncate && !isExpanded && displayText.length < notes.length;
 
@@ -290,11 +288,7 @@ export default function SongPage() {
           )}
         </div>
         <AdminOnly>
-          <Button
-            asChild
-            variant="outline"
-            className="btn-secondary"
-          >
+          <Button asChild variant="outline" className="btn-secondary">
             <Link to={`/songs/${song.slug}/edit`} className="flex items-center gap-2">
               <Pencil className="h-4 w-4" />
               Edit
@@ -302,11 +296,11 @@ export default function SongPage() {
           </Button>
         </AdminOnly>
       </div>
-      
+
       {/* Subtle back link */}
       <div className="flex justify-start">
-        <Link 
-          to="/songs" 
+        <Link
+          to="/songs"
           className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />
@@ -333,7 +327,7 @@ export default function SongPage() {
 
       {song.notes && (
         <div className="glass-content rounded-lg p-4">
-          <div 
+          <div
             className="text-md text-content-text-tertiary leading-relaxed"
             dangerouslySetInnerHTML={{ __html: song.notes }}
           />
@@ -383,11 +377,12 @@ export default function SongPage() {
               {/* Featured Performances (with reviews) */}
               {(() => {
                 const withNotes = allTimers
-                  .filter(p => p.notes)
+                  .filter((p) => p.notes)
                   .sort((a, b) => new Date(b.show.date).getTime() - new Date(a.show.date).getTime());
-                
-                return withNotes.length > 0 && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                return (
+                  withNotes.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {withNotes.map((p) => (
                         <a
                           href={`/shows/${p.show.slug}`}
@@ -411,18 +406,20 @@ export default function SongPage() {
                           </div>
                         </a>
                       ))}
-                  </div>
+                    </div>
+                  )
                 );
               })()}
 
               {/* All Performances Table */}
               {(() => {
                 const withoutNotes = allTimers
-                  .filter(p => !p.notes)
+                  .filter((p) => !p.notes)
                   .sort((a, b) => new Date(b.show.date).getTime() - new Date(a.show.date).getTime());
-                
-                return withoutNotes.length > 0 && (
-                  <div className="glass-content rounded-lg p-4">
+
+                return (
+                  withoutNotes.length > 0 && (
+                    <div className="glass-content rounded-lg p-4">
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
@@ -437,12 +434,18 @@ export default function SongPage() {
                             {withoutNotes.map((p) => (
                               <tr key={p.trackId} className="border-t border-glass-border/20 hover:bg-hover-glass">
                                 <td className="p-3">
-                                  <a href={`/shows/${p.show.slug}`} className="text-brand-primary hover:text-brand-secondary">
+                                  <a
+                                    href={`/shows/${p.show.slug}`}
+                                    className="text-brand-primary hover:text-brand-secondary"
+                                  >
                                     {p.show.date}
                                   </a>
                                 </td>
                                 <td className="p-3">
-                                  <a href={`/shows/${p.show.slug}`} className="text-content-text-primary hover:text-brand-primary">
+                                  <a
+                                    href={`/shows/${p.show.slug}`}
+                                    className="text-content-text-primary hover:text-brand-primary"
+                                  >
                                     {p.venue?.name}
                                   </a>
                                 </td>
@@ -461,7 +464,8 @@ export default function SongPage() {
                           </tbody>
                         </table>
                       </div>
-                  </div>
+                    </div>
+                  )
                 );
               })()}
             </>
@@ -472,7 +476,7 @@ export default function SongPage() {
           {song.lyrics && (
             <div className="glass-content rounded-lg p-4">
               <div className="overflow-x-auto">
-                <div 
+                <div
                   className="text-md text-content-text-tertiary leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: song.lyrics }}
                 />
@@ -480,7 +484,6 @@ export default function SongPage() {
             </div>
           )}
         </TabsContent>
-
 
         <TabsContent value="guitar-tabs" className="mt-4">
           <div className="glass-content rounded-lg p-4">

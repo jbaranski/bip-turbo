@@ -401,132 +401,134 @@ export default function VenuesPage() {
           </AdminOnly>
         </div>
       </div>
-        {/* Stats Grid */}
-        <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatBox icon={<MapPin className="h-4 w-4" />} label="Total Venues" value={stats.totalVenues} />
-          <StatBox icon={<Ticket className="h-4 w-4" />} label="Total Shows" value={stats.totalShows} />
-          <StatBox icon={<MapPin className="h-4 w-4" />} label="States/Regions" value={stats.totalStates} />
-          <StatBox icon={<Globe className="h-4 w-4" />} label="International Venues" value={nonUSACount} />
-        </dl>
+      {/* Stats Grid */}
+      <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatBox icon={<MapPin className="h-4 w-4" />} label="Total Venues" value={stats.totalVenues} />
+        <StatBox icon={<Ticket className="h-4 w-4" />} label="Total Shows" value={stats.totalShows} />
+        <StatBox icon={<MapPin className="h-4 w-4" />} label="States/Regions" value={stats.totalStates} />
+        <StatBox icon={<Globe className="h-4 w-4" />} label="International Venues" value={nonUSACount} />
+      </dl>
 
-        {/* State Filter */}
-        <div className="glass-content rounded-lg p-4">
-          <h2 className="text-sm font-medium text-content-text-secondary mb-3">Filter by State</h2>
-          <div className="flex flex-wrap gap-2 mb-3">
+      {/* State Filter */}
+      <div className="glass-content rounded-lg p-4">
+        <h2 className="text-sm font-medium text-content-text-secondary mb-3">Filter by State</h2>
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "px-3 py-1 text-sm rounded-md transition-colors",
+              !stateFilter
+                ? "bg-filter-active text-white"
+                : "text-content-text-secondary hover:bg-hover-glass hover:text-white",
+            )}
+            onClick={() => handleStateFilter("")}
+          >
+            All
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "px-3 py-1 text-sm rounded-md transition-colors",
+              stateFilter === "international"
+                ? "bg-filter-active text-white"
+                : "text-content-text-secondary hover:bg-hover-glass hover:text-white",
+            )}
+            onClick={() => handleStateFilter("international")}
+          >
+            <Globe className="h-3 w-3 mr-1" />
+            International
+          </Button>
+
+          {states.map((state) => (
             <Button
+              key={state}
               variant="ghost"
               size="sm"
               className={cn(
                 "px-3 py-1 text-sm rounded-md transition-colors",
-                !stateFilter ? "bg-filter-active text-white" : "text-content-text-secondary hover:bg-hover-glass hover:text-white",
-              )}
-              onClick={() => handleStateFilter("")}
-            >
-              All
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className={cn(
-                "px-3 py-1 text-sm rounded-md transition-colors",
-                stateFilter === "international"
+                stateFilter === state
                   ? "bg-filter-active text-white"
                   : "text-content-text-secondary hover:bg-hover-glass hover:text-white",
               )}
-              onClick={() => handleStateFilter("international")}
+              onClick={() => handleStateFilter(state)}
             >
-              <Globe className="h-3 w-3 mr-1" />
-              International
+              {getStateAbbreviation(state)}
             </Button>
+          ))}
+        </div>
+      </div>
 
-            {states.map((state) => (
-              <Button
-                key={state}
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "px-3 py-1 text-sm rounded-md transition-colors",
-                  stateFilter === state
-                    ? "bg-filter-active text-white"
-                    : "text-content-text-secondary hover:bg-hover-glass hover:text-white",
-                )}
-                onClick={() => handleStateFilter(state)}
-              >
-                {getStateAbbreviation(state)}
-              </Button>
+      {recentVenues.length > 0 && !stateFilter && !searchQuery && (
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-content-text-primary">Recent Venues</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentVenues.map((venue) => (
+              <VenueCard key={venue.id} venue={venue} showStats={false} />
             ))}
           </div>
         </div>
+      )}
 
-        {recentVenues.length > 0 && !stateFilter && !searchQuery && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-content-text-primary">Recent Venues</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {recentVenues.map((venue) => (
-                <VenueCard key={venue.id} venue={venue} showStats={false} />
-              ))}
-            </div>
-          </div>
-        )}
+      <SearchForm onSearch={handleSearch} />
 
-        <SearchForm onSearch={handleSearch} />
-
-        {/* Filter information */}
-        {(stateFilter || searchQuery) && (
-          <div className="flex flex-wrap items-center gap-2">
-            {stateFilter && (
-              <div className="flex items-center gap-2 glass-content rounded-md px-3 py-1">
-                <span className="text-content-text-primary">
-                  {stateFilter === "international" ? "International Venues" : `State: ${stateFilter}`}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-5 w-5 p-0 text-content-text-secondary hover:text-white"
-                  onClick={() => handleStateFilter("")}
+      {/* Filter information */}
+      {(stateFilter || searchQuery) && (
+        <div className="flex flex-wrap items-center gap-2">
+          {stateFilter && (
+            <div className="flex items-center gap-2 glass-content rounded-md px-3 py-1">
+              <span className="text-content-text-primary">
+                {stateFilter === "international" ? "International Venues" : `State: ${stateFilter}`}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-5 w-5 p-0 text-content-text-secondary hover:text-white"
+                onClick={() => handleStateFilter("")}
+              >
+                <span className="sr-only">Clear state filter</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
                 >
-                  <span className="sr-only">Clear state filter</span>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
-                  </svg>
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {filteredVenues.length === 0 ? (
-          <p className="text-content-text-secondary">
-            {searchQuery || stateFilter ? "No venues found matching your filters" : "No venues found"}
-          </p>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visibleVenues.map((venue) => (
-                <VenueCard key={venue.id} venue={venue} />
-              ))}
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </Button>
             </div>
+          )}
+        </div>
+      )}
 
-            {hasMore && (
-              <div ref={loadMoreRef} className="py-8 text-center text-content-text-secondary">
-                {isLoading ? "Loading more venues..." : `${filteredVenues.length - displayCount} more venues`}
-              </div>
-            )}
-          </>
-        )}
+      {filteredVenues.length === 0 ? (
+        <p className="text-content-text-secondary">
+          {searchQuery || stateFilter ? "No venues found matching your filters" : "No venues found"}
+        </p>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {visibleVenues.map((venue) => (
+              <VenueCard key={venue.id} venue={venue} />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div ref={loadMoreRef} className="py-8 text-center text-content-text-secondary">
+              {isLoading ? "Loading more venues..." : `${filteredVenues.length - displayCount} more venues`}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

@@ -39,11 +39,11 @@ async function indexSongs() {
       // Use batch indexing method
       await searchIndexService.indexEntities("song", batch);
       indexed += batch.length;
-      
+
       console.log(`  ✅ ${indexed}/${songs.length} songs indexed`);
     } catch (error) {
       console.error(`  ❌ Failed to index batch of ${batch.length} songs:`, error);
-      
+
       // Fallback to individual indexing for this batch
       for (const song of batch) {
         try {
@@ -89,11 +89,11 @@ async function indexShows() {
       // Use batch indexing method
       await searchIndexService.indexEntities("show", batch);
       indexed += batch.length;
-      
+
       console.log(`  ✅ ${indexed}/${shows.length} shows indexed`);
     } catch (error) {
       console.error(`  ❌ Failed to index batch of ${batch.length} shows:`, error);
-      
+
       // Fallback to individual indexing for this batch
       for (const show of batch) {
         try {
@@ -138,11 +138,11 @@ async function indexVenues() {
       // Use batch indexing method
       await searchIndexService.indexEntities("venue", batch);
       indexed += batch.length;
-      
+
       console.log(`  ✅ ${indexed}/${venues.length} venues indexed`);
     } catch (error) {
       console.error(`  ❌ Failed to index batch of ${batch.length} venues:`, error);
-      
+
       // Fallback to individual indexing for this batch
       for (const venue of batch) {
         try {

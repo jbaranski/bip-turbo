@@ -47,7 +47,11 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
             <FormItem>
               <FormLabel className="text-content-text-primary">Venue Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter venue name" {...field} className="bg-content-bg-secondary border-content-bg-secondary text-white" />
+                <Input
+                  placeholder="Enter venue name"
+                  {...field}
+                  className="bg-content-bg-secondary border-content-bg-secondary text-white"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

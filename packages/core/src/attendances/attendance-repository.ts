@@ -133,11 +133,13 @@ export class AttendanceRepository {
         id: result.show.id,
         slug: result.show.slug,
         date: result.show.date,
-        venue: result.show.venue ? {
-          name: result.show.venue.name,
-          city: result.show.venue.city,
-          state: result.show.venue.state,
-        } : null,
+        venue: result.show.venue
+          ? {
+              name: result.show.venue.name,
+              city: result.show.venue.city,
+              state: result.show.venue.state,
+            }
+          : null,
       },
     }));
   }

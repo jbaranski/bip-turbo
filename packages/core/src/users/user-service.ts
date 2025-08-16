@@ -27,7 +27,7 @@ export class UserService {
     return this.repository.getUserStats(userId);
   }
 
-  async getTopUsersByMetric(metric: 'reviews' | 'attendance' | 'ratings', limit: number = 10): Promise<UserStats[]> {
+  async getTopUsersByMetric(metric: "reviews" | "attendance" | "ratings", limit: number = 10): Promise<UserStats[]> {
     return this.repository.getTopUsersByMetric(metric, limit);
   }
 

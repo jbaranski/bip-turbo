@@ -4,7 +4,7 @@ import { services } from "~/server/services";
 export const loader = publicLoader(async ({ request }) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("q") || "";
-  
+
   if (!query || query.length < 2) {
     return new Response(JSON.stringify([]), {
       status: 200,

@@ -33,27 +33,21 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
   const startTime = Date.now();
 
   try {
-    const body = await request.json() as SearchRequest;
+    const body = (await request.json()) as SearchRequest;
     const { query, entityTypes, limit = 20, threshold = 0.3 } = body;
 
     if (!query || query.trim().length === 0) {
-      throw new Response(
-        JSON.stringify({ error: "Query is required" }), 
-        { 
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+      throw new Response(JSON.stringify({ error: "Query is required" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     if (query.trim().length < 2) {
-      throw new Response(
-        JSON.stringify({ error: "Query must be at least 2 characters" }), 
-        { 
-          status: 400,
-          headers: { "Content-Type": "application/json" }
-        }
-      );
+      throw new Response(JSON.stringify({ error: "Query must be at least 2 characters" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     // Perform the search
@@ -65,9 +59,9 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
     });
 
     // Format results for frontend consumption
-    const formattedResults = searchResults.map(result => {
+    const formattedResults = searchResults.map((result) => {
       let url = "/";
-      
+
       // Generate URLs based on entity type
       switch (result.entityType) {
         case "show":
@@ -112,27 +106,26 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
 
     return new Response(JSON.stringify(response), {
       status: 200,
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Cache-Control": "public, max-age=300", // Cache for 5 minutes
       },
     });
-
   } catch (error) {
     console.error("Search API error:", error);
-    
+
     const errorMessage = error instanceof Error ? error.message : "Search failed";
     const executionTimeMs = Date.now() - startTime;
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: errorMessage,
         executionTimeMs,
-      }), 
-      { 
+      }),
+      {
         status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
+        headers: { "Content-Type": "application/json" },
+      },
     );
   }
 });
@@ -141,29 +134,35 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
 export const loader = publicLoader(async () => {
   try {
     const stats = await services.search.getStats();
-    
-    return new Response(JSON.stringify({
-      status: "healthy",
-      vectorExtensionAvailable: stats.isVectorExtensionAvailable,
-      totalIndexedItems: stats.totalCount,
-      itemsByType: stats.countsByType,
-      registeredFormatters: services.search.getRegisteredEntityTypes(),
-    }), {
-      status: 200,
-      headers: { 
-        "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=60", // Cache for 1 minute
+
+    return new Response(
+      JSON.stringify({
+        status: "healthy",
+        vectorExtensionAvailable: stats.isVectorExtensionAvailable,
+        totalIndexedItems: stats.totalCount,
+        itemsByType: stats.countsByType,
+        registeredFormatters: services.search.getRegisteredEntityTypes(),
+      }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "public, max-age=60", // Cache for 1 minute
+        },
       },
-    });
+    );
   } catch (error) {
     console.error("Search status error:", error);
-    
-    return new Response(JSON.stringify({
-      status: "error",
-      error: error instanceof Error ? error.message : "Unknown error",
-    }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+
+    return new Response(
+      JSON.stringify({
+        status: "error",
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      },
+    );
   }
 });

@@ -37,12 +37,12 @@ export function UserDropdown({ user, className }: UserDropdownProps) {
             "hover:bg-hover-glass hover:ring-2 hover:ring-brand-primary/30",
             "focus:bg-hover-glass focus:ring-2 focus:ring-brand-primary/50",
             "data-[state=open]:bg-hover-glass data-[state=open]:ring-2 data-[state=open]:ring-brand-primary/50",
-            className
+            className,
           )}
         >
           <Avatar className="h-8 w-8 ring-1 ring-brand-primary/20 transition-all duration-200 hover:ring-brand-primary/50">
-            <AvatarImage 
-              src={user.user_metadata?.avatar_url} 
+            <AvatarImage
+              src={user.user_metadata?.avatar_url}
               alt={username || "User avatar"}
               className="object-cover"
             />
@@ -52,13 +52,13 @@ export function UserDropdown({ user, className }: UserDropdownProps) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      
-      <DropdownMenuContent 
+
+      <DropdownMenuContent
         className={cn(
           "w-64 p-2",
           "glass-content rounded-xl border-0",
           "shadow-2xl shadow-brand-primary/10",
-          "animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+          "animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200",
         )}
         align="end"
         sideOffset={8}
@@ -67,36 +67,30 @@ export function UserDropdown({ user, className }: UserDropdownProps) {
         <DropdownMenuLabel className="font-normal p-0">
           <div className="flex items-center space-x-3 p-3 rounded-lg bg-brand-primary/5 border border-brand-primary/10">
             <Avatar className="h-10 w-10 ring-1 ring-brand-primary/30">
-              <AvatarImage 
-                src={user.user_metadata?.avatar_url} 
+              <AvatarImage
+                src={user.user_metadata?.avatar_url}
                 alt={username || "User avatar"}
                 className="object-cover"
               />
-              <AvatarFallback className="bg-brand-primary/20 text-brand-primary font-medium">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="bg-brand-primary/20 text-brand-primary font-medium">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium text-content-text-primary leading-none">
-                {username}
-              </p>
-              <p className="text-xs text-content-text-secondary leading-none truncate max-w-[160px]">
-                {user.email}
-              </p>
+              <p className="text-sm font-medium text-content-text-primary leading-none">{username}</p>
+              <p className="text-xs text-content-text-secondary leading-none truncate max-w-[160px]">{user.email}</p>
             </div>
           </div>
         </DropdownMenuLabel>
-        
+
         <DropdownMenuSeparator className="my-2 bg-brand-primary/20" />
-        
+
         {/* Menu Items */}
-        <DropdownMenuItem 
+        <DropdownMenuItem
           asChild
           className={cn(
             "cursor-pointer rounded-lg p-3 transition-all duration-200",
             "hover:bg-brand-primary/10 hover:text-brand-primary",
             "focus:bg-brand-primary/10 focus:text-brand-primary",
-            "group"
+            "group",
           )}
         >
           <Link to={`/users/${username}`} className="flex items-center space-x-3">
@@ -110,13 +104,13 @@ export function UserDropdown({ user, className }: UserDropdownProps) {
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem 
+        <DropdownMenuItem
           asChild
           className={cn(
             "cursor-pointer rounded-lg p-3 transition-all duration-200",
             "hover:bg-brand-secondary/10 hover:text-brand-secondary",
             "focus:bg-brand-secondary/10 focus:text-brand-secondary",
-            "group"
+            "group",
           )}
         >
           <Link to="/profile/edit" className="flex items-center space-x-3">
@@ -129,17 +123,16 @@ export function UserDropdown({ user, className }: UserDropdownProps) {
             </div>
           </Link>
         </DropdownMenuItem>
-        
+
         <DropdownMenuSeparator className="my-2 bg-brand-primary/20" />
-        
-        
-        <DropdownMenuItem 
+
+        <DropdownMenuItem
           asChild
           className={cn(
             "cursor-pointer rounded-lg p-3 transition-all duration-200",
             "hover:bg-red-500/10 hover:text-red-400",
             "focus:bg-red-500/10 focus:text-red-400",
-            "group"
+            "group",
           )}
         >
           <Link to="/auth/logout" className="flex items-center space-x-3">

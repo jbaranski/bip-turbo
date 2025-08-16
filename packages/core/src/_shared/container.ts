@@ -53,7 +53,7 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
 
   // Create search index repository first
   const searchIndexRepository = new SearchIndexRepository(db);
-  
+
   // Create repositories
   const repositories = {
     setlists: new SetlistRepository(db),

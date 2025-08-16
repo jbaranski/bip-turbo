@@ -1,21 +1,21 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Monoton&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Monoton&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
 
 /* Retro-Futuristic/Tron Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Electrolize:wght@400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Audiowide:wght@400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Electrolize:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Audiowide:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 @theme {
   /* Brand Colors - Purple Focus with Green Accents */
   --color-brand-primary: hsl(267 90% 70%);
   --color-brand-secondary: hsl(267 75% 70%);
   --color-brand-tertiary: hsl(145 80% 55%);
-  
+
   /* Purple Palette */
   --color-purple-50: hsl(270 100% 98%);
   --color-purple-100: hsl(269 100% 95%);
@@ -28,7 +28,7 @@
   --color-purple-800: hsl(251 85% 30%);
   --color-purple-900: hsl(247 85% 20%);
   --color-purple-950: hsl(244 85% 12%);
-  
+
   /* Green Palette */
   --color-green-50: hsl(140 50% 98%);
   --color-green-100: hsl(141 60% 93%);
@@ -41,12 +41,12 @@
   --color-green-800: hsl(148 95% 25%);
   --color-green-900: hsl(149 100% 15%);
   --color-green-950: hsl(150 100% 8%);
-  
+
   /* Content Text Colors */
   --color-content-text-primary: hsl(0 0% 98%);
   --color-content-text-secondary: hsl(240 5% 75%);
   --color-content-text-tertiary: hsl(240 5% 55%);
-  
+
   /* Rating Colors */
   --color-rating-gold: hsl(38 95% 62%);
 }
@@ -55,27 +55,27 @@
   /* Design Token System - Premium Purple & Vibrant Green Palette */
   :root {
     /* Base system colors - Dark mode optimized */
-    --background: 240 10% 3.9%;              /* Deep dark background */
-    --foreground: 0 0% 98%;                  /* High contrast white text */
-    --laser-1: 267 100% 50%;                 /* Deep purple laser */
-    --laser-2: 140 100% 50%;                 /* Vibrant green laser */
-    --laser-3: 270 95% 45%;                  /* Royal purple laser */
-    --laser-4: 145 100% 55%;                 /* Electric green laser */
-    --laser-5: 265 90% 40%;                  /* Deep violet laser */
-    --laser-6: 150 95% 50%;                  /* Bright green laser */
-    --laser-white-1: 0 0% 95%;               /* Bright white laser */
-    --laser-white-2: 240 20% 90%;            /* Cool white laser */
-    --laser-cyan: 180 100% 60%;              /* Cyan laser */
-    --laser-magenta: 300 100% 60%;           /* Magenta laser */
-    --laser-blue: 220 100% 55%;              /* Electric blue laser */
-    --laser-red: 0 100% 60%;                 /* Red laser */
+    --background: 240 10% 3.9%; /* Deep dark background */
+    --foreground: 0 0% 98%; /* High contrast white text */
+    --laser-1: 267 100% 50%; /* Deep purple laser */
+    --laser-2: 140 100% 50%; /* Vibrant green laser */
+    --laser-3: 270 95% 45%; /* Royal purple laser */
+    --laser-4: 145 100% 55%; /* Electric green laser */
+    --laser-5: 265 90% 40%; /* Deep violet laser */
+    --laser-6: 150 95% 50%; /* Bright green laser */
+    --laser-white-1: 0 0% 95%; /* Bright white laser */
+    --laser-white-2: 240 20% 90%; /* Cool white laser */
+    --laser-cyan: 180 100% 60%; /* Cyan laser */
+    --laser-magenta: 300 100% 60%; /* Magenta laser */
+    --laser-blue: 220 100% 55%; /* Electric blue laser */
+    --laser-red: 0 100% 60%; /* Red laser */
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 224 71% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 267 90% 70%;                  /* Light purple primary (was hover) */
+    --primary: 267 90% 70%; /* Light purple primary (was hover) */
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 5% 16%;                 /* Dark secondary */
+    --secondary: 240 5% 16%; /* Dark secondary */
     --secondary-foreground: 0 0% 98%;
     --muted: 240 5% 16%;
     --muted-foreground: 240 5% 65%;
@@ -89,140 +89,140 @@
     --radius: 0.75rem;
 
     /* Premium Purple Palette - Deep & Rich */
-    --purple-50: 270 100% 98%;               /* Almost white with purple tint */
-    --purple-100: 269 100% 95%;              /* Very light purple */
-    --purple-200: 269 100% 90%;              /* Light purple */
-    --purple-300: 268 100% 82%;              /* Medium light purple */
-    --purple-400: 267 93% 73%;               /* Medium purple */
-    --purple-500: 263 85% 60%;               /* Core brand purple */
-    --purple-600: 259 85% 50%;               /* Deep brand purple */
-    --purple-700: 255 85% 40%;               /* Darker purple */
-    --purple-800: 251 85% 30%;               /* Very dark purple */
-    --purple-900: 247 85% 20%;               /* Almost black purple */
-    --purple-950: 244 85% 12%;               /* Near black purple */
+    --purple-50: 270 100% 98%; /* Almost white with purple tint */
+    --purple-100: 269 100% 95%; /* Very light purple */
+    --purple-200: 269 100% 90%; /* Light purple */
+    --purple-300: 268 100% 82%; /* Medium light purple */
+    --purple-400: 267 93% 73%; /* Medium purple */
+    --purple-500: 263 85% 60%; /* Core brand purple */
+    --purple-600: 259 85% 50%; /* Deep brand purple */
+    --purple-700: 255 85% 40%; /* Darker purple */
+    --purple-800: 251 85% 30%; /* Very dark purple */
+    --purple-900: 247 85% 20%; /* Almost black purple */
+    --purple-950: 244 85% 12%; /* Near black purple */
 
     /* Vibrant Green Palette - Electric but Controlled */
-    --green-50: 140 50% 98%;                 /* Almost white with green tint */
-    --green-100: 141 60% 93%;                /* Very light green */
-    --green-200: 142 65% 85%;                /* Light green */
-    --green-300: 143 70% 75%;                /* Medium light green */
-    --green-400: 144 75% 65%;                /* Medium green */
-    --green-500: 145 80% 55%;                /* Core accent green */
-    --green-600: 146 85% 45%;                /* Deep accent green */
-    --green-700: 147 90% 35%;                /* Darker green */
-    --green-800: 148 95% 25%;                /* Very dark green */
-    --green-900: 149 100% 15%;               /* Almost black green */
-    --green-950: 150 100% 8%;                /* Near black green */
+    --green-50: 140 50% 98%; /* Almost white with green tint */
+    --green-100: 141 60% 93%; /* Very light green */
+    --green-200: 142 65% 85%; /* Light green */
+    --green-300: 143 70% 75%; /* Medium light green */
+    --green-400: 144 75% 65%; /* Medium green */
+    --green-500: 145 80% 55%; /* Core accent green */
+    --green-600: 146 85% 45%; /* Deep accent green */
+    --green-700: 147 90% 35%; /* Darker green */
+    --green-800: 148 95% 25%; /* Very dark green */
+    --green-900: 149 100% 15%; /* Almost black green */
+    --green-950: 150 100% 8%; /* Near black green */
 
     /* Brand & Identity - Premium Purple Focus */
-    --brand-primary: 267 90% 70%;            /* Core purple brand (lighter) */
-    --brand-secondary: 267 75% 70%;          /* Lighter purple secondary */
-    --brand-tertiary: 145 80% 55%;           /* Green accent brand */
-    --brand-gradient-start: 269 100% 82%;    /* Light purple gradient start */
-    --brand-gradient-mid: 263 85% 60%;       /* Core purple gradient mid */
-    --brand-gradient-end: 259 85% 50%;       /* Deep purple gradient end */
-    --brand-glow: 263 85% 60%;               /* Purple glow effect */
-    
+    --brand-primary: 267 90% 70%; /* Core purple brand (lighter) */
+    --brand-secondary: 267 75% 70%; /* Lighter purple secondary */
+    --brand-tertiary: 145 80% 55%; /* Green accent brand */
+    --brand-gradient-start: 269 100% 82%; /* Light purple gradient start */
+    --brand-gradient-mid: 263 85% 60%; /* Core purple gradient mid */
+    --brand-gradient-end: 259 85% 50%; /* Deep purple gradient end */
+    --brand-glow: 263 85% 60%; /* Purple glow effect */
+
     /* Content Areas - Glass-morphism Ready */
-    --content-bg: 240 10% 3.9%;              /* Primary dark background */
-    --content-bg-secondary: 240 6% 10%;      /* Secondary areas */
-    --content-bg-tertiary: 240 6% 15%;       /* Tertiary areas */
+    --content-bg: 240 10% 3.9%; /* Primary dark background */
+    --content-bg-secondary: 240 6% 10%; /* Secondary areas */
+    --content-bg-tertiary: 240 6% 15%; /* Tertiary areas */
     --content-glass: hsla(263, 20%, 15%, 0.6); /* Purple-tinted glass background with transparency */
     --content-glass-border: hsla(263, 40%, 65%, 0.2); /* Glass border - lighter and more subtle purple */
-    --content-text-primary: 0 0% 98%;        /* High contrast primary text */
-    --content-text-secondary: 240 5% 75%;    /* Secondary text */
-    --content-text-tertiary: 240 5% 55%;     /* Tertiary/muted text */
-    
+    --content-text-primary: 0 0% 98%; /* High contrast primary text */
+    --content-text-secondary: 240 5% 75%; /* Secondary text */
+    --content-text-tertiary: 240 5% 55%; /* Tertiary/muted text */
+
     /* Interactive States - Purple Primary, Green Accents */
-    --hover-accent: 263 85% 60%;             /* Purple hover state (darker) */
-    --hover-accent-green: 145 85% 60%;       /* Green hover state */
-    --hover-subtle: 240 6% 12%;              /* Subtle hover background */
-    --hover-glass: 263 25% 18%;              /* Glass hover effect */
-    --focus-ring: 267 90% 70%;               /* Purple focus ring (lighter) */
-    --focus-ring-green: 145 80% 55%;         /* Green focus ring */
-    --active-state: 259 85% 50%;             /* Purple active/pressed state */
-    --active-state-green: 146 85% 45%;       /* Green active state */
-    
+    --hover-accent: 263 85% 60%; /* Purple hover state (darker) */
+    --hover-accent-green: 145 85% 60%; /* Green hover state */
+    --hover-subtle: 240 6% 12%; /* Subtle hover background */
+    --hover-glass: 263 25% 18%; /* Glass hover effect */
+    --focus-ring: 267 90% 70%; /* Purple focus ring (lighter) */
+    --focus-ring-green: 145 80% 55%; /* Green focus ring */
+    --active-state: 259 85% 50%; /* Purple active/pressed state */
+    --active-state-green: 146 85% 45%; /* Green active state */
+
     /* Status & Feedback - Harmonized with Brand */
-    --success: 145 80% 55%;                  /* Brand green for success */
-    --success-bg: 145 50% 10%;               /* Success background */
-    --warning: 38 92% 60%;                   /* Warning amber */
-    --warning-bg: 38 50% 12%;                /* Warning background */
-    --error: 0 85% 65%;                      /* Error red */
-    --error-bg: 0 50% 12%;                   /* Error background */
-    --info: 205 100% 70%;                    /* Info blue */
-    --info-bg: 205 50% 12%;                  /* Info background */
-    --rating-gold: 38 95% 62%;               /* Star ratings - yellowy orange */
-    --rating-dim: 240 5% 35%;                /* Inactive ratings */
-    
+    --success: 145 80% 55%; /* Brand green for success */
+    --success-bg: 145 50% 10%; /* Success background */
+    --warning: 38 92% 60%; /* Warning amber */
+    --warning-bg: 38 50% 12%; /* Warning background */
+    --error: 0 85% 65%; /* Error red */
+    --error-bg: 0 50% 12%; /* Error background */
+    --info: 205 100% 70%; /* Info blue */
+    --info-bg: 205 50% 12%; /* Info background */
+    --rating-gold: 38 95% 62%; /* Star ratings - yellowy orange */
+    --rating-dim: 240 5% 35%; /* Inactive ratings */
+
     /* Chart & Data Visualization - Purple Primary, Green Secondary */
-    --chart-primary: 263 85% 60%;            /* Purple primary chart */
-    --chart-secondary: 145 80% 55%;          /* Green secondary chart */
-    --chart-tertiary: 267 50% 75%;           /* Light purple tertiary */
-    --chart-quaternary: 145 50% 70%;         /* Light green quaternary */
-    --chart-accent: 45 93% 57%;              /* Gold accent for special data */
-    --chart-gradient-start: 263 85% 60%;     /* Chart gradient start */
-    --chart-gradient-end: 145 80% 55%;       /* Chart gradient end */
-    
+    --chart-primary: 263 85% 60%; /* Purple primary chart */
+    --chart-secondary: 145 80% 55%; /* Green secondary chart */
+    --chart-tertiary: 267 50% 75%; /* Light purple tertiary */
+    --chart-quaternary: 145 50% 70%; /* Light green quaternary */
+    --chart-accent: 45 93% 57%; /* Gold accent for special data */
+    --chart-gradient-start: 263 85% 60%; /* Chart gradient start */
+    --chart-gradient-end: 145 80% 55%; /* Chart gradient end */
+
     /* Component-Specific - Glass-morphism Enhanced */
-    --card-overlay: 240 10% 3.9%;            /* Card background */
-    --card-glass: hsla(263, 15%, 10%, 0.6);  /* Glass card background with transparency */
+    --card-overlay: 240 10% 3.9%; /* Card background */
+    --card-glass: hsla(263, 15%, 10%, 0.6); /* Glass card background with transparency */
     --card-glass-border: hsla(263, 35%, 60%, 0.18); /* Glass card border - lighter and more subtle */
-    --nav-link-hover: 263 85% 60%;           /* Navigation hover (was primary) */
-    --nav-glass: hsla(263, 20%, 8%, 0.6);    /* Navigation glass background with transparency */
-    --search-bg: 240 6% 10%;                 /* Search input background */
+    --nav-link-hover: 263 85% 60%; /* Navigation hover (was primary) */
+    --nav-glass: hsla(263, 20%, 8%, 0.6); /* Navigation glass background with transparency */
+    --search-bg: 240 6% 10%; /* Search input background */
     --search-glass: hsla(263, 15%, 12%, 0.6); /* Glass search background with transparency */
-    --filter-active: 263 85% 60%;            /* Active filter - purple */
-    --filter-active-secondary: 145 80% 55%;  /* Secondary active filter - green */
-    --table-header: 240 6% 8%;               /* Table header background */
-    --table-row-hover: 240 6% 12%;           /* Table row hover */
-    --table-glass: hsla(263, 10%, 8%, 0.6);  /* Glass table background with transparency */
-    --divider: 240 6% 20%;                   /* Dividers and separators */
-    --divider-accent: 263 30% 25%;           /* Accent dividers */
-    
+    --filter-active: 263 85% 60%; /* Active filter - purple */
+    --filter-active-secondary: 145 80% 55%; /* Secondary active filter - green */
+    --table-header: 240 6% 8%; /* Table header background */
+    --table-row-hover: 240 6% 12%; /* Table row hover */
+    --table-glass: hsla(263, 10%, 8%, 0.6); /* Glass table background with transparency */
+    --divider: 240 6% 20%; /* Dividers and separators */
+    --divider-accent: 263 30% 25%; /* Accent dividers */
+
     /* Glass-morphism Effects */
-    --glass-bg: hsla(263, 15%, 8%, 0.6);     /* Primary glass background with transparency */
+    --glass-bg: hsla(263, 15%, 8%, 0.6); /* Primary glass background with transparency */
     --glass-bg-secondary: hsla(240, 8%, 12%, 0.5); /* Secondary glass background with transparency */
     --glass-border: hsla(263, 40%, 65%, 0.2); /* Glass borders - lighter and more subtle purple */
     --glass-border-accent: hsla(145, 50%, 60%, 0.25); /* Green accent glass borders - lighter and more subtle green */
     --glass-shadow: hsla(263, 50%, 5%, 0.3); /* Glass shadow color with transparency */
-    --backdrop-blur: blur(12px);             /* Standard backdrop blur */
-    --backdrop-blur-heavy: blur(20px);       /* Heavy backdrop blur */
+    --backdrop-blur: blur(12px); /* Standard backdrop blur */
+    --backdrop-blur-heavy: blur(20px); /* Heavy backdrop blur */
   }
 
   /* Light mode styles */
   :root:not(.dark) {
     /* Light mode color overrides */
-    --background: 0 0% 98%;                  /* Light background */
-    --foreground: 240 10% 12%;               /* Dark text on light */
-    --content-text-primary: 240 10% 12%;     /* Dark primary text */
-    --content-text-secondary: 240 8% 35%;    /* Medium gray text */
-    --content-text-tertiary: 240 6% 55%;     /* Light gray text */
-    --brand-primary: 263 85% 50%;            /* Darker purple for light mode */
-    --brand-secondary: 267 75% 60%;          /* Medium purple */
-    --brand-tertiary: 145 80% 45%;           /* Darker green for light mode */
-    
+    --background: 0 0% 98%; /* Light background */
+    --foreground: 240 10% 12%; /* Dark text on light */
+    --content-text-primary: 240 10% 12%; /* Dark primary text */
+    --content-text-secondary: 240 8% 35%; /* Medium gray text */
+    --content-text-tertiary: 240 6% 55%; /* Light gray text */
+    --brand-primary: 263 85% 50%; /* Darker purple for light mode */
+    --brand-secondary: 267 75% 60%; /* Medium purple */
+    --brand-tertiary: 145 80% 45%; /* Darker green for light mode */
+
     /* Light mode glass effects */
-    --glass-bg: hsla(263, 20%, 95%, 0.8);    /* Light glass background */
+    --glass-bg: hsla(263, 20%, 95%, 0.8); /* Light glass background */
     --glass-border: hsla(263, 60%, 70%, 0.6); /* Purple border for light */
     --glass-border-accent: hsla(145, 60%, 55%, 0.6); /* Green border for light */
     --content-glass: hsla(263, 15%, 92%, 0.9); /* Light content glass */
     --content-glass-border: hsla(263, 50%, 60%, 0.8); /* Light content border */
-    
+
     /* Light mode interactive states */
     --hover-glass: hsla(263, 20%, 88%, 0.9); /* Light hover */
-    --hover-accent: 267 80% 60%;             /* Purple hover */
-    --hover-accent-green: 145 75% 50%;       /* Green hover */
+    --hover-accent: 267 80% 60%; /* Purple hover */
+    --hover-accent-green: 145 75% 50%; /* Green hover */
   }
- 
+
   .dark {
     /* Dark mode inherits from root - already optimized for dark */
     /* All color tokens above are designed for dark mode by default */
     /* This maintains consistency between light/dark while being primarily dark-focused */
-    
+
     /* Slightly enhanced purple glow for dark mode */
-    --brand-glow: 263 90% 70%;               /* Brighter purple glow in dark */
-    --glass-border: hsla(263, 40%, 65%, 0.2);  /* Lighter and more subtle purple borders for dark mode */
+    --brand-glow: 263 90% 70%; /* Brighter purple glow in dark */
+    --glass-border: hsla(263, 40%, 65%, 0.2); /* Lighter and more subtle purple borders for dark mode */
     --glass-border-accent: hsla(145, 50%, 60%, 0.25); /* Lighter and more subtle green borders for dark mode */
   }
 
@@ -243,7 +243,7 @@
   * {
     border-color: hsl(var(--border));
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -255,7 +255,6 @@
   html {
     position: relative;
   }
-
 
   /* Remove sidebar background completely */
   html [data-sidebar="sidebar"],
@@ -285,22 +284,28 @@
   }
 
   /* Apply default fonts */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
-    font-weight: 400;  /* Monoton only comes in regular weight */
-    letter-spacing: 0.05em;  /* Reduced letter spacing as Monoton has built-in spacing */
+    font-weight: 400; /* Monoton only comes in regular weight */
+    letter-spacing: 0.05em; /* Reduced letter spacing as Monoton has built-in spacing */
     text-transform: uppercase;
-    line-height: 1.4;  /* Increased line height for better readability */
+    line-height: 1.4; /* Increased line height for better readability */
   }
 
-  code, pre {
+  code,
+  pre {
     font-family: var(--font-mono);
   }
 
   /* Style the sidebar title */
   [data-sidebar="sidebar"] .text-lg {
     font-family: var(--font-heading);
-    font-weight: 400;  /* Monoton only comes in regular weight */
+    font-weight: 400; /* Monoton only comes in regular weight */
     letter-spacing: 0.05em;
     text-transform: uppercase;
     line-height: 1.4;
@@ -357,15 +362,23 @@
 
   /* Custom keyframes for animations */
   @keyframes accordion-down {
-    from { height: 0; }
-    to { height: var(--radix-accordion-content-height); }
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
   }
-  
+
   @keyframes accordion-up {
-    from { height: var(--radix-accordion-content-height); }
-    to { height: 0; }
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
   }
-  
+
   @keyframes star-pulse {
     0% {
       transform: scale(1);
@@ -380,13 +393,19 @@
       filter: drop-shadow(0 0 0 rgba(255, 165, 0, 0));
     }
   }
-  
+
   @keyframes star-glow {
-    0% { filter: brightness(100%); }
-    50% { filter: brightness(150%); }
-    100% { filter: brightness(100%); }
+    0% {
+      filter: brightness(100%);
+    }
+    50% {
+      filter: brightness(150%);
+    }
+    100% {
+      filter: brightness(100%);
+    }
   }
-  
+
   @keyframes rating-update {
     0% {
       transform: scale(1);
@@ -401,7 +420,7 @@
       filter: brightness(100%) drop-shadow(0 0 0 rgba(255, 165, 0, 0));
     }
   }
-  
+
   @keyframes avg-rating-update {
     0% {
       transform: scale(1);
@@ -457,25 +476,35 @@
 
   /* Premium Card Styles */
   .card-premium {
-    background: linear-gradient(135deg, 
-      hsla(263, 25%, 8%, 0.95) 0%, 
-      hsla(263, 30%, 12%, 0.85) 50%, 
-      hsla(263, 15%, 3%, 0.98) 100%) !important;
+    background: linear-gradient(
+      135deg,
+      hsla(263, 25%, 8%, 0.95) 0%,
+      hsla(263, 30%, 12%, 0.85) 50%,
+      hsla(263, 15%, 3%, 0.98) 100%
+    ) !important;
     border: 1px solid hsla(263, 35%, 60%, 0.15) !important;
     backdrop-filter: var(--backdrop-blur) !important;
     -webkit-backdrop-filter: var(--backdrop-blur) !important;
     border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 8px 32px var(--glass-shadow);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.1),
+      0 8px 32px var(--glass-shadow);
   }
 
   /* Light mode card override */
   :root:not(.dark) .card-premium {
-    background: linear-gradient(135deg, 
-      hsla(263, 15%, 98%, 0.9) 0%, 
-      hsla(263, 20%, 95%, 0.85) 50%, 
-      hsla(263, 10%, 92%, 0.95) 100%) !important;
+    background: linear-gradient(
+      135deg,
+      hsla(263, 15%, 98%, 0.9) 0%,
+      hsla(263, 20%, 95%, 0.85) 50%,
+      hsla(263, 10%, 92%, 0.95) 100%
+    ) !important;
     border: 1px solid hsla(263, 40%, 75%, 0.3) !important;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05), 0 8px 32px hsla(263, 50%, 60%, 0.1);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.05),
+      0 8px 10px -6px rgb(0 0 0 / 0.05),
+      0 8px 32px hsla(263, 50%, 60%, 0.1);
   }
 
   .card-premium-accent {
@@ -484,21 +513,24 @@
     backdrop-filter: var(--backdrop-blur) !important;
     -webkit-backdrop-filter: var(--backdrop-blur) !important;
     border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 8px 32px var(--glass-shadow);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.1),
+      0 8px 32px var(--glass-shadow);
   }
 
   /* Gradient Utilities */
   .bg-brand-gradient {
-    background: linear-gradient(135deg, 
+    background: linear-gradient(
+      135deg,
       hsl(var(--brand-gradient-start)) 0%,
       hsl(var(--brand-gradient-mid)) 50%,
-      hsl(var(--brand-gradient-end)) 100%);
+      hsl(var(--brand-gradient-end)) 100%
+    );
   }
 
   .bg-chart-gradient {
-    background: linear-gradient(135deg, 
-      hsl(var(--chart-gradient-start)) 0%,
-      hsl(var(--chart-gradient-end)) 100%);
+    background: linear-gradient(135deg, hsl(var(--chart-gradient-start)) 0%, hsl(var(--chart-gradient-end)) 100%);
   }
 
   /* Enhanced Interactive States */
@@ -513,7 +545,9 @@
 
   .btn-primary:hover {
     background-color: hsl(var(--hover-accent));
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 
   .btn-primary:focus {
@@ -559,7 +593,9 @@
 
   .btn-accent:hover {
     background-color: hsl(var(--hover-accent-green));
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
   }
 
   .btn-accent:focus {
@@ -585,7 +621,10 @@
     backdrop-filter: var(--backdrop-blur);
     -webkit-backdrop-filter: var(--backdrop-blur);
     border-radius: 0.75rem;
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 8px 32px hsl(var(--glass-shadow) / 0.3);
+    box-shadow:
+      0 20px 25px -5px rgb(0 0 0 / 0.1),
+      0 8px 10px -6px rgb(0 0 0 / 0.1),
+      0 8px 32px hsl(var(--glass-shadow) / 0.3);
     padding: 1.5rem;
     transition: all 300ms;
   }
@@ -714,28 +753,28 @@
 
   /* Retro-Futuristic Font Classes */
   .font-tron-orbitron {
-    font-family: 'Orbitron', monospace;
+    font-family: "Orbitron", monospace;
   }
 
   .font-tron-electrolize {
-    font-family: 'Electrolize', sans-serif;
+    font-family: "Electrolize", sans-serif;
   }
 
   .font-tron-rajdhani {
-    font-family: 'Rajdhani', sans-serif;
+    font-family: "Rajdhani", sans-serif;
   }
 
   .font-tron-audiowide {
-    font-family: 'Audiowide', monospace;
+    font-family: "Audiowide", monospace;
   }
 
   .font-tron-exo {
-    font-family: 'Exo 2', sans-serif;
+    font-family: "Exo 2", sans-serif;
   }
 
   /* Tron/Cyberpunk Effects */
   .tron-neon-glow {
-    text-shadow: 
+    text-shadow:
       0 0 5px currentColor,
       0 0 10px currentColor,
       0 0 15px currentColor,
@@ -744,7 +783,7 @@
 
   .tron-cyan-glow {
     color: #00ffff;
-    text-shadow: 
+    text-shadow:
       0 0 5px #00ffff,
       0 0 10px #00ffff,
       0 0 15px #00ffff,
@@ -754,7 +793,7 @@
 
   .tron-blue-glow {
     color: #0080ff;
-    text-shadow: 
+    text-shadow:
       0 0 5px #0080ff,
       0 0 10px #0080ff,
       0 0 15px #0080ff,
@@ -764,7 +803,7 @@
 
   .tron-white-glow {
     color: #ffffff;
-    text-shadow: 
+    text-shadow:
       0 0 5px #ffffff,
       0 0 10px #ffffff,
       0 0 15px #ffffff,
@@ -785,7 +824,7 @@
   .page-heading {
     font-size: 2.25rem;
     font-weight: 700;
-    font-family: 'Audiowide', monospace;
+    font-family: "Audiowide", monospace;
     color: #000;
     margin-bottom: 2rem;
     text-align: center;
@@ -816,7 +855,8 @@
   }
 
   @keyframes tron-pulse {
-    0%, 100% {
+    0%,
+    100% {
       background-position: 0% 50%;
     }
     50% {

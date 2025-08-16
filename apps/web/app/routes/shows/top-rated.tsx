@@ -78,14 +78,18 @@ export default function TopRated() {
                         <div className="p-4 w-[140px]">
                           <div className="flex items-center">
                             <Star className="h-4 w-4 text-rating-gold mr-1" />
-                            <span className="text-content-text-primary font-medium">{show.averageRating?.toFixed(1) || "—"}</span>
+                            <span className="text-content-text-primary font-medium">
+                              {show.averageRating?.toFixed(1) || "—"}
+                            </span>
                           </div>
                         </div>
                         <div className="p-4 w-[180px]">
                           <span className="text-content-text-primary">{show.ratingsCount}</span>
                         </div>
                         <div className="p-4 w-[140px]">
-                          <span className="text-brand-primary group-hover:underline group-hover:text-brand-secondary">{formatDateShort(show.date)}</span>
+                          <span className="text-brand-primary group-hover:underline group-hover:text-brand-secondary">
+                            {formatDateShort(show.date)}
+                          </span>
                         </div>
                         <div className="p-4 flex-1">
                           <span className="text-content-text-primary">{show.venue?.name || "Unknown Venue"}</span>

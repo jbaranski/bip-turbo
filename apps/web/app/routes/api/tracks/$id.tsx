@@ -23,7 +23,7 @@ export const action = adminAction(async ({ request, params }) => {
         segue: data.segue,
         note: data.note,
       });
-      
+
       console.log(`Updated track ${id}`);
       return track;
     } catch (error) {

@@ -32,11 +32,15 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   // Get current session user
   const { supabase } = getServerClient(request);
-  const { data: { session } } = await supabase.auth.getSession();
-  const sessionUser = session?.user ? {
-    id: session.user.id,
-    role: session.user.user_metadata?.role
-  } : null;
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const sessionUser = session?.user
+    ? {
+        id: session.user.id,
+        role: session.user.user_metadata?.role,
+      }
+    : null;
 
   // Find the user by username
   const user = await services.users.findByUsername(username);
@@ -84,18 +88,18 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 }
 
 export default function UserProfile() {
-  const { 
-    user, 
-    reviews, 
-    blogPosts, 
-    userAttendances, 
-    showRatings, 
+  const {
+    user,
+    reviews,
+    blogPosts,
+    userAttendances,
+    showRatings,
     trackRatings,
-    attendanceCount, 
-    reviewCount, 
+    attendanceCount,
+    reviewCount,
     showRatingsCount,
     trackRatingsCount,
-    isOwnProfile 
+    isOwnProfile,
   } = useLoaderData<typeof loader>();
 
   return (
@@ -108,11 +112,7 @@ export default function UserProfile() {
               {/* Avatar */}
               <div className="w-24 h-24 rounded-full overflow-hidden bg-glass-bg border-2 border-glass-border flex items-center justify-center flex-shrink-0">
                 {user.avatarUrl ? (
-                  <img 
-                    src={user.avatarUrl} 
-                    alt={`${user.username}'s avatar`}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={user.avatarUrl} alt={`${user.username}'s avatar`} className="w-full h-full object-cover" />
                 ) : (
                   <Users className="w-10 h-10 text-content-text-tertiary" />
                 )}
@@ -170,10 +170,16 @@ export default function UserProfile() {
           <TabsTrigger value="reviews" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
             Reviews ({reviewCount})
           </TabsTrigger>
-          <TabsTrigger value="show-ratings" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="show-ratings"
+            className="data-[state=active]:bg-brand-primary data-[state=active]:text-white"
+          >
             Show Ratings ({showRatingsCount})
           </TabsTrigger>
-          <TabsTrigger value="track-ratings" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
+          <TabsTrigger
+            value="track-ratings"
+            className="data-[state=active]:bg-brand-primary data-[state=active]:text-white"
+          >
             Song Version Ratings ({trackRatingsCount})
           </TabsTrigger>
           <TabsTrigger value="shows" className="data-[state=active]:bg-brand-primary data-[state=active]:text-white">
@@ -196,7 +202,7 @@ export default function UserProfile() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">
                         {review.show ? (
-                          <Link 
+                          <Link
                             to={`/shows/${review.show.slug}`}
                             className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
                           >
@@ -215,16 +221,16 @@ export default function UserProfile() {
                         <CalendarDays className="w-4 h-4" />
                         <span>{formatDateLong(review.show.date)}</span>
                         {review.show.venue.city && review.show.venue.state && (
-                          <span>• {review.show.venue.city}, {review.show.venue.state}</span>
+                          <span>
+                            • {review.show.venue.city}, {review.show.venue.state}
+                          </span>
                         )}
                       </div>
                     )}
                   </CardHeader>
                   <CardContent>
                     <div className="prose prose-invert max-w-none">
-                      <p className="text-content-text-secondary whitespace-pre-wrap">
-                        {review.content}
-                      </p>
+                      <p className="text-content-text-secondary whitespace-pre-wrap">{review.content}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -236,10 +242,9 @@ export default function UserProfile() {
                 <MessageSquare className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">No Reviews Yet</h3>
                 <p className="text-content-text-secondary">
-                  {isOwnProfile 
+                  {isOwnProfile
                     ? "You haven't written any reviews yet. Check out some shows and share your thoughts!"
-                    : `${user.username} hasn't written any reviews yet.`
-                  }
+                    : `${user.username} hasn't written any reviews yet.`}
                 </p>
               </CardContent>
             </Card>
@@ -256,16 +261,14 @@ export default function UserProfile() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">
                         {rating.show.slug ? (
-                          <Link 
+                          <Link
                             to={`/shows/${rating.show.slug}`}
                             className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
                           >
                             {rating.show.venue?.name || "Unknown Venue"}
                           </Link>
                         ) : (
-                          <span className="text-brand-primary">
-                            {rating.show.venue?.name || "Unknown Venue"}
-                          </span>
+                          <span className="text-brand-primary">{rating.show.venue?.name || "Unknown Venue"}</span>
                         )}
                       </CardTitle>
                       <div className="flex items-center gap-2">
@@ -282,7 +285,9 @@ export default function UserProfile() {
                       <CalendarDays className="w-4 h-4" />
                       <span>{formatDateLong(rating.show.date)}</span>
                       {rating.show.venue?.city && rating.show.venue?.state && (
-                        <span>• {rating.show.venue.city}, {rating.show.venue.state}</span>
+                        <span>
+                          • {rating.show.venue.city}, {rating.show.venue.state}
+                        </span>
                       )}
                     </div>
                   </CardHeader>
@@ -295,10 +300,9 @@ export default function UserProfile() {
                 <Star className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">No Show Ratings Yet</h3>
                 <p className="text-content-text-secondary">
-                  {isOwnProfile 
+                  {isOwnProfile
                     ? "You haven't rated any shows yet. Browse shows and share your thoughts!"
-                    : `${user.username} hasn't rated any shows yet.`
-                  }
+                    : `${user.username} hasn't rated any shows yet.`}
                 </p>
               </CardContent>
             </Card>
@@ -315,14 +319,14 @@ export default function UserProfile() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">
                         {rating.track.slug ? (
-                          <Link 
+                          <Link
                             to={`/tracks/${rating.track.slug}`}
                             className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
                           >
                             {rating.track.song.title}
                           </Link>
                         ) : (
-                          <Link 
+                          <Link
                             to={`/songs/${rating.track.song.slug}`}
                             className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
                           >
@@ -345,10 +349,7 @@ export default function UserProfile() {
                         Set {rating.track.set} • #{rating.track.position}
                       </span>
                       {rating.track.show.slug ? (
-                        <Link 
-                          to={`/shows/${rating.track.show.slug}`}
-                          className="hover:underline"
-                        >
+                        <Link to={`/shows/${rating.track.show.slug}`} className="hover:underline">
                           {rating.track.show.venue?.name || "Unknown Venue"} • {formatDateLong(rating.track.show.date)}
                         </Link>
                       ) : (
@@ -367,10 +368,9 @@ export default function UserProfile() {
                 <Star className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">No Song Version Ratings Yet</h3>
                 <p className="text-content-text-secondary">
-                  {isOwnProfile 
+                  {isOwnProfile
                     ? "You haven't rated any song versions yet. Listen to shows and rate individual songs!"
-                    : `${user.username} hasn't rated any song versions yet.`
-                  }
+                    : `${user.username} hasn't rated any song versions yet.`}
                 </p>
               </CardContent>
             </Card>
@@ -386,7 +386,7 @@ export default function UserProfile() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-xl">
-                        <Link 
+                        <Link
                           to={`/blog/${post.slug}`}
                           className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
                         >
@@ -399,10 +399,8 @@ export default function UserProfile() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-content-text-secondary line-clamp-3">
-                      {post.content?.substring(0, 200)}...
-                    </p>
-                    <Link 
+                    <p className="text-content-text-secondary line-clamp-3">{post.content?.substring(0, 200)}...</p>
+                    <Link
                       to={`/blog/${post.slug}`}
                       className="inline-flex items-center gap-1 text-brand-primary hover:text-brand-secondary text-sm font-medium mt-3 hover:underline transition-colors"
                     >
@@ -418,10 +416,9 @@ export default function UserProfile() {
                 <Edit className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">No Blog Posts Yet</h3>
                 <p className="text-content-text-secondary">
-                  {isOwnProfile 
+                  {isOwnProfile
                     ? "You haven't published any blog posts yet. Share your thoughts about shows, music, and more!"
-                    : `${user.username} hasn't published any blog posts yet.`
-                  }
+                    : `${user.username} hasn't published any blog posts yet.`}
                 </p>
               </CardContent>
             </Card>
@@ -438,16 +435,14 @@ export default function UserProfile() {
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg">
                         {attendance.show.slug ? (
-                          <Link 
+                          <Link
                             to={`/shows/${attendance.show.slug}`}
                             className="text-brand-primary hover:text-brand-secondary transition-colors hover:underline"
                           >
                             {attendance.show.venue?.name || "Unknown Venue"}
                           </Link>
                         ) : (
-                          <span className="text-brand-primary">
-                            {attendance.show.venue?.name || "Unknown Venue"}
-                          </span>
+                          <span className="text-brand-primary">{attendance.show.venue?.name || "Unknown Venue"}</span>
                         )}
                       </CardTitle>
                       <span className="text-sm text-content-text-tertiary">
@@ -458,7 +453,9 @@ export default function UserProfile() {
                       <CalendarDays className="w-4 h-4" />
                       <span>{formatDateLong(attendance.show.date)}</span>
                       {attendance.show.venue?.city && attendance.show.venue?.state && (
-                        <span>• {attendance.show.venue.city}, {attendance.show.venue.state}</span>
+                        <span>
+                          • {attendance.show.venue.city}, {attendance.show.venue.state}
+                        </span>
                       )}
                     </div>
                   </CardHeader>
@@ -471,10 +468,9 @@ export default function UserProfile() {
                 <CalendarDays className="w-12 h-12 text-content-text-tertiary mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">No Shows Attended</h3>
                 <p className="text-content-text-secondary">
-                  {isOwnProfile 
+                  {isOwnProfile
                     ? "You haven't marked any shows as attended yet. Browse shows and mark the ones you've been to!"
-                    : `${user.username} hasn't marked any shows as attended yet.`
-                  }
+                    : `${user.username} hasn't marked any shows as attended yet.`}
                 </p>
               </CardContent>
             </Card>

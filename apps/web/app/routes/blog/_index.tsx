@@ -50,7 +50,7 @@ export default function BlogPosts() {
       <div>
         <h1 className="page-heading">BLOG</h1>
       </div>
-      
+
       <div className="flex justify-end items-center">
         <AdminOnly>
           <Button asChild className="bg-brand hover:bg-hover-accent text-content-text-primary">

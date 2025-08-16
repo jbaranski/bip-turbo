@@ -7,10 +7,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
-      <GlobalSearchDialog 
-        open={isOpen} 
-        onOpenChange={(newOpen) => newOpen ? open() : close()} 
-      />
+      <GlobalSearchDialog open={isOpen} onOpenChange={(newOpen) => (newOpen ? open() : close())} />
     </>
   );
 }

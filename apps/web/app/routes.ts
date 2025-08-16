@@ -53,14 +53,10 @@ export default [
   ]),
 
   // Profile routes
-  ...prefix("profile", [
-    route("edit", "routes/profile/edit.tsx"),
-  ]),
+  ...prefix("profile", [route("edit", "routes/profile/edit.tsx")]),
 
   // User profile routes
-  ...prefix("users", [
-    route(":username", "routes/users/$username.tsx"),
-  ]),
+  ...prefix("users", [route(":username", "routes/users/$username.tsx")]),
 
   // Blog routes with layout
   layout("routes/blog/_layout.tsx", [

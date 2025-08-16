@@ -15,18 +15,16 @@ export default defineConfig({
   },
   css: {
     postcss: {
-      plugins: [
-        tailwindcss,
-      ],
+      plugins: [tailwindcss],
     },
   },
   plugins: [
     reactRouter(),
     tsconfigPaths(),
     {
-      name: 'handle-well-known',
+      name: "handle-well-known",
       configureServer(server) {
-        server.middlewares.use('/.well-known', (req, res, next) => {
+        server.middlewares.use("/.well-known", (req, res, next) => {
           // Silently return 404 for .well-known requests
           res.statusCode = 404;
           res.end();

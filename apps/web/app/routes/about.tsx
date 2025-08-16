@@ -23,20 +23,17 @@ export default function About() {
       <div className="grid gap-6 md:gap-8">
         <Card className="glass-content">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">
-              The Biscuits Internet Project
-            </h2>
+            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">The Biscuits Internet Project</h2>
             <div className="prose prose-invert max-w-none space-y-4">
               <p className="text-content-text-secondary">
-                The Biscuits Internet Project (BIP) is the premier online destination for Disco Biscuits fans. 
-                We're a community-driven platform dedicated to preserving and sharing the rich history of 
-                one of the most innovative bands in the jam scene.
+                The Biscuits Internet Project (BIP) is the premier online destination for Disco Biscuits fans. We're a
+                community-driven platform dedicated to preserving and sharing the rich history of one of the most
+                innovative bands in the jam scene.
               </p>
               <p className="text-content-text-secondary">
-                Since our inception, we've been committed to providing comprehensive show information, 
-                setlists, audio recordings, and fan reviews. Our mission is to connect the global 
-                Disco Biscuits community and ensure that every show, every song, and every magical 
-                moment is documented and accessible to fans worldwide.
+                Since our inception, we've been committed to providing comprehensive show information, setlists, audio
+                recordings, and fan reviews. Our mission is to connect the global Disco Biscuits community and ensure
+                that every show, every song, and every magical moment is documented and accessible to fans worldwide.
               </p>
             </div>
           </CardContent>
@@ -44,29 +41,26 @@ export default function About() {
 
         <Card className="glass-content">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">
-              What We Offer
-            </h2>
+            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">What We Offer</h2>
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">Show Database</h3>
                 <p className="text-content-text-secondary text-sm">
-                  Comprehensive collection of Disco Biscuits shows with detailed setlists, 
-                  venue information, and performance notes.
+                  Comprehensive collection of Disco Biscuits shows with detailed setlists, venue information, and
+                  performance notes.
                 </p>
               </div>
               <div>
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">Song Library</h3>
                 <p className="text-content-text-secondary text-sm">
-                  Complete catalog of original compositions and covers with performance history 
-                  and statistical analysis.
+                  Complete catalog of original compositions and covers with performance history and statistical
+                  analysis.
                 </p>
               </div>
               <div>
                 <h3 className="text-lg font-medium text-content-text-primary mb-2">Fan Reviews</h3>
                 <p className="text-content-text-secondary text-sm">
-                  Community-driven reviews and ratings that capture the magic and energy 
-                  of each performance.
+                  Community-driven reviews and ratings that capture the magic and energy of each performance.
                 </p>
               </div>
               <div>
@@ -81,21 +75,17 @@ export default function About() {
 
         <Card className="glass-content">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">
-              Community Driven
-            </h2>
+            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">Community Driven</h2>
             <p className="text-content-text-secondary mb-4">
-              BIP thrives because of contributions from fans like you. Whether you're sharing setlists, 
-              writing reviews, or helping to improve our data, every contribution makes the community stronger.
+              BIP thrives because of contributions from fans like you. Whether you're sharing setlists, writing reviews,
+              or helping to improve our data, every contribution makes the community stronger.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button asChild className="btn-primary">
                 <Link to="/auth/register">Join the Community</Link>
               </Button>
               <ContactDialog>
-                <Button className="btn-secondary">
-                  Get Involved
-                </Button>
+                <Button className="btn-secondary">Get Involved</Button>
               </ContactDialog>
             </div>
           </CardContent>
@@ -103,13 +93,11 @@ export default function About() {
 
         <Card className="glass-content">
           <CardContent className="p-6">
-            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">
-              Disclaimer
-            </h2>
+            <h2 className="text-2xl font-semibold text-content-text-primary mb-4">Disclaimer</h2>
             <p className="text-content-text-secondary text-sm">
-              The Biscuits Internet Project is an unofficial fan site and is not affiliated with 
-              the Disco Biscuits, their management, or record label. All content is created by 
-              fans for fans, with deep respect and appreciation for the band and their music.
+              The Biscuits Internet Project is an unofficial fan site and is not affiliated with the Disco Biscuits,
+              their management, or record label. All content is created by fans for fans, with deep respect and
+              appreciation for the band and their music.
             </p>
           </CardContent>
         </Card>

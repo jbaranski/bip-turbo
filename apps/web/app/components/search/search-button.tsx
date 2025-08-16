@@ -10,11 +10,11 @@ interface SearchButtonProps {
   showShortcut?: boolean;
 }
 
-export function SearchButton({ 
-  variant = "outline", 
-  size = "default", 
+export function SearchButton({
+  variant = "outline",
+  size = "default",
   className,
-  showShortcut = true 
+  showShortcut = true,
 }: SearchButtonProps) {
   const { open } = useGlobalSearch();
 
@@ -27,11 +27,7 @@ export function SearchButton({
       variant={variant}
       size={size}
       onClick={handleClick}
-      className={cn(
-        "justify-start text-muted-foreground",
-        size === "default" && "h-9 px-3",
-        className
-      )}
+      className={cn("justify-start text-muted-foreground", size === "default" && "h-9 px-3", className)}
     >
       <Search className="h-4 w-4 mr-2 pointer-events-none" />
       <span className="flex-1 text-left pointer-events-none">Search...</span>

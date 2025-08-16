@@ -65,11 +65,7 @@ export default function BlogPostPage() {
           </div>
         </div>
         <AdminOnly>
-          <Button
-            asChild
-            variant="outline"
-            className="btn-secondary"
-          >
+          <Button asChild variant="outline" className="btn-secondary">
             <Link to={`/blog/${blogPost.slug}/edit`} className="flex items-center gap-2">
               <Pencil className="h-4 w-4" />
               Edit
@@ -77,11 +73,11 @@ export default function BlogPostPage() {
           </Button>
         </AdminOnly>
       </div>
-      
+
       {/* Subtle back link */}
       <div className="flex justify-start">
-        <Link 
-          to="/blog" 
+        <Link
+          to="/blog"
           className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
         >
           <ArrowLeft className="h-3 w-3" />

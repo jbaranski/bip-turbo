@@ -21,9 +21,9 @@ export const action = adminAction(async ({ request }) => {
             position: update.position,
             set: update.set,
           });
-        })
+        }),
       );
-      
+
       console.log(`Updated ${updatedTracks.length} track positions`);
       return updatedTracks;
     } catch (error) {

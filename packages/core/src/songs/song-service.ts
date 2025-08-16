@@ -51,21 +51,21 @@ export class SongService {
     const queryOptions: QueryOptions<Song> = {
       filters: [
         {
-          field: 'title',
-          operator: 'contains',
-          value: query
-        }
+          field: "title",
+          operator: "contains",
+          value: query,
+        },
       ] as FilterCondition<Song>[],
       pagination: {
         limit,
-        page: 1
+        page: 1,
       },
       sort: [
         {
-          field: 'title',
-          direction: 'asc'
-        }
-      ]
+          field: "title",
+          direction: "asc",
+        },
+      ],
     };
 
     return this.repository.findMany(queryOptions);

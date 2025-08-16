@@ -41,7 +41,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
   const [query, setQuery] = useState("");
   const [totalResults, setTotalResults] = useState(0);
   const [executionTimeMs, setExecutionTimeMs] = useState<number | null>(null);
-  
+
   // Keep track of the latest request to avoid race conditions
   const latestRequestRef = useRef<number>(0);
 
@@ -52,7 +52,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
     }
 
     const requestId = ++latestRequestRef.current;
-    
+
     setIsLoading(true);
     setError(null);
     setQuery(searchQuery);

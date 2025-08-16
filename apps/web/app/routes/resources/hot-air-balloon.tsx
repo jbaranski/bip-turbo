@@ -450,7 +450,9 @@ at his last chance to fly
   );
 
   const LyricsBlock = ({ children }: { children: React.ReactNode }) => (
-    <blockquote className="border-l-4 border-content-bg-secondary pl-4 italic my-4 text-content-text-secondary">{children}</blockquote>
+    <blockquote className="border-l-4 border-content-bg-secondary pl-4 italic my-4 text-content-text-secondary">
+      {children}
+    </blockquote>
   );
 
   return (

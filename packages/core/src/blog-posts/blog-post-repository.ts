@@ -55,13 +55,15 @@ export class BlogPostRepository {
         },
       },
     });
-    
+
     if (!result) return null;
 
     const files = result.files || [];
     const coverFile = files.find((f: any) => f.isCover);
-    const coverImage = coverFile ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}` : undefined;
-    
+    const coverImage = coverFile
+      ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}`
+      : undefined;
+
     const imageUrls = files.map((f: any) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${f.file.path}`);
 
     return {
@@ -142,8 +144,10 @@ export class BlogPostRepository {
     const domainBlogPosts = blogPosts.map((blogPost: any) => {
       const files = blogPost.files || [];
       const coverFile = files.find((f: any) => f.isCover);
-      const coverImage = coverFile ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}` : undefined;
-      
+      const coverImage = coverFile
+        ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}`
+        : undefined;
+
       const imageUrls = files.map((f: any) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${f.file.path}`);
 
       return {

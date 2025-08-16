@@ -50,7 +50,11 @@ export function ShowForm({ defaultValues, onSubmit, submitLabel = "Submit", canc
             <FormItem>
               <FormLabel className="text-content-text-secondary">Date</FormLabel>
               <FormControl>
-                <Input type="date" {...field} className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary" />
+                <Input
+                  type="date"
+                  {...field}
+                  className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,7 +94,10 @@ export function ShowForm({ defaultValues, onSubmit, submitLabel = "Submit", canc
                 </FormControl>
                 <SelectContent className="bg-content-bg-secondary border-content-bg-secondary">
                   <SelectItem value="none">No band</SelectItem>
-                  <SelectItem value="db7f2c5d-2727-41fd-bd6f-e91c74164f09" className="text-content-text-primary hover:bg-content-bg-secondary">
+                  <SelectItem
+                    value="db7f2c5d-2727-41fd-bd6f-e91c74164f09"
+                    className="text-content-text-primary hover:bg-content-bg-secondary"
+                  >
                     The Disco Biscuits
                   </SelectItem>
                 </SelectContent>

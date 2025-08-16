@@ -90,14 +90,13 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
         className,
       )}
     >
-
-      <CardHeader className="relative z-10 border-b border-glass-border/30 px-6 py-5">
+      <CardHeader className="relative z-10 border-b border-glass-border/30 px-3 py-3 md:px-6 md:py-5">
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
-            <div className="text-2xl font-medium text-brand-primary hover:text-brand-secondary transition-colors">
+            <div className="text-lg md:text-2xl font-medium text-brand-primary hover:text-brand-secondary transition-colors">
               <Link to={`/shows/${setlist.show.slug}`}>{formattedDate}</Link>
             </div>
-            <div className="text-xl text-content-text-primary">
+            <div className="text-base md:text-xl text-content-text-primary">
               {setlist.venue.name} - {setlist.venue.city}, {setlist.venue.state}
             </div>
           </div>
@@ -119,7 +118,7 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
                   clipRule="evenodd"
                 />
               </svg>
-              <span 
+              <span
                 className={cn("text-sm font-medium", isAnimating && "animate-avg-rating-update")}
                 style={{ color: "hsl(var(--rating-gold))" }}
               >
@@ -130,29 +129,20 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
         </div>
       </CardHeader>
 
-      <CardContent className="relative z-10 px-6 py-5">
+      <CardContent className="relative z-10 px-3 py-3 md:px-6 md:py-5">
         {setlist.show.notes && (
           <div className="mb-4 text-sm text-content-text-secondary italic border-l border-glass-border pl-3 py-1">
             {setlist.show.notes}
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-2 md:space-y-4">
           {setlist.sets.map((set) => (
-            <div key={setlist.show.id + set.label} className="flex gap-4">
-              <span
-                className={cn(
-                  "w-9 h-9 flex items-center justify-center rounded-full text-white font-medium",
-                  set.label === "I" && "bg-brand-primary/30",
-                  set.label === "II" && "bg-brand-secondary/30",
-                  set.label === "III" && "bg-brand-tertiary/30",
-                  set.label === "E" && "bg-purple-400/30",
-                  !["I", "II", "III", "E"].includes(set.label) && "bg-glass-bg",
-                )}
-              >
-                {set.label}
-              </span>
-              <div className="flex-1 pt-1">
+            <div key={setlist.show.id + set.label} className="md:flex md:gap-4">
+              <div className="flex items-center gap-2 mb-1 md:mb-0">
+                <span className="text-sm md:text-base font-medium text-content-text-tertiary">{set.label}</span>
+              </div>
+              <div className="flex-1 md:pt-1">
                 {set.tracks.map((track, i) => (
                   <span key={track.id} className="inline-flex items-baseline">
                     <span className="inline-flex items-center gap-1">
@@ -161,16 +151,16 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
                           <TooltipTrigger asChild>
                             <span
                               className={cn(
-                                "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors",
+                                "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
                                 track.allTimer && "font-medium",
                               )}
                             >
                               {track.allTimer && (
-                                <Flame className="h-4 w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
+                                <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
                               )}
                               <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
                               {trackAnnotationMap.has(track.id) && (
-                                <sup className="text-brand-secondary ml-0.5 font-medium">
+                                <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
                                   {trackAnnotationMap.get(track.id)}
                                 </sup>
                               )}
@@ -190,7 +180,9 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
                       </TooltipProvider>
                     </span>
                     {i < set.tracks.length - 1 && (
-                      <span className="text-content-text-secondary mx-1 font-medium">{track.segue ? " > " : ", "}</span>
+                      <span className="text-content-text-secondary mx-1 font-medium text-sm md:text-base">
+                        {track.segue ? " > " : ", "}
+                      </span>
                     )}
                   </span>
                 ))}

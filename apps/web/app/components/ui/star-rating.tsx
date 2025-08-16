@@ -219,7 +219,12 @@ const StarIcon = ({
   half,
   isAnimating,
   delay,
-}: { filled: boolean; half?: boolean; isAnimating?: boolean; delay?: number }) => (
+}: {
+  filled: boolean;
+  half?: boolean;
+  isAnimating?: boolean;
+  delay?: number;
+}) => (
   <div className="relative">
     {/* Empty star (background) */}
     <svg
@@ -244,9 +249,9 @@ const StarIcon = ({
       >
         <svg
           className={cn("w-4 h-4 ms-1", isAnimating && "animate-star-glow")}
-          style={{ 
+          style={{
             animationDelay: delay ? `${delay}ms` : undefined,
-            color: "hsl(var(--rating-gold))"
+            color: "hsl(var(--rating-gold))",
           }}
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"

@@ -39,9 +39,7 @@ export function Footer() {
             <p className="text-content-text-secondary text-sm">
               &copy; {currentYear} Biscuits Internet Project. All rights reserved.
             </p>
-            <p className="text-content-text-tertiary text-xs mt-1">
-              Unofficial fan site for the Disco Biscuits
-            </p>
+            <p className="text-content-text-tertiary text-xs mt-1">Unofficial fan site for the Disco Biscuits</p>
           </div>
         </div>
       </div>

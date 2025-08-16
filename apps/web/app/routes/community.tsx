@@ -24,39 +24,39 @@ interface LoaderData {
 
 export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   try {
-    console.log('Attempting to get real user stats...');
-    
+    console.log("Attempting to get real user stats...");
+
     // Get real community totals and user stats in parallel
     const [allUserStats, communityTotals, topReviewers, topAttenders, topRaters] = await Promise.all([
       services.users.getUserStats(),
       services.users.getCommunityTotals(),
-      services.users.getTopUsersByMetric('reviews', 5),
-      services.users.getTopUsersByMetric('attendance', 5),
-      services.users.getTopUsersByMetric('ratings', 5),
+      services.users.getTopUsersByMetric("reviews", 5),
+      services.users.getTopUsersByMetric("attendance", 5),
+      services.users.getTopUsersByMetric("ratings", 5),
     ]);
-    
-    console.log('Got user stats:', allUserStats.length);
-    console.log('Community totals:', communityTotals);
+
+    console.log("Got user stats:", allUserStats.length);
+    console.log("Community totals:", communityTotals);
 
     return {
       allUserStats: allUserStats.slice(0, 50), // Limit to 50 for performance
       topReviewers,
       topAttenders,
       topRaters,
-      communityTotals
+      communityTotals,
     };
   } catch (error) {
-    console.error('Error getting real user stats, falling back to mock:', error);
-    
+    console.error("Error getting real user stats, falling back to mock:", error);
+
     // Fallback to users without stats if the new methods fail
     const users = await services.users.findMany();
-    
-    const mockUserStats: UserStats[] = users.slice(0, 50).map(user => ({
+
+    const mockUserStats: UserStats[] = users.slice(0, 50).map((user) => ({
       user,
       reviewCount: Math.floor(Math.random() * 25),
       attendanceCount: Math.floor(Math.random() * 50),
       ratingCount: Math.floor(Math.random() * 30),
-      averageRating: Math.random() * 5
+      averageRating: Math.random() * 5,
     }));
 
     const topReviewers = [...mockUserStats].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5);
@@ -73,7 +73,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
         totalReviews: mockUserStats.reduce((sum, u) => sum + u.reviewCount, 0),
         totalAttendances: mockUserStats.reduce((sum, u) => sum + u.attendanceCount, 0),
         totalRatings: mockUserStats.reduce((sum, u) => sum + u.ratingCount, 0),
-      }
+      },
     };
   }
 });
@@ -90,7 +90,7 @@ export function meta() {
 
 function UserCard({ userStats }: { userStats: UserStats }) {
   const { user, reviewCount, attendanceCount, ratingCount, averageRating } = userStats;
-  
+
   return (
     <Card className="glass-content hover:glass-content-hover transition-all duration-300">
       <CardContent className="p-4">
@@ -102,7 +102,7 @@ function UserCard({ userStats }: { userStats: UserStats }) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <Link 
+            <Link
               to={`/users/${user.username}`}
               className="text-brand-primary hover:text-brand-secondary font-medium transition-colors"
             >
@@ -110,7 +110,7 @@ function UserCard({ userStats }: { userStats: UserStats }) {
             </Link>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-2 text-sm text-content-text-secondary">
           <div className="flex items-center gap-1">
             <Music className="h-3 w-3" />
@@ -136,11 +136,16 @@ function UserCard({ userStats }: { userStats: UserStats }) {
   );
 }
 
-function LeaderboardSection({ title, users, icon: Icon, metric }: {
+function LeaderboardSection({
+  title,
+  users,
+  icon: Icon,
+  metric,
+}: {
   title: string;
   users: UserStats[];
   icon: React.ComponentType<{ className?: string }>;
-  metric: keyof Pick<UserStats, 'reviewCount' | 'attendanceCount' | 'ratingCount'>;
+  metric: keyof Pick<UserStats, "reviewCount" | "attendanceCount" | "ratingCount">;
 }) {
   return (
     <Card className="card-premium">
@@ -155,7 +160,7 @@ function LeaderboardSection({ title, users, icon: Icon, metric }: {
           {users.map((userStats, index) => (
             <div key={userStats.user.id} className="flex items-center gap-3">
               <div className="flex-shrink-0 w-8 text-center">
-                <Badge 
+                <Badge
                   variant={index === 0 ? "default" : "secondary"}
                   className={index === 0 ? "bg-rating-gold text-black" : ""}
                 >
@@ -169,16 +174,14 @@ function LeaderboardSection({ title, users, icon: Icon, metric }: {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <Link 
+                <Link
                   to={`/users/${userStats.user.username}`}
                   className="text-content-text-primary hover:text-brand-primary font-medium transition-colors"
                 >
                   {userStats.user.username}
                 </Link>
               </div>
-              <div className="text-brand-primary font-medium">
-                {userStats[metric]}
-              </div>
+              <div className="text-brand-primary font-medium">{userStats[metric]}</div>
             </div>
           ))}
         </div>
@@ -188,25 +191,16 @@ function LeaderboardSection({ title, users, icon: Icon, metric }: {
 }
 
 export default function Community() {
-  const {
-    allUserStats,
-    topReviewers,
-    topAttenders,
-    topRaters,
-    communityTotals
-  } = useSerializedLoaderData<LoaderData>();
+  const { allUserStats, topReviewers, topAttenders, topRaters, communityTotals } =
+    useSerializedLoaderData<LoaderData>();
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <h1 className="page-heading">
-          BISCUITS COMMUNITY
-        </h1>
-        <p className="text-xl text-content-text-secondary mb-6">
-          Meet the fans that make this community special
-        </p>
-        
+        <h1 className="page-heading">BISCUITS COMMUNITY</h1>
+        <p className="text-xl text-content-text-secondary mb-6">Meet the fans that make this community special</p>
+
         {/* Community Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card className="glass-content">
@@ -232,24 +226,9 @@ export default function Community() {
 
       {/* Leaderboards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <LeaderboardSection
-          title="Top Reviewers"
-          users={topReviewers}
-          icon={UserRound}
-          metric="reviewCount"
-        />
-        <LeaderboardSection
-          title="Most Show Attendance"
-          users={topAttenders}
-          icon={Music}
-          metric="attendanceCount"
-        />
-        <LeaderboardSection
-          title="Most Ratings Given"
-          users={topRaters}
-          icon={Star}
-          metric="ratingCount"
-        />
+        <LeaderboardSection title="Top Reviewers" users={topReviewers} icon={UserRound} metric="reviewCount" />
+        <LeaderboardSection title="Most Show Attendance" users={topAttenders} icon={Music} metric="attendanceCount" />
+        <LeaderboardSection title="Most Ratings Given" users={topRaters} icon={Star} metric="ratingCount" />
       </div>
 
       {/* All Users Grid */}
@@ -257,10 +236,7 @@ export default function Community() {
         <h2 className="text-2xl font-bold mb-6 text-content-text-primary">All Community Members</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {allUserStats.map((userStats) => (
-            <UserCard 
-              key={userStats.user.id}
-              userStats={userStats}
-            />
+            <UserCard key={userStats.user.id} userStats={userStats} />
           ))}
         </div>
       </div>

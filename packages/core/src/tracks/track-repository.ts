@@ -97,16 +97,16 @@ export class TrackRepository {
         song: true,
       },
     });
-    
+
     // Sort by set properly (S1, S2, S3, E1, E2, E3) then by position
     const sortedResults = results.sort((a, b) => {
       if (a.set !== b.set) {
         const setOrder = { S: 0, E: 1 };
-        const aType = a.set.charAt(0) as 'S' | 'E';
-        const bType = b.set.charAt(0) as 'S' | 'E';
+        const aType = a.set.charAt(0) as "S" | "E";
+        const bType = b.set.charAt(0) as "S" | "E";
         const aNum = parseInt(a.set.slice(1));
         const bNum = parseInt(b.set.slice(1));
-        
+
         if (aType !== bType) {
           return setOrder[aType] - setOrder[bType];
         }
@@ -114,7 +114,7 @@ export class TrackRepository {
       }
       return a.position - b.position;
     });
-    
+
     return sortedResults.map((result: any) => this.mapToDomainEntity(result));
   }
 

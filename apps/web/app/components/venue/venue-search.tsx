@@ -3,14 +3,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import type { Venue } from "@bip/domain";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { 
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from "~/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "~/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 
 interface VenueSearchProps {
@@ -20,12 +13,7 @@ interface VenueSearchProps {
   className?: string;
 }
 
-export function VenueSearch({ 
-  value, 
-  onValueChange, 
-  placeholder = "Search venues...",
-  className 
-}: VenueSearchProps) {
+export function VenueSearch({ value, onValueChange, placeholder = "Search venues...", className }: VenueSearchProps) {
   const [open, setOpen] = useState(false);
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(false);
@@ -79,7 +67,7 @@ export function VenueSearch({
           aria-expanded={open}
           className={cn(
             "justify-between bg-content-bg border-content-bg-secondary text-white hover:bg-content-bg-secondary",
-            className
+            className,
           )}
         >
           {selectedVenue ? formatVenueLabel(selectedVenue) : placeholder}
@@ -108,15 +96,10 @@ export function VenueSearch({
                 }}
                 className="text-white hover:bg-content-bg-secondary"
               >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === "none" ? "opacity-100" : "opacity-0"
-                  )}
-                />
+                <Check className={cn("mr-2 h-4 w-4", value === "none" ? "opacity-100" : "opacity-0")} />
                 No venue
               </CommandItem>
-              
+
               {venues.map((venue) => (
                 <CommandItem
                   key={venue.id}
@@ -127,12 +110,7 @@ export function VenueSearch({
                   }}
                   className="text-white hover:bg-content-bg-secondary"
                 >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === venue.id ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <Check className={cn("mr-2 h-4 w-4", value === venue.id ? "opacity-100" : "opacity-0")} />
                   {formatVenueLabel(venue)}
                 </CommandItem>
               ))}

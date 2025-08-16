@@ -21,11 +21,11 @@ export const meta: MetaFunction = () => {
 
 export const loader = protectedLoader(async ({ context }): Promise<{ user: User }> => {
   const user = await services.users.find(context.currentUser.id);
-  
+
   if (!user) {
     throw new Response("User not found", { status: 404 });
   }
-  
+
   return { user };
 });
 
@@ -42,7 +42,7 @@ export default function ProfileEdit() {
 
     try {
       const formData = new FormData(event.currentTarget);
-      
+
       const response = await fetch("/api/users", {
         method: "POST",
         body: formData,
@@ -70,7 +70,7 @@ export default function ProfileEdit() {
     <div className="w-full max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link 
+        <Link
           to={`/users/${user.username}`}
           className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
         >
@@ -96,15 +96,15 @@ export default function ProfileEdit() {
               <Label htmlFor="avatarUrl" className="text-content-text-primary font-medium">
                 Profile Picture
               </Label>
-              
+
               <div className="flex items-start gap-6">
                 {/* Avatar Preview */}
                 <div className="flex-shrink-0">
                   <div className="w-24 h-24 rounded-full overflow-hidden bg-glass-bg border-2 border-glass-border flex items-center justify-center">
                     {avatarPreview ? (
-                      <img 
-                        src={avatarPreview} 
-                        alt="Avatar preview" 
+                      <img
+                        src={avatarPreview}
+                        alt="Avatar preview"
                         className="w-full h-full object-cover"
                         onError={() => setAvatarPreview(null)}
                       />
@@ -172,12 +172,7 @@ export default function ProfileEdit() {
 
             {/* Submit Button */}
             <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                className="btn-secondary"
-                asChild
-              >
+              <Button type="button" variant="outline" className="btn-secondary" asChild>
                 <Link to={`/users/${user.username}`}>Cancel</Link>
               </Button>
               <Button

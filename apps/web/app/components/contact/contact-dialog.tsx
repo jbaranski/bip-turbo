@@ -50,13 +50,13 @@ export function ContactDialog({ children }: ContactDialogProps) {
     try {
       // TODO: Implement actual form submission
       console.log("Contact form submission:", data);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       setIsSubmitted(true);
       form.reset();
-      
+
       // Close dialog after success message
       setTimeout(() => {
         setOpen(false);
@@ -71,9 +71,7 @@ export function ContactDialog({ children }: ContactDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="glass-content border-glass-border max-w-md">
         <DialogHeader>
           <DialogTitle className="text-content-text-primary text-xl">Get in Touch</DialogTitle>
@@ -85,12 +83,8 @@ export function ContactDialog({ children }: ContactDialogProps) {
         {isSubmitted ? (
           <div className="text-center py-8">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 text-brand-primary" />
-            <h3 className="text-lg font-semibold text-content-text-primary mb-2">
-              Message Sent!
-            </h3>
-            <p className="text-content-text-secondary">
-              Thanks for reaching out. We'll get back to you soon.
-            </p>
+            <h3 className="text-lg font-semibold text-content-text-primary mb-2">Message Sent!</h3>
+            <p className="text-content-text-secondary">Thanks for reaching out. We'll get back to you soon.</p>
           </div>
         ) : (
           <Form {...form}>
@@ -175,19 +169,10 @@ export function ContactDialog({ children }: ContactDialogProps) {
               />
 
               <div className="flex gap-3 pt-2">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="btn-primary flex-1"
-                >
+                <Button type="submit" disabled={isSubmitting} className="btn-primary flex-1">
                   {isSubmitting ? "Sending..." : "Send Message"}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setOpen(false)}
-                  className="btn-secondary"
-                >
+                <Button type="button" variant="outline" onClick={() => setOpen(false)} className="btn-secondary">
                   Cancel
                 </Button>
               </div>

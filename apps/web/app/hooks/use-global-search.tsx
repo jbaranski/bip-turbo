@@ -16,33 +16,33 @@ export function GlobalSearchProvider({ children }: { children: React.ReactNode }
   const open = useCallback(() => {
     setIsOpen(true);
   }, []);
-  
+
   const close = useCallback(() => {
     setIsOpen(false);
   }, []);
-  
+
   const toggle = useCallback(() => {
-    setIsOpen(prev => !prev);
+    setIsOpen((prev) => !prev);
   }, []);
 
   // Handle global keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd+K on Mac, Ctrl+K on PC
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         toggle();
       }
-      
+
       // Also handle Cmd+/ for search
-      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "/") {
         e.preventDefault();
         toggle();
       }
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [toggle]);
 
   const value = {
@@ -52,17 +52,13 @@ export function GlobalSearchProvider({ children }: { children: React.ReactNode }
     toggle,
   };
 
-  return (
-    <GlobalSearchContext.Provider value={value}>
-      {children}
-    </GlobalSearchContext.Provider>
-  );
+  return <GlobalSearchContext.Provider value={value}>{children}</GlobalSearchContext.Provider>;
 }
 
 export function useGlobalSearch() {
   const context = useContext(GlobalSearchContext);
   if (context === undefined) {
-    throw new Error('useGlobalSearch must be used within a GlobalSearchProvider');
+    throw new Error("useGlobalSearch must be used within a GlobalSearchProvider");
   }
   return context;
 }

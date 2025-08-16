@@ -12,8 +12,10 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     // Get current session user
     const { supabase } = getServerClient(request);
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
@@ -24,16 +26,16 @@ export async function action({ request }: ActionFunctionArgs) {
     const formData = await request.formData();
     const rawData = Object.fromEntries(formData);
     const data: Record<string, string | null> = {};
-    
+
     // Convert FormDataEntryValue to string or null
     for (const [key, value] of Object.entries(rawData)) {
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         data[key] = value;
       } else {
         data[key] = null;
       }
     }
-    
+
     // Handle null values for avatarUrl
     if (data.avatarUrl === "null" || data.avatarUrl === "") {
       data.avatarUrl = null;

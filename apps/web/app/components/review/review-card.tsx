@@ -68,7 +68,9 @@ export function ReviewCard({ review, currentUserId, onDelete, onUpdate }: Review
               </div>
               <div>
                 <h3 className="font-medium text-content-text-primary">{review.user.username}</h3>
-                <p className="text-sm text-content-text-secondary">{format(new Date(review.createdAt), "MMM d, yyyy")}</p>
+                <p className="text-sm text-content-text-secondary">
+                  {format(new Date(review.createdAt), "MMM d, yyyy")}
+                </p>
               </div>
             </div>
             {isOwner && (

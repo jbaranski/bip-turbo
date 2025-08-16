@@ -552,7 +552,9 @@ const ArchiveMusicPlayer: React.FC<ArchivePlayerProps> = ({ identifier, classNam
           {metadata.metadata.creator && (
             <p className="text-sm text-content-text-tertiary truncate">by {metadata.metadata.creator}</p>
           )}
-          {metadata.metadata.date && <p className="text-xs text-content-text-tertiary mt-1">{formatDate(metadata.metadata.date)}</p>}
+          {metadata.metadata.date && (
+            <p className="text-xs text-content-text-tertiary mt-1">{formatDate(metadata.metadata.date)}</p>
+          )}
         </div>
 
         {/* Now playing */}
@@ -675,7 +677,9 @@ const ArchiveMusicPlayer: React.FC<ArchivePlayerProps> = ({ identifier, classNam
                     <span className="w-6 text-center text-content-text-tertiary">{file.track || index + 1}</span>
                     <span className="flex-1 truncate ml-2">{getTrackName(file)}</span>
                     {file.length && (
-                      <span className="text-xs text-content-text-tertiary ml-2 flex-shrink-0">{formatTime(file.length)}</span>
+                      <span className="text-xs text-content-text-tertiary ml-2 flex-shrink-0">
+                        {formatTime(file.length)}
+                      </span>
                     )}
                   </div>
                 </button>

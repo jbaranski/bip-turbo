@@ -84,10 +84,7 @@
       }
     },
     "monorepo": {
-      "workspaces": [
-        "apps/*",
-        "packages/*"
-      ],
+      "workspaces": ["apps/*", "packages/*"],
       "apps": {
         "web": {
           "path": "apps/web",
@@ -177,4 +174,4 @@
       }
     }
   }
-} 
+}

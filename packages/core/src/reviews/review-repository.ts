@@ -4,7 +4,7 @@ import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-
 import type { QueryOptions } from "../_shared/database/types";
 import { mapToUserMinimal } from "../users/user-repository";
 
-export interface ReviewWithShow extends Omit<Review, 'showId'> {
+export interface ReviewWithShow extends Omit<Review, "showId"> {
   show: {
     id: string;
     slug: string;
@@ -131,16 +131,18 @@ export class ReviewRepository {
       userId: result.userId,
       createdAt: new Date(result.createdAt),
       updatedAt: new Date(result.updatedAt),
-      show: result.show ? {
-        id: result.show.id,
-        slug: result.show.slug,
-        date: result.show.date,
-        venue: {
-          name: result.show.venue.name,
-          city: result.show.venue.city,
-          state: result.show.venue.state,
-        },
-      } : null,
+      show: result.show
+        ? {
+            id: result.show.id,
+            slug: result.show.slug,
+            date: result.show.date,
+            venue: {
+              name: result.show.venue.name,
+              city: result.show.venue.city,
+              state: result.show.venue.state,
+            },
+          }
+        : null,
     }));
   }
 

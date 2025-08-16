@@ -86,7 +86,10 @@ function StatBox({ icon, label, value, sublabel }: StatBoxProps) {
 function VenueSetlistCard({
   setlist,
   onRate,
-}: { setlist: Setlist; onRate?: (showId: string, rating: number) => Promise<void> }) {
+}: {
+  setlist: Setlist;
+  onRate?: (showId: string, rating: number) => Promise<void>;
+}) {
   // Create a flat array of all tracks in order for annotations
   const allTracks = [];
   for (const set of setlist.sets) {
@@ -193,7 +196,9 @@ function VenueSetlistCard({
                         {track.allTimer && <span className="text-chart-accent inline-block mr-1">🔥</span>}
                         <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
                         {trackAnnotationMap.has(track.id) && (
-                          <sup className="text-brand-primary ml-0.5 font-medium">{trackAnnotationMap.get(track.id)}</sup>
+                          <sup className="text-brand-primary ml-0.5 font-medium">
+                            {trackAnnotationMap.get(track.id)}
+                          </sup>
                         )}
                       </span>
                     </span>
@@ -332,11 +337,11 @@ export default function VenuePage() {
             </Button>
           </AdminOnly>
         </div>
-        
+
         {/* Subtle back link */}
         <div className="flex justify-start">
-          <Link 
-            to="/venues" 
+          <Link
+            to="/venues"
             className="flex items-center gap-1 text-content-text-tertiary hover:text-content-text-secondary text-sm transition-colors"
           >
             <ArrowLeft className="h-3 w-3" />
