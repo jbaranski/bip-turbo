@@ -21,7 +21,8 @@ interface AcastEpisode {
 
 interface LoaderData {
   tourDates: TourDate[];
-  recentShows: Setlist[];
+  mobileRecentShows: Setlist[];
+  desktopRecentShows: Setlist[];
   recentBlogPosts: Array<BlogPostWithUser>;
   attendancesByShowId: Record<string, Attendance>;
   ratingsByShowId: Record<string, Rating>;
@@ -86,22 +87,25 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   // Limit to next 8 upcoming dates for home page
   const tourDates = allTourDates.slice(0, 8);
 
-  // Get recent shows optimized for mobile - filter shows that are more than 1 day in future
+  // Get recent shows - different amounts for mobile vs desktop
   const allRecentShows = await services.setlists.findMany({
-    pagination: { limit: 10 }, // Get more to filter from
+    pagination: { limit: 15 }, // Get more to filter from
     sort: [{ field: "date", direction: "desc" }],
   });
 
-  // Filter shows: only show past shows or shows within 1 day in the future
+  // Filter shows: only show past shows or shows within 1 day in the future (for mobile)
   const oneDayFromNow = new Date();
   oneDayFromNow.setDate(oneDayFromNow.getDate() + 1);
 
-  const recentShows = allRecentShows
+  const mobileRecentShows = allRecentShows
     .filter((setlist) => {
       const showDate = new Date(setlist.show.date);
       return showDate <= oneDayFromNow;
     })
-    .slice(0, 2); // Take only the last 2 shows after filtering
+    .slice(0, 2); // Take only the last 2 shows after filtering for mobile
+
+  // Desktop gets more shows without filtering
+  const desktopRecentShows = allRecentShows.slice(0, 6);
 
   // Get recent blog posts (last 5)
   const recentBlogPosts = await services.blogPosts.findManyWithUser({
@@ -113,18 +117,15 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
     ],
   });
 
+  // Get attendances and ratings for all shows (mobile + desktop)
+  const allShowIds = [
+    ...new Set([...mobileRecentShows.map((s) => s.show.id), ...desktopRecentShows.map((s) => s.show.id)]),
+  ];
   const attendances = currentUser
-    ? await services.attendances.findManyByUserIdAndShowIds(
-        currentUser.id,
-        recentShows.map((s) => s.show.id),
-      )
+    ? await services.attendances.findManyByUserIdAndShowIds(currentUser.id, allShowIds)
     : [];
   const ratings = currentUser
-    ? await services.ratings.findManyByUserIdAndRateableIds(
-        currentUser.id,
-        recentShows.map((s) => s.show.id),
-        "Show",
-      )
+    ? await services.ratings.findManyByUserIdAndRateableIds(currentUser.id, allShowIds, "Show")
     : [];
   const attendancesByShowId = attendances.reduce(
     (acc, attendance) => {
@@ -155,7 +156,8 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
 
   return {
     tourDates,
-    recentShows,
+    mobileRecentShows,
+    desktopRecentShows,
     recentBlogPosts,
     attendancesByShowId,
     ratingsByShowId,
@@ -179,7 +181,8 @@ export function meta() {
 export default function Index() {
   const {
     tourDates = [],
-    recentShows = [],
+    mobileRecentShows = [],
+    desktopRecentShows = [],
     recentBlogPosts = [],
     attendancesByShowId = {} as Record<string, Attendance>,
     ratingsByShowId = {} as Record<string, Rating>,
@@ -191,49 +194,236 @@ export default function Index() {
 
   return (
     <div className="w-full p-0">
-      {/* Hero section - Compact */}
-      <div className="pt-0 pb-3 text-center mb-4">
+      {/* Hero section */}
+      <div className="pt-0 pb-3 text-center mb-4 md:mb-8">
         <h1 className="text-3xl md:text-5xl font-bold font-tron-audiowide tron-outline-brand text-black">
           BISCUITS INTERNET PROJECT 3.0
         </h1>
       </div>
 
-      {/* Today's or Yesterday's Show - Full Setlist Card */}
-      {(todaysSetlist || yesterdaysSetlist) && (
-        <div className="mb-6">
-          <div className="mb-2">
-            <h2 className="text-xl font-bold">{todaysSetlist ? "Tonight's Show" : "Yesterday's Show"}</h2>
-          </div>
-          <SetlistCard
-            setlist={todaysSetlist || yesterdaysSetlist!}
-            userAttendance={attendancesByShowId[(todaysSetlist || yesterdaysSetlist)!.show.id] || null}
-            userRating={ratingsByShowId[(todaysSetlist || yesterdaysSetlist)!.show.id] || null}
-            showRating={(todaysSetlist || yesterdaysSetlist)!.show.averageRating}
-          />
-        </div>
-      )}
-
-      {/* Next Show Banner - Compact */}
-      {nextTourDate && (
-        <div className="mb-6">
-          <Card className="card-premium">
-            <div className="p-4 text-center">
-              <div className="flex items-center justify-center mb-1">
-                <Calendar className="h-4 w-4 mr-2 text-brand-primary" />
-                <h3 className="text-sm font-semibold text-brand-primary">Next Show</h3>
-              </div>
-              <div className="text-lg font-bold text-content-text-primary">{nextTourDate.formattedStartDate}</div>
-              <div className="text-sm text-content-text-secondary">
-                {nextTourDate.venueName} • {nextTourDate.address}
-              </div>
+      {/* Today's or Yesterday's Show - Only on mobile */}
+      <div className="md:hidden">
+        {(todaysSetlist || yesterdaysSetlist) && (
+          <div className="mb-6">
+            <div className="mb-2">
+              <h2 className="text-xl font-bold">{todaysSetlist ? "Tonight's Show" : "Yesterday's Show"}</h2>
             </div>
-          </Card>
-        </div>
-      )}
+            <SetlistCard
+              setlist={todaysSetlist || yesterdaysSetlist!}
+              userAttendance={attendancesByShowId[(todaysSetlist || yesterdaysSetlist)!.show.id] || null}
+              userRating={ratingsByShowId[(todaysSetlist || yesterdaysSetlist)!.show.id] || null}
+              showRating={(todaysSetlist || yesterdaysSetlist)!.show.averageRating}
+            />
+          </div>
+        )}
 
-      {/* Mobile-Optimized Content Layout */}
-      <div className="space-y-8">
-        {/* Latest Podcast Episode - Compact */}
+        {/* Next Show Banner - Mobile only */}
+        {nextTourDate && (
+          <div className="mb-6">
+            <Card className="card-premium">
+              <div className="p-4 text-center">
+                <div className="flex items-center justify-center mb-1">
+                  <Calendar className="h-4 w-4 mr-2 text-brand-primary" />
+                  <h3 className="text-sm font-semibold text-brand-primary">Next Show</h3>
+                </div>
+                <div className="text-lg font-bold text-content-text-primary">{nextTourDate.formattedStartDate}</div>
+                <div className="text-sm text-content-text-secondary">
+                  {nextTourDate.venueName} • {nextTourDate.address}
+                </div>
+              </div>
+            </Card>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden md:block">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Recent Shows */}
+          <div className="lg:col-span-2">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">Recent Shows</h2>
+              <Link
+                to="/shows"
+                className="text-sm text-content-text-tertiary hover:text-brand-primary transition-colors"
+              >
+                View all shows →
+              </Link>
+            </div>
+
+            {desktopRecentShows.length > 0 ? (
+              <div className="grid gap-6">
+                {desktopRecentShows.map((setlist) => (
+                  <SetlistCard
+                    key={setlist.show.id}
+                    setlist={setlist}
+                    userAttendance={attendancesByShowId[setlist.show.id] || null}
+                    userRating={ratingsByShowId[setlist.show.id] || null}
+                    showRating={setlist.show.averageRating}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center p-8 border border-dashed rounded-lg">
+                <p className="text-muted-foreground">No recent shows available</p>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Sidebar Content */}
+          <div className="space-y-8">
+
+            {/* Latest Podcast Episode */}
+            {latestEpisode && (
+              <div>
+                <div className="mb-4">
+                  <h3 className="text-lg font-bold">Latest Touchdowns All Day Podcast</h3>
+                  <Link
+                    to="/resources/touchdowns"
+                    className="text-sm text-content-text-tertiary hover:text-brand-primary transition-colors"
+                  >
+                    View all episodes →
+                  </Link>
+                </div>
+
+                <div className="card-premium rounded-lg overflow-hidden">
+                  {latestEpisode.image && (
+                    <div className="relative">
+                      <img src={latestEpisode.image} alt={latestEpisode.title} className="w-full h-32 object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute bottom-2 left-3 right-3">
+                        <h4 className="text-white text-sm font-semibold line-clamp-2">{latestEpisode.title}</h4>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="p-4">
+                    <div
+                      className="text-content-text-secondary text-sm mb-3 line-clamp-3"
+                      dangerouslySetInnerHTML={{ __html: latestEpisode.description }}
+                    />
+
+                    <div className="flex justify-between items-center">
+                      <div className="text-content-text-tertiary text-xs">
+                        {Math.floor(latestEpisode.duration / 60)} min •{" "}
+                        {latestEpisode.publishDate
+                          ? new Date(latestEpisode.publishDate).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })
+                          : ""}
+                      </div>
+                      <a
+                        href={latestEpisode.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-brand-primary hover:text-brand-secondary text-xs font-medium hover:underline transition-colors"
+                      >
+                        Listen →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Upcoming Tour Dates - Sidebar */}
+            <div>
+              <div className="mb-4">
+                <h3 className="text-lg font-bold">Upcoming Tour Dates</h3>
+                <Link
+                  to="/shows/tour-dates"
+                  className="text-sm text-content-text-tertiary hover:text-brand-primary transition-colors"
+                >
+                  View all tour dates →
+                </Link>
+              </div>
+
+              {tourDates.length > 0 ? (
+                <Card className="card-premium">
+                  <div className="relative overflow-x-auto">
+                    <table className="w-full">
+                      <tbody>
+                        {tourDates.slice(0, 5).map((td: TourDate) => (
+                          <tr
+                            key={td.formattedStartDate + td.venueName}
+                            className="border-b border-glass-border/40 hover:bg-hover-glass last:border-b-0"
+                          >
+                            <td className="p-3 text-content-text-primary text-sm">
+                              {td.formattedStartDate === td.formattedEndDate
+                                ? td.formattedStartDate
+                                : `${td.formattedStartDate} - ${td.formattedEndDate}`}
+                            </td>
+                            <td className="p-3">
+                              <div className="text-brand-primary font-medium text-base">{td.venueName}</div>
+                              <div className="text-content-text-secondary text-sm">{td.address}</div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              ) : (
+                <div className="text-center p-6 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground text-sm">No upcoming tour dates available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Recent Blog Posts */}
+            <div>
+              <div className="mb-4">
+                <h3 className="text-lg font-bold">Latest Blog Posts</h3>
+                <Link
+                  to="/blog"
+                  className="text-sm text-content-text-tertiary hover:text-brand-primary transition-colors"
+                >
+                  View all posts →
+                </Link>
+              </div>
+
+              {recentBlogPosts.length > 0 ? (
+                <div className="space-y-4">
+                  {recentBlogPosts.slice(0, 3).map((blogPost) => (
+                    <BlogCard key={blogPost.id} blogPost={blogPost} compact={true} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center p-6 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground text-sm">No blog posts available</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Blog Posts - Desktop */}
+        <div className="mt-12">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold">Latest from the Blog</h2>
+            <Link to="/blog" className="text-sm text-content-text-tertiary hover:text-brand-primary transition-colors">
+              View all blog posts →
+            </Link>
+          </div>
+
+          {recentBlogPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentBlogPosts.map((blogPost) => (
+                <BlogCard key={blogPost.id} blogPost={blogPost} compact={true} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8 border border-dashed rounded-lg">
+              <p className="text-muted-foreground">No blog posts available</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div className="md:hidden space-y-8">
+        {/* Latest Podcast Episode - Mobile */}
         {latestEpisode && (
           <div>
             <div className="mb-4">
@@ -287,7 +477,7 @@ export default function Index() {
           </div>
         )}
 
-        {/* Recent Shows Section - Optimized for Last 2 Shows */}
+        {/* Recent Shows Section - Mobile (limited to 2 shows) */}
         <div>
           <div className="mb-6">
             <h2 className="text-xl font-bold">Recent Shows</h2>
@@ -296,9 +486,9 @@ export default function Index() {
             </Link>
           </div>
 
-          {recentShows.length > 0 ? (
+          {mobileRecentShows.length > 0 ? (
             <div className="grid gap-6">
-              {recentShows.map((setlist) => (
+              {mobileRecentShows.map((setlist) => (
                 <SetlistCard
                   key={setlist.show.id}
                   setlist={setlist}
@@ -315,7 +505,7 @@ export default function Index() {
           )}
         </div>
 
-        {/* Upcoming Tour Dates Section */}
+        {/* Upcoming Tour Dates Section - Mobile */}
         <div>
           <div className="mb-6">
             <h2 className="text-xl font-bold">Upcoming Tour Dates</h2>
@@ -335,7 +525,6 @@ export default function Index() {
                     <tr className="text-left text-sm text-content-text-secondary border-b border-glass-border/40">
                       <th className="p-4">Date</th>
                       <th className="p-4">Venue</th>
-                      <th className="hidden md:table-cell p-4">Address</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -350,7 +539,6 @@ export default function Index() {
                             : `${td.formattedStartDate} - ${td.formattedEndDate}`}
                         </td>
                         <td className="p-4 text-brand-primary font-medium">{td.venueName}</td>
-                        <td className="hidden md:table-cell p-4 text-content-text-secondary">{td.address}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -364,7 +552,7 @@ export default function Index() {
           )}
         </div>
 
-        {/* Recent Blog Posts Section */}
+        {/* Recent Blog Posts Section - Mobile */}
         <div>
           <div className="mb-6">
             <h2 className="text-xl font-bold">Latest from the Blog</h2>
