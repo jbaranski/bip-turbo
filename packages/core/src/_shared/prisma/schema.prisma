@@ -270,12 +270,13 @@ model Review {
 }
 
 model Role {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String?  @db.VarChar
-  resourceId   String?  @map("resource_id") @db.Uuid
-  resourceType String?  @map("resource_type") @db.VarChar
-  createdAt    DateTime @map("created_at") @db.Timestamp(6)
-  updatedAt    DateTime @map("updated_at") @db.Timestamp(6)
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String?    @db.VarChar
+  resourceId   String?    @map("resource_id") @db.Uuid
+  resourceType String?    @map("resource_type") @db.VarChar
+  createdAt    DateTime   @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime   @map("updated_at") @db.Timestamp(6)
+  userRoles    UserRole[]
 
   @@index([name])
   @@index([name, resourceType, resourceId], map: "roles_name_resource_type_id_idx")
@@ -474,17 +475,20 @@ model User {
   reviews             Review[]
   showPhotos          ShowPhoto[]
   files               File[]
+  userRoles           UserRole[]
 
   @@map("users")
 }
 
 model UserRole {
-  userId String? @map("user_id") @db.Uuid
-  roleId String? @map("role_id") @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  roleId String @map("role_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
+  @@id([userId, roleId])
   @@index([userId, roleId])
   @@map("users_roles")
-  @@ignore
 }
 
 model Venue {

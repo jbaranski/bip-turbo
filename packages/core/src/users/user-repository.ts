@@ -44,6 +44,19 @@ export class UserRepository {
     return result ? mapUserToDomainEntity(result) : null;
   }
 
+  async findByIdWithRoles(id: string) {
+    return this.db.user.findUnique({
+      where: { id },
+      include: {
+        userRoles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
   async findBySlug(username: string): Promise<User | null> {
     const result = await this.db.user.findUnique({
       where: { username },

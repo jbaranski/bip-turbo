@@ -8,7 +8,7 @@ import { TrackManager } from "~/components/track/track-manager";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
-import { adminLoader } from "~/lib/base-loaders";
+import { adminAction, adminLoader } from "~/lib/base-loaders";
 import { notFound } from "~/lib/errors";
 import { services } from "~/server/services";
 
@@ -36,7 +36,7 @@ export const loader = adminLoader(async ({ params }) => {
   return { show, bands, tracks };
 });
 
-export const action = adminLoader(async ({ request, params }) => {
+export const action = adminAction(async ({ request, params }) => {
   const { slug } = params;
   const formData = await request.formData();
 

@@ -14,8 +14,8 @@ export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
     return null;
   }
 
-  //if (user?.user_metadata?.role === "admin") {
-  if (user) {
+  // Check for admin flag in app_metadata (server-controlled, secure)
+  if (user?.app_metadata?.isAdmin === true) {
     return <>{children}</>;
   }
 

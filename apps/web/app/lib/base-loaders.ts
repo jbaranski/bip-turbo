@@ -5,7 +5,7 @@ import { getServerClient } from "~/server/supabase";
 
 interface User {
   id: string;
-  role: string;
+  isAdmin: boolean;
 }
 
 export interface PublicContext {
@@ -38,7 +38,10 @@ export function createLoader<T, TContext extends PublicContext = PublicContext>(
     const startTime = performance.now();
 
     try {
-      const user = await getUser(args.request, { requireAuth: options?.requireAuth ?? false });
+      const user = await getUser(args.request, { 
+        requireAuth: options?.requireAuth ?? false,
+        requireAdmin: options?.requireAdmin ?? false
+      });
 
       if (user) {
         context.currentUser = user as TContext["currentUser"];
@@ -69,7 +72,10 @@ export function createAction<T, TContext extends PublicContext = PublicContext>(
     const startTime = performance.now();
 
     try {
-      const user = await getUser(args.request, { requireAuth: options?.requireAuth ?? false });
+      const user = await getUser(args.request, { 
+        requireAuth: options?.requireAuth ?? false,
+        requireAdmin: options?.requireAdmin ?? false
+      });
 
       if (user) {
         context.currentUser = user as TContext["currentUser"];
@@ -104,7 +110,7 @@ export const adminAction = <T>(fn: (args: ActionFunctionArgs & { context: AdminC
 export const publicLoader = <T>(fn: (args: LoaderFunctionArgs & { context: PublicContext }) => Promise<T>) =>
   createLoader<T, PublicContext>(fn, { requireAuth: false });
 
-async function getUser(request: Request, options: { requireAuth: boolean }): Promise<User | null> {
+async function getUser(request: Request, options: { requireAuth: boolean; requireAdmin?: boolean }): Promise<User | null> {
   const { supabase } = getServerClient(request);
 
   if (options?.requireAuth) {
@@ -122,9 +128,25 @@ async function getUser(request: Request, options: { requireAuth: boolean }): Pro
       }
       throw redirect("/auth/login");
     }
+
+    // Check for admin flag in app_metadata (server-controlled, secure)
+    const isAdmin = user.app_metadata?.isAdmin === true;
+    
+    // Check admin access if required
+    if (options?.requireAdmin && !isAdmin) {
+      const isJsonRequest = request.headers.get("Accept")?.includes("application/json");
+      if (isJsonRequest) {
+        throw new Response(JSON.stringify({ error: "Forbidden: Admin access required" }), {
+          status: 403,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      throw redirect("/");
+    }
+
     return {
       id: user.id,
-      role: user.user_metadata.role,
+      isAdmin,
     };
   }
 
@@ -133,9 +155,10 @@ async function getUser(request: Request, options: { requireAuth: boolean }): Pro
   } = await supabase.auth.getSession();
 
   if (session) {
+    const isAdmin = session.user.app_metadata?.isAdmin === true;
     return {
       id: session.user.id,
-      role: session.user.user_metadata.role,
+      isAdmin,
     };
   }
 
