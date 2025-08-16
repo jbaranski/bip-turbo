@@ -9,19 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getVenuesMeta } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
 
 const ITEMS_PER_PAGE = 50;
 
 export function meta() {
-  return [
-    { title: "Venues | Biscuits Internet Project" },
-    {
-      name: "description",
-      content: "Browse and discover venues where the Disco Biscuits have performed.",
-    },
-  ];
+  return getVenuesMeta();
 }
 
 interface LoaderData {

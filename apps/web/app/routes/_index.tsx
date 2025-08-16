@@ -6,6 +6,7 @@ import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Card } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getHomeMeta } from "~/lib/seo";
 import { services } from "~/server/services";
 
 interface AcastEpisode {
@@ -169,13 +170,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
 });
 
 export function meta() {
-  return [
-    { title: "Biscuits Internet Project" },
-    {
-      name: "description",
-      content: "The ultimate resource for Disco Biscuits fans - shows, setlists, songs, venues, and more.",
-    },
-  ];
+  return getHomeMeta();
 }
 
 export default function Index() {

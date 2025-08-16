@@ -10,6 +10,7 @@ import { Card, CardContent } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
 import { notFound } from "~/lib/errors";
+import { getBlogMeta, getBlogStructuredData } from "~/lib/seo";
 import { services } from "~/server/services";
 
 interface LoaderData {
@@ -32,13 +33,12 @@ export const loader = publicLoader(async ({ params }) => {
 });
 
 export function meta({ data }: { data: LoaderData }) {
-  return [
-    { title: `${data.blogPost.title} | Biscuits Internet Project` },
-    {
-      name: "description",
-      content: data.blogPost.blurb || `Read ${data.blogPost.title} on Biscuits Internet Project`,
-    },
-  ];
+  return getBlogMeta({
+    title: data.blogPost.title,
+    blurb: data.blogPost.blurb,
+    slug: data.blogPost.slug,
+    publishedAt: data.blogPost.publishedAt
+  });
 }
 
 export default function BlogPostPage() {
@@ -56,6 +56,19 @@ export default function BlogPostPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getBlogStructuredData({
+            title: blogPost.title,
+            blurb: blogPost.blurb,
+            slug: blogPost.slug,
+            publishedAt: blogPost.publishedAt
+          })
+        }}
+      />
+      
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap items-baseline gap-4">
           <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">{blogPost.title}</h1>

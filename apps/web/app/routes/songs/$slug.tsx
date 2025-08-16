@@ -17,6 +17,7 @@ import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getSongMeta, getSongStructuredData } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
 
@@ -263,13 +264,13 @@ function ReviewNote({ notes }: { notes: string }) {
 }
 
 export function meta({ data }: { data: SongPageView }) {
-  return [
-    { title: `${data.song.title} - Biscuits Internet Project` },
-    {
-      name: "description",
-      content: `View details, lyrics, tabs, and performance history for ${data.song.title} by The Disco Biscuits.`,
-    },
-  ];
+  return getSongMeta({
+    ...data.song,
+    name: data.song.title,
+    slug: data.song.slug,
+    timesPlayed: data.song.timesPlayed,
+    debutDate: data.song.debutDate
+  });
 }
 
 export default function SongPage() {
@@ -278,6 +279,19 @@ export default function SongPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getSongStructuredData({
+            ...song,
+            name: song.title,
+            slug: song.slug,
+            timesPlayed: song.timesPlayed
+          })
+        }}
+      />
+      
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap items-baseline gap-4">
           <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">{song.title}</h1>

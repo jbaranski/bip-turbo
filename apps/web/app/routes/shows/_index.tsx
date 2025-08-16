@@ -9,6 +9,7 @@ import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getShowsMeta } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
 
@@ -55,25 +56,24 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
     return { setlists, year: yearInt, searchQuery };
   }
 
-  // Otherwise, get setlists for the specified year
+  // Get setlists for the specified year
+  // Current year gets reverse chronological, other years get normal chronological
+  const currentYear = new Date().getFullYear();
+  const sortDirection = yearInt === currentYear ? "desc" : "asc";
+  
   setlists = await services.setlists.findMany({
     filters: {
       year: yearInt,
     },
+    sort: [{ field: "date", direction: sortDirection }],
   });
 
   console.log("⚡️ shows loader - found setlists:", setlists.length);
   return { setlists, year: yearInt };
 });
 
-export function meta() {
-  return [
-    { title: "Shows | Biscuits Internet Project" },
-    {
-      name: "description",
-      content: "Browse and discover Disco Biscuits shows, including setlists, recordings, and ratings.",
-    },
-  ];
+export function meta({ data }: { data: LoaderData }) {
+  return getShowsMeta(data.year, data.searchQuery);
 }
 
 export default function Shows() {
@@ -170,7 +170,7 @@ export default function Shows() {
   // Handle scroll event to show/hide back to top button
   useEffect(() => {
     const handleScroll = () => {
-      const scrollThreshold = window.innerHeight * 2;
+      const scrollThreshold = window.innerHeight * 0.5; // Show after half screen height
       setShowBackToTop(window.scrollY > scrollThreshold);
     };
 
@@ -211,7 +211,7 @@ export default function Shows() {
 
         {/* Navigation - Only show when not searching */}
         {!searchQuery && (
-          <div className="bg-content-bg rounded-lg border border-content-bg-secondary overflow-hidden">
+          <div className="card-premium rounded-lg overflow-hidden">
             {/* Year navigation */}
             <div className="p-6 border-b border-content-bg-secondary">
               <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
@@ -226,10 +226,10 @@ export default function Shows() {
                     key={y}
                     to={`/shows?year=${y}`}
                     className={cn(
-                      "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 text-center relative overflow-hidden",
+                      "px-3 py-2 text-sm font-medium rounded-lg transition-all duration-300 text-center relative overflow-hidden shadow-sm",
                       y === year
-                        ? "text-brand bg-brand/10 border border-brand/30 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-brand/20 before:to-transparent before:translate-x-[-100%] before:animate-pulse"
-                        : "text-content-text-secondary bg-content-bg-secondary hover:bg-content-bg-tertiary hover:text-white",
+                        ? "text-white bg-gradient-to-r from-brand-primary to-brand-secondary border-2 border-brand-primary/50 shadow-lg shadow-brand-primary/30 scale-110 font-bold ring-2 ring-brand-primary/20"
+                        : "text-content-text-secondary bg-content-bg-secondary hover:bg-content-bg-tertiary hover:text-white hover:scale-105 hover:shadow-md",
                     )}
                   >
                     {y}
@@ -301,10 +301,16 @@ export default function Shows() {
               ) : (
                 <div className="space-y-8">
                   {monthsWithShows
-                    .sort((a, b) => a - b)
+                    .sort((a, b) => year === new Date().getFullYear() ? b - a : a - b)
                     .map((month) => (
                       <div key={month} className="space-y-4">
-                        {setlistsByMonth[month].map((setlist, index) => (
+                        {setlistsByMonth[month]
+                          .sort((a, b) => {
+                            const dateA = new Date(a.show.date).getTime();
+                            const dateB = new Date(b.show.date).getTime();
+                            return year === new Date().getFullYear() ? dateB - dateA : dateA - dateB;
+                          })
+                          .map((setlist, index) => (
                           <div key={setlist.show.id}>
                             {index === 0 && <div id={`month-${month}`} className="scroll-mt-20" />}
                             <SetlistCard
@@ -335,10 +341,10 @@ export default function Shows() {
         <Button
           onClick={scrollToTop}
           size="icon"
-          className="h-12 w-12 rounded-full bg-brand hover:bg-hover-accent shadow-lg"
+          className="h-14 w-14 rounded-full bg-brand-primary hover:bg-brand-secondary shadow-xl border-2 border-white/20"
           aria-label="Back to top"
         >
-          <ArrowUp className="h-5 w-5" />
+          <ArrowUp className="h-6 w-6 text-white" />
         </Button>
       </div>
     </div>

@@ -14,6 +14,7 @@ import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { useSession } from "~/hooks/use-session";
 import { publicLoader } from "~/lib/base-loaders";
 import { notFound } from "~/lib/errors";
+import { getShowMeta, getShowStructuredData } from "~/lib/seo";
 import { formatDateLong } from "~/lib/utils";
 import { services } from "~/server/services";
 
@@ -77,17 +78,7 @@ export const loader = publicLoader(async ({ params, context }): Promise<ShowLoad
 });
 
 export function meta({ data }: { data: ShowLoaderData }) {
-  const showDate = formatDateLong(data.setlist.show.date);
-  const venueName = data.setlist.show.venue?.name ?? "Unknown Venue";
-  const cityState = `${data.setlist.show.venue?.city}, ${data.setlist.show.venue?.state}`;
-
-  return [
-    { title: `${showDate} - ${venueName} - ${cityState} | Biscuits Internet Project` },
-    {
-      name: "description",
-      content: `View setlist, reviews, and recordings from the Disco Biscuits show at ${venueName} in ${cityState} on ${showDate}.`,
-    },
-  ];
+  return getShowMeta(data.setlist);
 }
 
 export default function Show() {
@@ -231,6 +222,14 @@ export default function Show() {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getShowStructuredData(setlist)
+        }}
+      />
+      
       <div className="flex justify-between items-center">
         <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">
           {formatDateLong(setlist.show.date)}

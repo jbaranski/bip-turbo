@@ -56,7 +56,9 @@ export function UserDropdown({ user, className }: UserDropdownProps) {
       <DropdownMenuContent
         className={cn(
           "w-64 p-2",
-          "glass-content rounded-xl border-0",
+          "rounded-xl border-0",
+          "bg-content-bg-primary/95 border border-content-glass-border",
+          "backdrop-blur-md",
           "shadow-2xl shadow-brand-primary/10",
           "animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200",
         )}

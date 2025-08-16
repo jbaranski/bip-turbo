@@ -6,6 +6,7 @@ import { BlogCard } from "~/components/blog/blog-card";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getBlogsMeta } from "~/lib/seo";
 import { services } from "~/server/services";
 
 interface LoaderData {
@@ -33,13 +34,7 @@ export const loader = publicLoader<LoaderData>(async () => {
 });
 
 export function meta() {
-  return [
-    { title: "Blog | Biscuits Internet Project" },
-    {
-      name: "description",
-      content: "Read the latest news, stories, and updates from the Biscuits Internet Project.",
-    },
-  ];
+  return getBlogsMeta();
 }
 
 export default function BlogPosts() {

@@ -9,6 +9,7 @@ import { Input } from "~/components/ui/input";
 import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getSongsMeta } from "~/lib/seo";
 import { services } from "~/server/services";
 
 const ITEMS_PER_PAGE = 50; // Number of items to show initially and each time "Load More" is clicked
@@ -17,16 +18,18 @@ interface LoaderData {
   songs: Song[];
   trendingSongs: TrendingSong[];
   yearlyTrendingSongs: TrendingSong[];
+  recentShowsCount: number;
 }
 
 export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
+  const recentShowsCount = 10;
   const [songs, trendingSongs, yearlyTrendingSongs] = await Promise.all([
     services.songs.findMany({}),
-    services.songs.findTrendingLastXShows(10, 6),
+    services.songs.findTrendingLastXShows(recentShowsCount, 6),
     services.songs.findTrendingLastYear(),
   ]);
 
-  return { songs, trendingSongs, yearlyTrendingSongs };
+  return { songs, trendingSongs, yearlyTrendingSongs, recentShowsCount };
 });
 
 interface SongCardProps {
@@ -34,26 +37,56 @@ interface SongCardProps {
 }
 
 function SongCard({ song }: SongCardProps) {
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("en-US", { 
+      timeZone: "UTC",
+      month: "short",
+      day: "numeric", 
+      year: "numeric"
+    });
+  };
+
   return (
     <Card className="card-premium hover:border-brand-primary/60 transition-all duration-300">
-      <CardHeader>
+      <CardHeader className="pb-3">
         <CardTitle className="text-xl">
           <Link to={`/songs/${song.slug}`} className="text-brand-primary hover:text-brand-secondary">
             {song.title}
           </Link>
         </CardTitle>
       </CardHeader>
-      {song.timesPlayed > 0 && (
-        <CardContent>
-          <p className="text-content-text-secondary text-sm">
-            Played {song.timesPlayed} times
+      
+      {song.timesPlayed > 0 ? (
+        <CardContent className="space-y-3">
+          {/* Play count and last played in one clean line */}
+          <div className="flex items-center justify-between">
+            <span className="text-content-text-primary font-semibold text-lg">
+              {song.timesPlayed} plays
+            </span>
             {song.dateLastPlayed && (
-              <span className="text-content-text-tertiary">
-                {" "}
-                (Last: {new Date(song.dateLastPlayed).toLocaleDateString("en-US", { timeZone: "UTC" })})
+              <span className="text-content-text-secondary text-sm">
+                Last: {formatDate(song.dateLastPlayed)}
               </span>
             )}
-          </p>
+          </div>
+          
+          {/* Peak/Rare years - only if available */}
+          {(song.mostCommonYear || song.leastCommonYear) && (
+            <div className="flex gap-3 text-xs text-content-text-tertiary">
+              {song.mostCommonYear && (
+                <span>Peak: {song.mostCommonYear}</span>
+              )}
+              {song.leastCommonYear && (
+                <span>Rare: {song.leastCommonYear}</span>
+              )}
+            </div>
+          )}
+        </CardContent>
+      ) : (
+        <CardContent>
+          <span className="text-content-text-tertiary text-sm italic">
+            Never performed
+          </span>
         </CardContent>
       )}
     </Card>
@@ -62,21 +95,36 @@ function SongCard({ song }: SongCardProps) {
 
 interface TrendingSongCardProps {
   song: TrendingSong;
+  recentShowsCount: number;
 }
 
-function TrendingSongCard({ song }: TrendingSongCardProps) {
+function TrendingSongCard({ song, recentShowsCount }: TrendingSongCardProps) {
   return (
-    <Card className="card-premium hover:border-brand-tertiary/60 transition-all duration-300">
-      <CardHeader>
-        <CardTitle className="text-lg">
-          <Link to={`/songs/${song.slug}`} className="text-brand-primary hover:text-brand-secondary">
+    <Card className="glass-content hover:border-brand-primary/50 transition-all duration-300 group">
+      <CardContent className="p-4">
+        <div className="space-y-3">
+          <Link 
+            to={`/songs/${song.slug}`} 
+            className="block text-lg font-semibold text-brand-primary hover:text-brand-secondary transition-colors group-hover:text-brand-secondary"
+          >
             {song.title}
           </Link>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="text-brand-tertiary">{song.count} of the last 10 shows</p>
-        <p className="text-content-text-secondary text-sm">{song.timesPlayed} times total</p>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary/20 text-brand-primary font-bold text-sm">
+                {song.count}
+              </div>
+              <span className="text-content-text-secondary text-sm">
+                of {recentShowsCount} recent shows
+              </span>
+            </div>
+          </div>
+          
+          <div className="text-xs text-content-text-tertiary">
+            {song.timesPlayed} total performances
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -143,17 +191,11 @@ function YearlyTrendingSongs() {
 }
 
 export function meta() {
-  return [
-    { title: "Songs | Biscuits Internet Project" },
-    {
-      name: "description",
-      content: "Browse and discover Disco Biscuits songs, including lyrics, history, and performances.",
-    },
-  ];
+  return getSongsMeta();
 }
 
 export default function Songs() {
-  const { songs, trendingSongs, yearlyTrendingSongs } = useSerializedLoaderData<LoaderData>();
+  const { songs, trendingSongs, yearlyTrendingSongs, recentShowsCount } = useSerializedLoaderData<LoaderData>();
 
   const [filteredSongs, setFilteredSongs] = useState(songs);
   const [searchQuery, setSearchQuery] = useState("");
@@ -206,7 +248,7 @@ export default function Songs() {
                 <h2 className="text-xl font-semibold mb-4 text-content-text-primary">Trending in Recent Shows</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {trendingSongs.map((song: TrendingSong) => (
-                    <TrendingSongCard key={song.id} song={song} />
+                    <TrendingSongCard key={song.id} song={song} recentShowsCount={recentShowsCount} />
                   ))}
                 </div>
               </div>

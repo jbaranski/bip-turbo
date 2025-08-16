@@ -10,6 +10,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
+import { getVenueMeta, getVenueStructuredData } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
 
@@ -241,17 +242,12 @@ function VenueSetlistCard({
 }
 
 export function meta({ data }: { data: LoaderData }) {
-  const venueName = data.venue.name;
-  const cityState = `${data.venue.city}, ${data.venue.state}`;
-  const showCount = data.venue.timesPlayed;
-
-  return [
-    { title: `${venueName} - ${cityState} | Biscuits Internet Project` },
-    {
-      name: "description",
-      content: `View shows, history, and information about ${venueName} in ${cityState}. The Disco Biscuits have played here ${showCount} times.`,
-    },
-  ];
+  return getVenueMeta({
+    ...data.venue,
+    showCount: data.stats.totalShows,
+    firstShowYear: data.stats.firstShow ? new Date(data.stats.firstShow).getFullYear() : undefined,
+    lastShowYear: data.stats.lastShow ? new Date(data.stats.lastShow).getFullYear() : undefined
+  });
 }
 
 export default function VenuePage() {
@@ -318,6 +314,14 @@ export default function VenuePage() {
 
   return (
     <div>
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: getVenueStructuredData(venue)
+        }}
+      />
+      
       <div className="space-y-4 mb-6">
         <div className="flex justify-between items-start">
           <div>
