@@ -9,7 +9,6 @@ import {
   Mail,
   Menu,
   TrendingUp,
-  UsersRound,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -27,7 +26,6 @@ const navigation = [
   { name: "shows", href: "/shows", icon: Headphones },
   { name: "songs", href: "/songs", icon: Disc },
   { name: "venues", href: "/venues", icon: Building2 },
-  { name: "community", href: "/community", icon: UsersRound },
   { name: "resources", href: "/resources", icon: BookOpen },
   { name: "blog", href: "/blog", icon: FileText },
   { name: "top rated", href: "/shows/top-rated", icon: TrendingUp },
@@ -63,7 +61,7 @@ export function Header() {
         {/* Desktop Navigation */}
         {!isMobile && (
           <nav className="hidden md:flex items-center space-x-2">
-            {navigation.slice(0, 7).map((item) => (
+            {navigation.slice(0, 6).map((item) => (
               <Link
                 key={item.href}
                 to={item.href}
