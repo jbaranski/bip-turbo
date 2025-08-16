@@ -27,29 +27,37 @@ async function indexSongs() {
 
   const songs = await songRepository.findMany({});
 
-  console.log(`📦 Indexing ${songs.length} songs...`);
+  console.log(`📦 Indexing ${songs.length} songs using batch processing...`);
 
   let indexed = 0;
-  const batchSize = 10;
+  const batchSize = 50; // Larger batches for efficiency
 
   for (let i = 0; i < songs.length; i += batchSize) {
     const batch = songs.slice(i, i + batchSize);
 
-    for (const song of batch) {
-      try {
-        await searchIndexService.indexEntity(song, "song");
-        indexed++;
-
-        if (indexed % 50 === 0) {
-          console.log(`  ✅ ${indexed}/${songs.length} songs indexed`);
+    try {
+      // Use batch indexing method
+      await searchIndexService.indexEntities("song", batch);
+      indexed += batch.length;
+      
+      console.log(`  ✅ ${indexed}/${songs.length} songs indexed`);
+    } catch (error) {
+      console.error(`  ❌ Failed to index batch of ${batch.length} songs:`, error);
+      
+      // Fallback to individual indexing for this batch
+      for (const song of batch) {
+        try {
+          await searchIndexService.indexEntity(song, "song");
+          indexed++;
+        } catch (individualError) {
+          console.error(`  ❌ Failed to index song ${song.title}:`, individualError);
         }
-      } catch (error) {
-        console.error(`  ❌ Failed to index song ${song.title}:`, error);
       }
     }
 
+    // Reduced delay since we're processing in larger, more efficient batches
     if (i + batchSize < songs.length) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 200));
     }
   }
 
@@ -69,29 +77,37 @@ async function indexShows() {
     },
   });
 
-  console.log(`📦 Indexing ${shows.length} shows...`);
+  console.log(`📦 Indexing ${shows.length} shows using batch processing...`);
 
   let indexed = 0;
-  const batchSize = 5;
+  const batchSize = 25; // Larger batches for efficiency
 
   for (let i = 0; i < shows.length; i += batchSize) {
     const batch = shows.slice(i, i + batchSize);
 
-    for (const show of batch) {
-      try {
-        await searchIndexService.indexEntity(show, "show");
-        indexed++;
-
-        if (indexed % 25 === 0) {
-          console.log(`  ✅ ${indexed}/${shows.length} shows indexed`);
+    try {
+      // Use batch indexing method
+      await searchIndexService.indexEntities("show", batch);
+      indexed += batch.length;
+      
+      console.log(`  ✅ ${indexed}/${shows.length} shows indexed`);
+    } catch (error) {
+      console.error(`  ❌ Failed to index batch of ${batch.length} shows:`, error);
+      
+      // Fallback to individual indexing for this batch
+      for (const show of batch) {
+        try {
+          await searchIndexService.indexEntity(show, "show");
+          indexed++;
+        } catch (individualError) {
+          console.error(`  ❌ Failed to index show ${show.date}:`, individualError);
         }
-      } catch (error) {
-        console.error(`  ❌ Failed to index show ${show.date}:`, error);
       }
     }
 
+    // Reduced delay since we're processing in larger, more efficient batches
     if (i + batchSize < shows.length) {
-      await new Promise((resolve) => setTimeout(resolve, 200));
+      await new Promise((resolve) => setTimeout(resolve, 300));
     }
   }
 
@@ -110,29 +126,37 @@ async function indexVenues() {
     },
   });
 
-  console.log(`📦 Indexing ${venues.length} venues...`);
+  console.log(`📦 Indexing ${venues.length} venues using batch processing...`);
 
   let indexed = 0;
-  const batchSize = 15;
+  const batchSize = 75; // Larger batches for efficiency
 
   for (let i = 0; i < venues.length; i += batchSize) {
     const batch = venues.slice(i, i + batchSize);
 
-    for (const venue of batch) {
-      try {
-        await searchIndexService.indexEntity(venue, "venue");
-        indexed++;
-
-        if (indexed % 50 === 0) {
-          console.log(`  ✅ ${indexed}/${venues.length} venues indexed`);
+    try {
+      // Use batch indexing method
+      await searchIndexService.indexEntities("venue", batch);
+      indexed += batch.length;
+      
+      console.log(`  ✅ ${indexed}/${venues.length} venues indexed`);
+    } catch (error) {
+      console.error(`  ❌ Failed to index batch of ${batch.length} venues:`, error);
+      
+      // Fallback to individual indexing for this batch
+      for (const venue of batch) {
+        try {
+          await searchIndexService.indexEntity(venue, "venue");
+          indexed++;
+        } catch (individualError) {
+          console.error(`  ❌ Failed to index venue ${venue.name}:`, individualError);
         }
-      } catch (error) {
-        console.error(`  ❌ Failed to index venue ${venue.name}:`, error);
       }
     }
 
+    // Reduced delay since we're processing in larger, more efficient batches
     if (i + batchSize < venues.length) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 150));
     }
   }
 

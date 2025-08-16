@@ -3,12 +3,16 @@ import {
   Building2,
   CalendarDays,
   Disc,
+  Edit,
+  Eye,
   FileText,
   Headphones,
   Home,
+  LogOut,
   Mail,
   Menu,
   TrendingUp,
+  User,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -59,23 +63,21 @@ export function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        {!isMobile && (
-          <nav className="hidden md:flex items-center space-x-2">
-            {navigation.slice(0, 6).map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="flex items-center rounded-md px-4 py-2 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
-              >
-                <item.icon className="h-4 w-4 mr-2" />
-                <span>{item.name}</span>
-              </Link>
-            ))}
-          </nav>
-        )}
+        <nav className="hidden md:flex items-center space-x-2">
+          {navigation.slice(0, 6).map((item) => (
+            <Link
+              key={item.href}
+              to={item.href}
+              className="flex items-center rounded-md px-4 py-2 text-lg font-semibold text-content-text-primary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
+            >
+              <item.icon className="h-4 w-4 mr-2" />
+              <span>{item.name}</span>
+            </Link>
+          ))}
+        </nav>
 
         {/* Search */}
-        <div className="flex-1 max-w-lg mx-4">
+        <div className="flex-1 max-w-lg mx-2 md:mx-4">
           <SearchButton 
             variant="outline" 
             size="sm" 
@@ -100,7 +102,7 @@ export function Header() {
           )}
 
           {/* Mobile Menu Button */}
-          {isMobile && (
+          <div className="md:hidden">
             <Button
               variant="ghost"
               size="icon"
@@ -114,12 +116,12 @@ export function Header() {
               )}
               <span className="sr-only">{mobileMenuOpen ? "Close" : "Open"} menu</span>
             </Button>
-          )}
+          </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobile && mobileMenuOpen && (
+      {mobileMenuOpen && (
         <>
           {/* Overlay */}
           <div
@@ -128,7 +130,7 @@ export function Header() {
           />
           
           {/* Menu Panel */}
-          <div className="fixed top-16 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/10">
+          <div className="fixed top-16 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border/10 md:hidden">
             <nav className="p-4 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
               {navigation.map((item) => (
                 <Link
@@ -142,25 +144,50 @@ export function Header() {
                 </Link>
               ))}
               
-              {/* Mobile Auth */}
+              {/* Mobile Auth & User Menu */}
               <div className="border-t border-border/10 pt-4 mt-4">
                 {!loading && (
                   user ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-3 px-4 py-2">
-                        <Avatar className="h-8 w-8">
+                    <div className="space-y-1">
+                      {/* User Info */}
+                      <div className="flex items-center space-x-3 px-4 py-3 rounded-md bg-brand-primary/5">
+                        <Avatar className="h-10 w-10">
                           <AvatarImage src={user.user_metadata?.avatar_url} />
-                          <AvatarFallback className="bg-accent text-accent-foreground text-xs">
+                          <AvatarFallback className="bg-brand-primary/20 text-brand-primary text-sm font-medium">
                             {username?.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm font-medium text-foreground">{username}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-foreground">{username}</span>
+                          <span className="text-xs text-content-text-secondary">{user.email}</span>
+                        </div>
                       </div>
+                      
+                      {/* User Menu Items */}
                       <Link
-                        to="/auth/logout"
+                        to={`/users/${username}`}
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
                       >
+                        <Eye className="h-5 w-5 mr-3" />
+                        View Profile
+                      </Link>
+                      
+                      <Link
+                        to="/profile/edit"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-secondary hover:bg-hover-glass"
+                      >
+                        <Edit className="h-5 w-5 mr-3" />
+                        Edit Profile
+                      </Link>
+                      
+                      <Link
+                        to="/auth/logout"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center rounded-md px-4 py-3 text-base font-medium text-red-400 transition-all duration-200 hover:text-red-300 hover:bg-red-500/10"
+                      >
+                        <LogOut className="h-5 w-5 mr-3" />
                         Sign out
                       </Link>
                     </div>
@@ -170,6 +197,7 @@ export function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center rounded-md px-4 py-3 text-base font-medium text-content-text-secondary transition-all duration-200 hover:text-brand-primary hover:bg-hover-glass"
                     >
+                      <User className="h-5 w-5 mr-3" />
                       Sign in
                     </Link>
                   )
