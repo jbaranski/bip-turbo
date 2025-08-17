@@ -7,6 +7,7 @@ import { Badge } from "~/components/ui/badge";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
 import { services } from "~/server/services";
+import { container } from "~/server/container";
 import type { UserStats } from "@bip/core";
 
 interface LoaderData {
@@ -23,8 +24,22 @@ interface LoaderData {
 }
 
 export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
+  const cacheKey = "community-page-data";
+  const redis = container.redis;
+
+  // Try to get from cache first
   try {
-    console.log("Attempting to get real user stats...");
+    const cached = await redis.get<LoaderData>(cacheKey);
+    if (cached) {
+      console.log("Community data served from Redis cache");
+      return cached;
+    }
+  } catch (error) {
+    console.warn("Redis cache read failed for community page, falling back to DB", error);
+  }
+
+  try {
+    console.log("Fetching fresh community data from database...");
 
     // Get real community totals and user stats in parallel
     const [allUserStats, communityTotals, topReviewers, topAttenders, topRaters] = await Promise.all([
@@ -38,13 +53,23 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
     console.log("Got user stats:", allUserStats.length);
     console.log("Community totals:", communityTotals);
 
-    return {
+    const result: LoaderData = {
       allUserStats: allUserStats.slice(0, 50), // Limit to 50 for performance
       topReviewers,
       topAttenders,
       topRaters,
       communityTotals,
     };
+
+    // Cache the results for 1 hour (3600 seconds)
+    try {
+      await redis.set(cacheKey, result, { EX: 3600 });
+      console.log("Community data cached in Redis for 1 hour");
+    } catch (error) {
+      console.warn("Redis cache write failed for community page", error);
+    }
+
+    return result;
   } catch (error) {
     console.error("Error getting real user stats, falling back to mock:", error);
 
