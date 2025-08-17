@@ -91,7 +91,7 @@ export async function action({ params, request }: ActionFunctionArgs) {
   }
 
   try {
-    console.log(`Executing cron job: ${action}`);
+    console.log(`🤖 Executing cron job: ${action}`);
     const result = await cronJob();
     
     return json({
