@@ -1,5 +1,5 @@
-import type { Show, ShowMinimal } from "../models/show";
-import type { Song, SongMinimal } from "../models/song";
+import type { ShowMinimal } from "../models/show";
+import type { Song } from "../models/song";
 import type { TrackMinimal } from "../models/track";
 import type { VenueMinimal } from "../models/venue";
 

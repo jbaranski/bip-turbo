@@ -2,6 +2,23 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+# 🚨 FUCKING IMPORTANT 🚨
+
+## ALWAYS USE MAKE COMMANDS
+
+**USE MAKE COMMANDS WHENEVER POSSIBLE** - They handle environment setup and proper execution paths.
+
+## REACT ROUTER V7 ROUTES MUST BE ADDED TO ROUTES.TS
+
+**WHEN YOU ADD NEW ROUTES, ESPECIALLY API ROUTES, YOU MUST ADD THEM TO `apps/web/app/routes.ts`**
+
+React Router v7 uses explicit route configuration. File-based routing alone IS NOT ENOUGH. You must:
+
+1. Create the route file (e.g., `routes/api/cron/$action.tsx`)
+2. **ADD THE ROUTE TO `apps/web/app/routes.ts`** (e.g., `route("cron/:action", "routes/api/cron/$action.tsx")`)
+
+Otherwise the route WILL NOT WORK and you'll get 404s.
+
 ## Common Development Commands
 
 **Setup and Installation:**
