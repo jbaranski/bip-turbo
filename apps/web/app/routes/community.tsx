@@ -26,7 +26,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const cacheKey = "community-page-data";
   const redis = services.redis;
 
-  // Try to get from cache first
+  // Always try to get from cache first
   try {
     const cached = await redis.get<LoaderData>(cacheKey);
     if (cached) {
@@ -34,72 +34,25 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
       return cached;
     }
   } catch (error) {
-    console.warn("Redis cache read failed for community page, falling back to DB", error);
+    console.error("Redis cache read failed for community page:", error);
   }
 
-  try {
-    console.log("Fetching fresh community data from database...");
-
-    // Get real community totals and user stats in parallel
-    const [allUserStats, communityTotals, topReviewers, topAttenders, topRaters] = await Promise.all([
-      services.users.getUserStats(),
-      services.users.getCommunityTotals(),
-      services.users.getTopUsersByMetric("reviews", 5),
-      services.users.getTopUsersByMetric("attendance", 5),
-      services.users.getTopUsersByMetric("ratings", 5),
-    ]);
-
-    console.log("Got user stats:", allUserStats.length);
-    console.log("Community totals:", communityTotals);
-
-    const result: LoaderData = {
-      allUserStats: allUserStats.slice(0, 50), // Limit to 50 for performance
-      topReviewers,
-      topAttenders,
-      topRaters,
-      communityTotals,
-    };
-
-    // Cache the results for 1 hour (3600 seconds)
-    try {
-      await redis.set(cacheKey, result, { EX: 3600 });
-      console.log("Community data cached in Redis for 1 hour");
-    } catch (error) {
-      console.warn("Redis cache write failed for community page", error);
-    }
-
-    return result;
-  } catch (error) {
-    console.error("Error getting real user stats, falling back to mock:", error);
-
-    // Fallback to users without stats if the new methods fail
-    const users = await services.users.findMany();
-
-    const mockUserStats: UserStats[] = users.slice(0, 50).map((user) => ({
-      user,
-      reviewCount: Math.floor(Math.random() * 25),
-      attendanceCount: Math.floor(Math.random() * 50),
-      ratingCount: Math.floor(Math.random() * 30),
-      averageRating: Math.random() * 5,
-    }));
-
-    const topReviewers = [...mockUserStats].sort((a, b) => b.reviewCount - a.reviewCount).slice(0, 5);
-    const topAttenders = [...mockUserStats].sort((a, b) => b.attendanceCount - a.attendanceCount).slice(0, 5);
-    const topRaters = [...mockUserStats].sort((a, b) => b.ratingCount - a.ratingCount).slice(0, 5);
-
-    return {
-      allUserStats: mockUserStats,
-      topReviewers,
-      topAttenders,
-      topRaters,
-      communityTotals: {
-        totalUsers: users.length,
-        totalReviews: mockUserStats.reduce((sum, u) => sum + u.reviewCount, 0),
-        totalAttendances: mockUserStats.reduce((sum, u) => sum + u.attendanceCount, 0),
-        totalRatings: mockUserStats.reduce((sum, u) => sum + u.ratingCount, 0),
-      },
-    };
-  }
+  // If no cache exists, return minimal fallback data
+  // The cron job should populate the cache soon
+  console.warn("No community cache found - returning minimal fallback data");
+  
+  return {
+    allUserStats: [],
+    topReviewers: [],
+    topAttenders: [],
+    topRaters: [],
+    communityTotals: {
+      totalUsers: 0,
+      totalReviews: 0,
+      totalAttendances: 0,
+      totalRatings: 0,
+    },
+  };
 });
 
 export function meta() {

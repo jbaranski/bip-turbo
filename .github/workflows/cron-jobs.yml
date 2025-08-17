@@ -1,0 +1,66 @@
+name: Cron Jobs
+
+on:
+  # Manual trigger with job selection
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Cron job to run'
+        required: true
+        default: 'community-refresh'
+        type: choice
+        options:
+          - community-refresh
+      timeout:
+        description: 'Timeout in minutes'
+        required: false
+        default: '10'
+        type: string
+  
+  # Scheduled triggers
+  schedule:
+    # Run community refresh every hour
+    - cron: '0 * * * *'
+
+env:
+  PRODUCTION_URL: 'https://discobiscuits.net'
+
+jobs:
+  cron-job:
+    name: Run Cron Job
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ fromJSON(github.event.inputs.timeout || '10') }}
+    
+    steps:
+      - name: Set job from schedule
+        if: github.event_name == 'schedule'
+        run: echo "CRON_JOB=community-refresh" >> $GITHUB_ENV
+      
+      - name: Set job from manual trigger
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "CRON_JOB=${{ github.event.inputs.job }}" >> $GITHUB_ENV
+      
+      - name: Run cron job
+        run: |
+          echo "Running cron job: $CRON_JOB"
+          echo "Timeout: ${{ github.event.inputs.timeout || '10' }} minutes"
+          
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ env.PRODUCTION_URL }}/api/cron/$CRON_JOB" \
+            -H "Content-Type: application/json" \
+            --max-time $((${{ github.event.inputs.timeout || '10' }} * 60)))
+          
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n -1)
+          
+          echo "HTTP Status: $http_code"
+          echo "Response: $body"
+          
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Cron job completed successfully"
+            echo "$body" | jq '.' || echo "$body"
+          else
+            echo "❌ Cron job failed with status $http_code"
+            echo "$body" | jq '.' || echo "$body"
+            exit 1
+          fi
