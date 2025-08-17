@@ -115,11 +115,7 @@ export class UserRepository {
       include: {
         _count: {
           select: {
-            reviews: {
-              where: {
-                status: "published", // Only count published reviews
-              },
-            },
+            reviews: true, // Count all reviews regardless of status
             attendances: true, // Attendances are binary, so all are valid
             ratings: {
               where: {
@@ -189,11 +185,7 @@ export class UserRepository {
     // Get total counts across all users with same filtering as user stats
     const [totalUsers, totalReviews, totalAttendances, totalRatings] = await Promise.all([
       this.db.user.count(),
-      this.db.review.count({
-        where: {
-          status: "published", // Only count published reviews
-        },
-      }),
+      this.db.review.count(), // Count all reviews regardless of status
       this.db.attendance.count(),
       this.db.rating.count({
         where: {
