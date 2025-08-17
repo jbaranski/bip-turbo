@@ -24,10 +24,10 @@ interface LoaderData {
 
 export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const cacheKey = "community-page-data";
-  const redis = services.redis;
-
+  
   // Always try to get from cache first
   try {
+    const redis = services.redis;
     const cached = await redis.get<LoaderData>(cacheKey);
     if (cached) {
       console.log("Community data served from Redis cache");

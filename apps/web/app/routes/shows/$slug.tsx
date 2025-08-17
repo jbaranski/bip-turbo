@@ -51,27 +51,53 @@ export const loader = publicLoader(async ({ params, context }): Promise<ShowLoad
 
   const reviews = await services.reviews.findByShowId(setlist.show.id);
 
-  // Find Archive.org recordings for this show date
+  // Find Archive.org recordings for this show date with Redis caching
   let selectedRecordingId: string | null = null;
+  const archiveCacheKey = `archive-recordings-${setlist.show.date}`;
 
-  // Make a second request to get the actual items
-  const detailsUrl = `https://archive.org/advancedsearch.php?q=collection:DiscoBiscuits AND date:${setlist.show.date}&fl=identifier,title,date&sort=date desc&rows=100&output=json`;
+  try {
+    // Try to get from cache first
+    const redis = services.redis;
+    const cachedRecordings = await redis.get<ArchiveItem[]>(archiveCacheKey);
+    
+    if (cachedRecordings) {
+      console.log(`Archive.org recordings served from Redis cache for ${setlist.show.date}`);
+      if (cachedRecordings.length > 0) {
+        selectedRecordingId = cachedRecordings[0].identifier;
+      }
+    } else {
+      // Fetch from archive.org if not cached
+      const detailsUrl = `https://archive.org/advancedsearch.php?q=collection:DiscoBiscuits AND date:${setlist.show.date}&fl=identifier,title,date&sort=date desc&rows=100&output=json`;
+      
+      console.log("Fetching recording details from archive.org:", detailsUrl);
+      
+      const detailsResponse = await fetch(detailsUrl);
+      if (!detailsResponse.ok) {
+        throw new Error(`Failed to fetch recording details: ${detailsResponse.status}`);
+      }
 
-  console.log("Fetching recording details:", detailsUrl);
+      const detailsData = await detailsResponse.json();
+      let archiveRecordings: ArchiveItem[] = [];
 
-  const detailsResponse = await fetch(detailsUrl);
-  if (!detailsResponse.ok) {
-    throw new Error(`Failed to fetch recording details: ${detailsResponse.status}`);
-  }
+      if (detailsData?.response?.docs && detailsData.response.docs.length > 0) {
+        archiveRecordings = detailsData.response.docs as ArchiveItem[];
+        
+        if (archiveRecordings.length > 0) {
+          selectedRecordingId = archiveRecordings[0].identifier;
+        }
+      }
 
-  const detailsData = await detailsResponse.json();
-
-  if (detailsData?.response?.docs && detailsData.response.docs.length > 0) {
-    const archiveRecordings = detailsData.response.docs as ArchiveItem[];
-
-    if (archiveRecordings.length > 0) {
-      selectedRecordingId = archiveRecordings[0].identifier;
+      // Cache the results with no expiration (permanent cache)
+      try {
+        await redis.set(archiveCacheKey, archiveRecordings);
+        console.log(`Archive.org recordings cached permanently for ${setlist.show.date}`);
+      } catch (error) {
+        console.warn("Failed to cache archive.org recordings:", error);
+      }
     }
+  } catch (error) {
+    console.error("Error fetching archive.org recordings:", error);
+    // Continue without recordings if there's an error
   }
 
   return { setlist, reviews, selectedRecordingId };
