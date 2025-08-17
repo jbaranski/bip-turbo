@@ -1,5 +1,4 @@
 import type { ActionFunctionArgs } from "react-router";
-import { json } from "react-router";
 import { services } from "~/server/services";
 
 interface CronJobResult {
@@ -70,7 +69,10 @@ export async function action({ params, request }: ActionFunctionArgs) {
   const { action } = params;
   
   if (!action) {
-    return json({ error: "Action parameter is required" }, { status: 400 });
+    return new Response(JSON.stringify({ error: "Action parameter is required" }), { 
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   // Simple security check - require specific user agent from GitHub Actions
@@ -79,33 +81,43 @@ export async function action({ params, request }: ActionFunctionArgs) {
   
   if (!isGitHubActions) {
     console.warn(`Unauthorized cron access attempt from: ${userAgent}`);
-    return json({ error: "Unauthorized" }, { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { 
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   const cronJob = cronJobs[action];
   if (!cronJob) {
-    return json(
-      { error: `Unknown cron action: ${action}. Available actions: ${Object.keys(cronJobs).join(", ")}` },
-      { status: 404 }
-    );
+    return new Response(JSON.stringify(
+      { error: `Unknown cron action: ${action}. Available actions: ${Object.keys(cronJobs).join(", ")}` }
+    ), { 
+      status: 404,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   try {
     console.log(`🤖 Executing cron job: ${action}`);
     const result = await cronJob();
     
-    return json({
+    return new Response(JSON.stringify({
       action,
       ...result,
+    }), {
+      headers: { "Content-Type": "application/json" }
     });
   } catch (error) {
     console.error(`Cron job ${action} failed:`, error);
     
-    return json({
+    return new Response(JSON.stringify({
       action,
       success: false,
       message: `Cron job failed: ${error instanceof Error ? error.message : "Unknown error"}`,
       timestamp: new Date().toISOString(),
-    }, { status: 500 });
+    }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 }

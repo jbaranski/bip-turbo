@@ -160,7 +160,8 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
 
           {!query.trim() && (
             <div className="py-8 text-center">
-              <p className="text-base text-gray-300 mb-4">Search across all shows, songs, venues, and tracks</p>
+              <p className="text-base text-gray-300 mb-2">Search across all shows, songs, venues, and tracks</p>
+              <p className="text-sm text-amber-400 mb-4">⚠️ Search sucks right now. Working on it. B4L</p>
               <div className="flex flex-wrap gap-3 justify-center">
                 <Badge variant="outline" className="text-sm border-purple-500/40 text-purple-300 bg-purple-500/10">
                   <Music className="h-4 w-4 mr-2" />
