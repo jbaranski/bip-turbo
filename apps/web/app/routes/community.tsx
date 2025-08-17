@@ -7,7 +7,6 @@ import { Badge } from "~/components/ui/badge";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
 import { services } from "~/server/services";
-import { container } from "~/server/container";
 import type { UserStats } from "@bip/core";
 
 interface LoaderData {
@@ -25,7 +24,7 @@ interface LoaderData {
 
 export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const cacheKey = "community-page-data";
-  const redis = container.redis;
+  const redis = services.redis;
 
   // Try to get from cache first
   try {
