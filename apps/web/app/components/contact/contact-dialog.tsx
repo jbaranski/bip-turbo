@@ -3,6 +3,7 @@ import { Mail, MessageSquare, User } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { ControllerRenderProps } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
@@ -48,22 +49,35 @@ export function ContactDialog({ children }: ContactDialogProps) {
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
     try {
-      // TODO: Implement actual form submission
-      console.log("Contact form submission:", data);
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("subject", data.subject);
+      formData.append("message", data.message);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send message");
+      }
 
       setIsSubmitted(true);
       form.reset();
+      toast.success("Message sent successfully! We'll get back to you soon.");
 
       // Close dialog after success message
       setTimeout(() => {
         setOpen(false);
         setIsSubmitted(false);
-      }, 2000);
+      }, 3000);
     } catch (error) {
       console.error("Failed to submit contact form:", error);
+      toast.error("Failed to send message. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,7 +115,7 @@ export function ContactDialog({ children }: ContactDialogProps) {
                         <Input
                           placeholder="Your name"
                           {...field}
-                          className="glass-content pl-9 text-content-text-primary"
+                          className="glass-content pl-9 text-content-text-primary focus:ring-1 focus:ring-brand-primary/50 focus:border-brand-primary/50"
                         />
                       </FormControl>
                     </div>
@@ -123,7 +137,7 @@ export function ContactDialog({ children }: ContactDialogProps) {
                           type="email"
                           placeholder="your@email.com"
                           {...field}
-                          className="glass-content pl-9 text-content-text-primary"
+                          className="glass-content pl-9 text-content-text-primary focus:ring-1 focus:ring-brand-primary/50 focus:border-brand-primary/50"
                         />
                       </FormControl>
                     </div>
@@ -142,7 +156,7 @@ export function ContactDialog({ children }: ContactDialogProps) {
                       <Input
                         placeholder="What's this about?"
                         {...field}
-                        className="glass-content text-content-text-primary"
+                        className="glass-content text-content-text-primary focus:ring-1 focus:ring-brand-primary/50 focus:border-brand-primary/50"
                       />
                     </FormControl>
                     <FormMessage />
@@ -160,7 +174,7 @@ export function ContactDialog({ children }: ContactDialogProps) {
                       <Textarea
                         placeholder="Tell us more..."
                         {...field}
-                        className="glass-content text-content-text-primary min-h-[100px]"
+                        className="glass-content text-content-text-primary min-h-[100px] focus:ring-1 focus:ring-brand-primary/50 focus:border-brand-primary/50"
                       />
                     </FormControl>
                     <FormMessage />

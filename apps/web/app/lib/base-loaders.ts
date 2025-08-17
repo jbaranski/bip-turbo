@@ -110,6 +110,9 @@ export const adminAction = <T>(fn: (args: ActionFunctionArgs & { context: AdminC
 export const publicLoader = <T>(fn: (args: LoaderFunctionArgs & { context: PublicContext }) => Promise<T>) =>
   createLoader<T, PublicContext>(fn, { requireAuth: false });
 
+export const publicAction = <T>(fn: (args: ActionFunctionArgs & { context: PublicContext }) => Promise<T>) =>
+  createAction<T, PublicContext>(fn, { requireAuth: false });
+
 async function getUser(request: Request, options: { requireAuth: boolean; requireAdmin?: boolean }): Promise<User | null> {
   const { supabase } = getServerClient(request);
 

@@ -8,6 +8,8 @@ export const envSchema = z.object({
   SUPABASE_ANON_KEY: z.string(),
   SUPABASE_STORAGE_URL: z.string().url(),
   OPENAI_API_KEY: z.string(),
+  RESEND_API_KEY: z.string(),
+  CONTACT_EMAIL: z.string().email(),
 });
 
 export const env = envSchema.parse(process.env);

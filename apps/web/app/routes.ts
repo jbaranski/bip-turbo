@@ -101,6 +101,7 @@ export default [
     route("tracks/:id", "routes/api/tracks/$id.tsx"),
     route("search", "routes/api/search.tsx"),
     route("users", "routes/api/users.tsx"),
+    route("contact", "routes/api/contact.tsx"),
   ]),
 
   // Health check route
