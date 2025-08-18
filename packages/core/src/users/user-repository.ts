@@ -73,25 +73,26 @@ export class UserRepository {
     console.log(`calculateBadges called with: ${reviewCount}, ${attendanceCount}, ${ratingCount}`);
     const badges: Badge[] = [];
     
-    // Review badges
+    // Review badges - users can earn multiple badges in each category
     if (reviewCount >= 100) badges.push({ id: 'top-reviewer', name: 'Top Reviewer', emoji: '👑', category: 'reviews', threshold: 100 });
-    else if (reviewCount >= 50) badges.push({ id: 'review-machine', name: 'Review Machine', emoji: '🎯', category: 'reviews', threshold: 50 });
-    else if (reviewCount >= 25) badges.push({ id: 'super-reviewer', name: 'Super Reviewer', emoji: '📖', category: 'reviews', threshold: 25 });
-    else if (reviewCount >= 10) badges.push({ id: 'reviewer', name: 'Reviewer', emoji: '🔍', category: 'reviews', threshold: 10 });
+    if (reviewCount >= 50) badges.push({ id: 'review-machine', name: 'Review Machine', emoji: '🎯', category: 'reviews', threshold: 50 });
+    if (reviewCount >= 25) badges.push({ id: 'super-reviewer', name: 'Super Reviewer', emoji: '📖', category: 'reviews', threshold: 25 });
+    if (reviewCount >= 10) badges.push({ id: 'reviewer', name: 'Reviewer', emoji: '🔍', category: 'reviews', threshold: 10 });
     
     // Rating badges
     if (ratingCount >= 2500) badges.push({ id: 'top-rater', name: 'Top Rater', emoji: '💎', category: 'ratings', threshold: 2500 });
-    else if (ratingCount >= 1000) badges.push({ id: 'rating-expert', name: 'Rating Expert', emoji: '⚡', category: 'ratings', threshold: 1000 });
-    else if (ratingCount >= 500) badges.push({ id: 'star-giver', name: 'Star Giver', emoji: '🔥', category: 'ratings', threshold: 500 });
-    else if (ratingCount >= 100) badges.push({ id: 'rater', name: 'Rater', emoji: '🎲', category: 'ratings', threshold: 100 });
+    if (ratingCount >= 1000) badges.push({ id: 'rating-expert', name: 'Rating Expert', emoji: '⚡', category: 'ratings', threshold: 1000 });
+    if (ratingCount >= 500) badges.push({ id: 'star-giver', name: 'Star Giver', emoji: '🔥', category: 'ratings', threshold: 500 });
+    if (ratingCount >= 100) badges.push({ id: 'rater', name: 'Rater', emoji: '🎲', category: 'ratings', threshold: 100 });
     
     // Attendance badges
     if (attendanceCount >= 75) badges.push({ id: 'top-attender', name: 'Top Attender', emoji: '👑', category: 'attendance', threshold: 75 });
-    else if (attendanceCount >= 35) badges.push({ id: 'veteran', name: 'Veteran', emoji: '🔊', category: 'attendance', threshold: 35 });
-    else if (attendanceCount >= 15) badges.push({ id: 'regular', name: 'Regular', emoji: '🎤', category: 'attendance', threshold: 15 });
-    else if (attendanceCount >= 5) badges.push({ id: 'noob', name: 'Noob', emoji: '🎧', category: 'attendance', threshold: 5 });
+    if (attendanceCount >= 35) badges.push({ id: 'veteran', name: 'Veteran', emoji: '🔊', category: 'attendance', threshold: 35 });
+    if (attendanceCount >= 15) badges.push({ id: 'regular', name: 'Regular', emoji: '🎤', category: 'attendance', threshold: 15 });
+    if (attendanceCount >= 5) badges.push({ id: 'noob', name: 'Noob', emoji: '🎧', category: 'attendance', threshold: 5 });
     
-    return badges;
+    // Sort badges by threshold descending (highest achievements first)
+    return badges.sort((a, b) => b.threshold - a.threshold);
   }
 
   async findById(id: string): Promise<User | null> {

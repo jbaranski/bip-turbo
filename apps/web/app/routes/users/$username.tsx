@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { services } from "~/server/services";
 import { formatDateLong } from "~/lib/utils";
@@ -67,10 +68,20 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     services.ratings.findTrackRatingsByUserId(user.id),
   ]);
 
+  // Get user stats (includes badges and community score)
+  const userStats = await services.users.getUserStats(user.id);
+  const userStat = userStats[0]; // getUserStats returns an array
+
   const attendanceCount = userAttendances.length;
   const reviewCount = reviews.length;
   const showRatingsCount = showRatings.length;
   const trackRatingsCount = trackRatings.length;
+  const totalRatings = showRatingsCount + trackRatingsCount;
+
+  // Calculate first and last show dates
+  const sortedAttendances = userAttendances.sort((a, b) => new Date(a.show.date).getTime() - new Date(b.show.date).getTime());
+  const firstShow = sortedAttendances[0]?.show || null;
+  const lastShow = sortedAttendances[sortedAttendances.length - 1]?.show || null;
 
   return {
     user,
@@ -83,6 +94,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     reviewCount,
     showRatingsCount,
     trackRatingsCount,
+    totalRatings,
+    userStat,
+    firstShow,
+    lastShow,
     isOwnProfile: sessionUser?.id === user.id,
   };
 }
@@ -99,6 +114,10 @@ export default function UserProfile() {
     reviewCount,
     showRatingsCount,
     trackRatingsCount,
+    totalRatings,
+    userStat,
+    firstShow,
+    lastShow,
     isOwnProfile,
   } = useLoaderData<typeof loader>();
 
@@ -107,59 +126,97 @@ export default function UserProfile() {
       {/* Profile Header */}
       <Card className="card-premium">
         <CardContent className="pt-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-6">
+          {/* Top row: Avatar, Name/Score, Badges, Edit Button */}
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex items-center gap-6">
               {/* Avatar */}
-              <div className="w-24 h-24 rounded-full overflow-hidden bg-glass-bg border-2 border-glass-border flex items-center justify-center flex-shrink-0">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-glass-bg border-2 border-glass-border flex items-center justify-center flex-shrink-0">
                 {user.avatarUrl ? (
                   <img src={user.avatarUrl} alt={`${user.username}'s avatar`} className="w-full h-full object-cover" />
                 ) : (
-                  <Users className="w-10 h-10 text-content-text-tertiary" />
+                  <Users className="w-8 h-8 text-content-text-tertiary" />
                 )}
               </div>
 
               {/* User Info */}
-              <div className="space-y-3">
-                <div>
+              <div>
+                <div className="flex items-center gap-4 mb-2">
                   <h1 className="text-3xl font-bold text-content-text-primary">{user.username}</h1>
-                  <p className="text-content-text-secondary">
-                    Member since {formatDateLong(user.createdAt.toISOString())}
-                  </p>
+                  {userStat && (
+                    <Badge variant="default" className="bg-brand-primary text-white font-bold text-lg px-4 py-2">
+                      {userStat.communityScore || 0}
+                    </Badge>
+                  )}
                 </div>
-
-                {/* Stats */}
-                <div className="flex items-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <CalendarDays className="w-4 h-4 text-brand-tertiary" />
-                    <span className="text-content-text-secondary">
-                      <span className="font-medium text-content-text-primary">{attendanceCount}</span> shows attended
-                    </span>
+                <p className="text-content-text-secondary">
+                  Member since {formatDateLong(user.createdAt.toISOString())}
+                </p>
+                
+                {/* First and Last Show - compact */}
+                {(firstShow || lastShow) && (
+                  <div className="flex items-center gap-4 text-sm mt-2">
+                    {firstShow && (
+                      <span className="text-content-text-secondary">
+                        First show: <span className="font-medium text-content-text-primary">{formatDateLong(firstShow.date)}</span>
+                      </span>
+                    )}
+                    {lastShow && firstShow?.id !== lastShow?.id && (
+                      <span className="text-content-text-secondary">
+                        Last show: <span className="font-medium text-content-text-primary">{formatDateLong(lastShow.date)}</span>
+                      </span>
+                    )}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-brand-primary" />
-                    <span className="text-content-text-secondary">
-                      <span className="font-medium text-content-text-primary">{reviewCount}</span> reviews written
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Edit className="w-4 h-4 text-brand-secondary" />
-                    <span className="text-content-text-secondary">
-                      <span className="font-medium text-content-text-primary">{blogPosts.length}</span> blog posts
-                    </span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
-            {/* Edit Profile Button */}
-            {isOwnProfile && (
-              <Button asChild className="btn-secondary">
-                <Link to="/profile/edit">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Link>
-              </Button>
-            )}
+            {/* Right side: Badges and Edit Button */}
+            <div className="flex flex-col items-end gap-3">
+              {/* Badges - top right */}
+              {userStat?.badges && userStat.badges.length > 0 && (
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {userStat.badges.slice(0, 4).map((badge) => (
+                    <div
+                      key={badge.id}
+                      className="inline-flex items-center gap-1 bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10 border border-brand-primary/20 rounded-full px-3 py-1 text-sm"
+                    >
+                      <span className="text-sm">{badge.emoji}</span>
+                      <span className="text-brand-primary font-medium">{badge.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Edit Profile Button */}
+              {isOwnProfile && (
+                <Button asChild className="btn-secondary">
+                  <Link to="/profile/edit">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Stats Grid - now spans full width */}
+          <div className="grid grid-cols-4 gap-6 p-4 bg-content-bg/30 rounded-lg border border-content-border/30 mb-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-brand-primary">{attendanceCount}</div>
+              <div className="text-sm text-content-text-secondary">Shows Attended</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-brand-secondary">{reviewCount}</div>
+              <div className="text-sm text-content-text-secondary">Reviews Written</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-brand-tertiary">{totalRatings}</div>
+              <div className="text-sm text-content-text-secondary">Total Ratings</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-500">{userStat?.blogPostCount || 0}</div>
+              <div className="text-sm text-content-text-secondary">Blog Posts</div>
+            </div>
           </div>
         </CardContent>
       </Card>

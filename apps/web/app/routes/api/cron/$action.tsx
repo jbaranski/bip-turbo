@@ -35,6 +35,7 @@ async function refreshCommunityCache(): Promise<CronJobResult> {
       topRaters,
       topBloggers,
       communityTotals,
+      lastUpdated: new Date().toISOString(),
     };
 
     // Debug: Log a sample user to see the structure  
@@ -46,6 +47,9 @@ async function refreshCommunityCache(): Promise<CronJobResult> {
     
     // Cache the fresh data (no expiration - refreshed by cron)
     await redis.set("community-page-data", result);
+    
+    // Store last execution timestamp separately
+    await redis.set("community-last-updated", new Date().toISOString());
     
     const duration = Date.now() - startTime;
     console.log(`Community cache refreshed successfully in ${duration}ms`);
