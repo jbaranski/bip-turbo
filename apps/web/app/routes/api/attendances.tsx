@@ -31,6 +31,26 @@ export const action = protectedAction(async ({ request, params, context }) => {
         return badRequest();
       }
 
+      // Validate that the show exists
+      const show = await services.shows.findById(showId);
+      if (!show) {
+        logger.error("Show not found for attendance creation:", { showId, userId: currentUser.id });
+        return new Response(JSON.stringify({ error: "Show not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
+      // Validate that the user still exists in the database
+      const user = await services.users.findById(currentUser.id);
+      if (!user) {
+        logger.error("User not found for attendance creation:", { showId, userId: currentUser.id });
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       // Check if user already has an attendance for this show
       const existingAttendance = await services.attendances.findByUserIdAndShowId(currentUser.id, showId);
       if (existingAttendance) {

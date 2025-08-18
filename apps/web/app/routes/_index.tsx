@@ -392,28 +392,6 @@ export default function Index() {
             </div>
           </div>
         </div>
-
-        {/* Recent Blog Posts - Desktop */}
-        <div className="mt-12">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold">Latest from the Blog</h2>
-            <Link to="/blog" className="text-sm text-content-text-tertiary hover:text-brand-primary transition-colors">
-              View all blog posts →
-            </Link>
-          </div>
-
-          {recentBlogPosts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentBlogPosts.map((blogPost) => (
-                <BlogCard key={blogPost.id} blogPost={blogPost} compact={true} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center p-8 border border-dashed rounded-lg">
-              <p className="text-muted-foreground">No blog posts available</p>
-            </div>
-          )}
-        </div>
       </div>
 
       {/* Mobile Layout */}
