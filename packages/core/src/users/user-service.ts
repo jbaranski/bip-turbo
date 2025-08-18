@@ -24,7 +24,15 @@ export class UserService {
   }
 
   async getUserStats(userId?: string): Promise<UserStats[]> {
-    return this.repository.getUserStats(userId);
+    console.log("DEBUG: UserService.getUserStats called");
+    try {
+      const result = await this.repository.getUserStats(userId);
+      console.log("DEBUG: Repository call succeeded, result length:", result.length);
+      return result;
+    } catch (error) {
+      console.error("DEBUG: Repository call failed:", error);
+      throw error;
+    }
   }
 
   async getTopUsersByMetric(metric: "reviews" | "attendance" | "ratings", limit: number = 10): Promise<UserStats[]> {

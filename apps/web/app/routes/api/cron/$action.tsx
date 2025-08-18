@@ -19,22 +19,31 @@ async function refreshCommunityCache(): Promise<CronJobResult> {
     await redis.del("community-page-data");
     
     // Fetch fresh data (same logic as community route loader)
-    const [allUserStats, communityTotals, topReviewers, topAttenders, topRaters] = await Promise.all([
+    const [allUserStats, communityTotals, topReviewers, topAttenders, topRaters, topBloggers] = await Promise.all([
       services.users.getUserStats(),
       services.users.getCommunityTotals(),
       services.users.getTopUsersByMetric("reviews", 5),
       services.users.getTopUsersByMetric("attendance", 5),
       services.users.getTopUsersByMetric("ratings", 5),
+      services.users.getTopUsersByMetric("blogPostCount", 5),
     ]);
 
     const result = {
-      allUserStats: allUserStats.slice(0, 50),
+      allUserStats: allUserStats, // Show all users, no limit
       topReviewers,
       topAttenders,
       topRaters,
+      topBloggers,
       communityTotals,
     };
 
+    // Debug: Log a sample user to see the structure  
+    if (allUserStats.length > 0) {
+      console.log("COMMUNITY_SCORE_DEBUG:", allUserStats[0].communityScore);
+      console.log("BADGES_DEBUG:", allUserStats[0].badges);
+      console.log("REVIEW_COUNT_DEBUG:", allUserStats[0].reviewCount);
+    }
+    
     // Cache the fresh data (no expiration - refreshed by cron)
     await redis.set("community-page-data", result);
     
