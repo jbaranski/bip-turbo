@@ -1,0 +1,23 @@
+name: Crons
+
+on:
+  schedule:
+    # Run every hour at minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  refresh-community-cache:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Refresh Community Cache
+        run: |
+          curl -X POST \
+            -H "User-Agent: GitHub-Actions" \
+            -H "Content-Type: application/json" \
+            https://discobiscuits.net/api/cron/community-refresh
+        
+      - name: Check Response
+        if: failure()
+        run: echo "Community cache refresh failed"
