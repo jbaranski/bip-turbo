@@ -39,6 +39,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const sessionUser = session?.user
     ? {
         id: session.user.id,
+        email: session.user.email,
         role: session.user.user_metadata?.role,
       }
     : null;
@@ -98,7 +99,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     userStat,
     firstShow,
     lastShow,
-    isOwnProfile: sessionUser?.id === user.id,
+    isOwnProfile: sessionUser?.email === user.email,
   };
 }
 

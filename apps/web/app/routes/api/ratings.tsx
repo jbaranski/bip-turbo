@@ -13,7 +13,10 @@ export const loader = publicLoader(async ({ request, context }) => {
 
   let rating = null;
   if (currentUser) {
-    rating = await services.ratings.getByRateableIdAndUserId(rateableId, rateableType, currentUser.id);
+    const localUser = await services.users.findByEmail(currentUser.email);
+    if (localUser) {
+      rating = await services.ratings.getByRateableIdAndUserId(rateableId, rateableType, localUser.id);
+    }
   }
 
   const userRating = rating?.value ?? null;
@@ -34,11 +37,20 @@ export const action = protectedAction(async ({ request, context }) => {
         return badRequest();
       }
 
+      // Get the actual user from the database
+      const user = await services.users.findByEmail(currentUser.email);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       // Create or update the rating
       const updatedRating = await services.ratings.upsert({
         rateableId,
         rateableType,
-        userId: currentUser.id,
+        userId: user.id,
         value,
       });
 

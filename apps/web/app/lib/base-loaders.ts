@@ -5,6 +5,7 @@ import { getServerClient } from "~/server/supabase";
 
 interface User {
   id: string;
+  email: string;
   isAdmin: boolean;
 }
 
@@ -149,6 +150,7 @@ async function getUser(request: Request, options: { requireAuth: boolean; requir
 
     return {
       id: user.id,
+      email: user.email || '',
       isAdmin,
     };
   }
@@ -161,6 +163,7 @@ async function getUser(request: Request, options: { requireAuth: boolean; requir
     const isAdmin = session.user.app_metadata?.isAdmin === true;
     return {
       id: session.user.id,
+      email: session.user.email || '',
       isAdmin,
     };
   }

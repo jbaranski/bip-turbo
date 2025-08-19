@@ -31,34 +31,34 @@ export const action = protectedAction(async ({ request, params, context }) => {
         return badRequest();
       }
 
-      // Validate that the show exists
-      const show = await services.shows.findById(showId);
-      if (!show) {
-        logger.error("Show not found for attendance creation:", { showId, userId: currentUser.id });
-        return new Response(JSON.stringify({ error: "Show not found" }), {
-          status: 404,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
-
-      // Validate that the user still exists in the database
-      const user = await services.users.findById(currentUser.id);
+      // Get the actual user from the database by email
+      const user = await services.users.findByEmail(currentUser.email);
       if (!user) {
-        logger.error("User not found for attendance creation:", { showId, userId: currentUser.id });
+        logger.error("User not found in local database:", { email: currentUser.email });
         return new Response(JSON.stringify({ error: "User not found" }), {
           status: 404,
           headers: { "Content-Type": "application/json" },
         });
       }
 
+      // Validate that the show exists
+      const show = await services.shows.findById(showId);
+      if (!show) {
+        logger.error("Show not found for attendance creation:", { showId, userId: user.id });
+        return new Response(JSON.stringify({ error: "Show not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       // Check if user already has an attendance for this show
-      const existingAttendance = await services.attendances.findByUserIdAndShowId(currentUser.id, showId);
+      const existingAttendance = await services.attendances.findByUserIdAndShowId(user.id, showId);
       if (existingAttendance) {
         return { attendance: existingAttendance };
       }
 
       const attendance = await services.attendances.create({
-        userId: currentUser.id,
+        userId: user.id,
         showId,
       });
 
@@ -75,9 +75,15 @@ export const action = protectedAction(async ({ request, params, context }) => {
       const { id } = body;
       if (!id) return badRequest();
 
+      // Get the actual user from the database
+      const user = await services.users.findByEmail(currentUser.email);
+      if (!user) {
+        return unauthorized();
+      }
+
       // Verify the attendance belongs to the user
       const attendance = await services.attendances.findById(id);
-      if (!attendance || attendance.userId !== currentUser.id) {
+      if (!attendance || attendance.userId !== user.id) {
         return unauthorized();
       }
 

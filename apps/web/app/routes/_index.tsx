@@ -122,11 +122,19 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const allShowIds = [
     ...new Set([...mobileRecentShows.map((s) => s.show.id), ...desktopRecentShows.map((s) => s.show.id)]),
   ];
-  const attendances = currentUser
-    ? await services.attendances.findManyByUserIdAndShowIds(currentUser.id, allShowIds)
+  
+  // Find local user by email if authenticated
+  let localUserId: string | null = null;
+  if (currentUser) {
+    const localUser = await services.users.findByEmail(currentUser.email);
+    localUserId = localUser?.id || null;
+  }
+  
+  const attendances = localUserId
+    ? await services.attendances.findManyByUserIdAndShowIds(localUserId, allShowIds)
     : [];
-  const ratings = currentUser
-    ? await services.ratings.findManyByUserIdAndRateableIds(currentUser.id, allShowIds, "Show")
+  const ratings = localUserId
+    ? await services.ratings.findManyByUserIdAndRateableIds(localUserId, allShowIds, "Show")
     : [];
   const attendancesByShowId = attendances.reduce(
     (acc, attendance) => {

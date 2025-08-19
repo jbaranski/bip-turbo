@@ -37,10 +37,19 @@ export const action = protectedAction(async ({ request, params, context }) => {
         return badRequest();
       }
 
+      // Get the actual user from the database
+      const user = await services.users.findByEmail(currentUser.email);
+      if (!user) {
+        return new Response(JSON.stringify({ error: "User not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       const review = await services.reviews.create({
         content,
         showId,
-        userId: currentUser.id,
+        userId: user.id,
         status: "published",
       });
 
@@ -71,9 +80,15 @@ export const action = protectedAction(async ({ request, params, context }) => {
       const { id } = body;
       if (!id) return badRequest();
 
+      // Get the actual user from the database
+      const user = await services.users.findByEmail(currentUser.email);
+      if (!user) {
+        return unauthorized();
+      }
+
       // Verify the review belongs to the user
       const review = await services.reviews.findById(id);
-      if (!review || review.userId !== currentUser.id) {
+      if (!review || review.userId !== user.id) {
         return unauthorized();
       }
 
@@ -94,9 +109,15 @@ export const action = protectedAction(async ({ request, params, context }) => {
       const { id, content } = body;
       if (!id || !content) return badRequest();
 
+      // Get the actual user from the database
+      const user = await services.users.findByEmail(currentUser.email);
+      if (!user) {
+        return unauthorized();
+      }
+
       // Verify the review belongs to the user
       const review = await services.reviews.findById(id);
-      if (!review || review.userId !== currentUser.id) {
+      if (!review || review.userId !== user.id) {
         return unauthorized();
       }
 

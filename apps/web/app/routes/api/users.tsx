@@ -5,7 +5,6 @@ import { getServerClient } from "~/server/supabase";
 
 const updateUserSchema = z.object({
   username: z.string().min(3).max(50).optional(),
-  avatarUrl: z.string().url().nullable().optional(),
 });
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -36,20 +35,53 @@ export async function action({ request }: ActionFunctionArgs) {
       }
     }
 
-    // Handle null values for avatarUrl
-    if (data.avatarUrl === "null" || data.avatarUrl === "") {
-      data.avatarUrl = null;
-    }
-
     const validatedData = updateUserSchema.parse(data);
 
-    const updatedUser = await services.users.update(user.id, validatedData);
+    // Find the local user by email to get the correct local user ID
+    const localUser = await services.users.findByEmail(user.email || '');
+    if (!localUser) {
+      return new Response(JSON.stringify({ error: "User not found in local database" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // If Supabase user metadata doesn't have a username, sync it from local database
+    if (!user.user_metadata?.username && localUser.username) {
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            ...user.user_metadata,
+            username: localUser.username
+          }
+        });
+      } catch (error) {
+        console.error("Failed to initialize username in Supabase:", error);
+      }
+    }
+
+    const updatedUser = await services.users.update(localUser.id, validatedData);
 
     if (!updatedUser) {
       return new Response(JSON.stringify({ error: "Failed to update user" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
       });
+    }
+
+    // Sync username back to Supabase user metadata if it was updated
+    if (validatedData.username && validatedData.username !== user.user_metadata?.username) {
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            ...user.user_metadata,
+            username: validatedData.username
+          }
+        });
+      } catch (error) {
+        console.error("Failed to sync username to Supabase:", error);
+        // Don't fail the request if Supabase sync fails
+      }
     }
 
     return new Response(JSON.stringify(updatedUser), {

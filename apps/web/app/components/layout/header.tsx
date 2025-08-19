@@ -15,7 +15,6 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -25,6 +24,8 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useSession } from "~/hooks/use-session";
 import { useGlobalSearch } from "~/hooks/use-global-search";
 import { cn } from "~/lib/utils";
+import { useEffect, useState } from "react";
+import type { User as LocalUser } from "@bip/domain";
 
 const navigation = [
   { name: "shows", href: "/shows", icon: Headphones },

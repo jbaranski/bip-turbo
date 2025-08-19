@@ -4,6 +4,7 @@ import { ArrowLeft, Upload, User as UserIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useSession } from "~/hooks/use-session";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -20,7 +21,7 @@ export const meta: MetaFunction = () => {
 };
 
 export const loader = protectedLoader(async ({ context }): Promise<{ user: User }> => {
-  const user = await services.users.find(context.currentUser.id);
+  const user = await services.users.findByEmail(context.currentUser.email);
 
   if (!user) {
     throw new Response("User not found", { status: 404 });
@@ -32,6 +33,7 @@ export const loader = protectedLoader(async ({ context }): Promise<{ user: User 
 export default function ProfileEdit() {
   const data = useLoaderData() as { user: User };
   const { user } = data;
+  const { supabase } = useSession();
   const navigation = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatarUrl);
@@ -50,6 +52,15 @@ export default function ProfileEdit() {
 
       if (response.ok) {
         toast.success("Profile updated successfully!");
+        
+        // Refresh the session to pick up updated user metadata
+        if (supabase) {
+          try {
+            await supabase.auth.refreshSession();
+          } catch (error) {
+            console.warn("Failed to refresh session:", error);
+          }
+        }
       } else {
         const error = await response.json();
         toast.error(error.error || "Failed to update profile");
