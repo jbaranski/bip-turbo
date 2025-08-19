@@ -7,11 +7,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownIcon, ArrowLeft, ArrowUpIcon, FileTextIcon, GuitarIcon, Pencil, StarIcon } from "lucide-react";
+import { ArrowDownIcon, ArrowLeft, ArrowUpIcon, BarChart3, FileTextIcon, GuitarIcon, History, Pencil, StarIcon } from "lucide-react";
 import { useState } from "react";
 import Masonry from "react-masonry-css";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link } from "react-router-dom";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { AdminOnly } from "~/components/admin/admin-only";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -139,7 +140,7 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
       cell: (info) => {
         const rating = info.getValue();
         return rating && rating > 0 ? (
-          <span className="text-right block">{`★ ${rating.toFixed(1)}`}</span>
+          <span className="text-right block text-yellow-500">{`★ ${rating.toFixed(1)}`}</span>
         ) : (
           <span className="text-right block">—</span>
         );
@@ -229,7 +230,7 @@ function ReviewNote({ notes }: { notes: string }) {
 
   return (
     <div className="mt-2 pt-2 border-t border-glass-border/30">
-      <div className="text-sm text-content-text-tertiary leading-relaxed">
+      <div className="text-base text-content-text-tertiary leading-relaxed">
         {displayText}
         {isTruncated && (
           <>
@@ -348,21 +349,23 @@ export default function SongPage() {
         </div>
       )}
 
-      <Tabs defaultValue="all-timers" className="w-full">
+      <Tabs defaultValue={allTimers.length > 0 ? "all-timers" : "performances"} className="w-full">
         <TabsList className="w-full flex justify-start border-b border-glass-border/30 rounded-none bg-transparent p-0">
+          {allTimers.length > 0 && (
+            <TabsTrigger
+              value="all-timers"
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
+                "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
+                "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
+              )}
+            >
+              <StarIcon className="h-4 w-4 stroke-yellow-500 fill-transparent" />
+              All-Timers
+            </TabsTrigger>
+          )}
           <TabsTrigger
-            value="all-timers"
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
-              "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
-              "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
-            )}
-          >
-            <StarIcon className="h-4 w-4" />
-            All-Timers
-          </TabsTrigger>
-          <TabsTrigger
-            value="lyrics"
+            value="performances"
             className={cn(
               "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
               "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
@@ -370,124 +373,240 @@ export default function SongPage() {
             )}
           >
             <FileTextIcon className="h-4 w-4" />
-            Lyrics
+            All Performances
           </TabsTrigger>
           <TabsTrigger
-            value="guitar-tabs"
+            value="stats"
             className={cn(
               "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
               "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
               "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
             )}
           >
-            <GuitarIcon className="h-4 w-4" />
-            Guitar Tabs
+            <BarChart3 className="h-4 w-4" />
+            Stats
           </TabsTrigger>
+          {song.history && (
+            <TabsTrigger
+              value="history"
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
+                "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
+                "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
+              )}
+            >
+              <History className="h-4 w-4" />
+              History
+            </TabsTrigger>
+          )}
+          {song.lyrics && (
+            <TabsTrigger
+              value="lyrics"
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
+                "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
+                "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
+              )}
+            >
+              <FileTextIcon className="h-4 w-4" />
+              Lyrics
+            </TabsTrigger>
+          )}
+          {(song.tabs || song.guitarTabsUrl) && (
+            <TabsTrigger
+              value="guitar-tabs"
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
+                "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
+                "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
+              )}
+            >
+              <GuitarIcon className="h-4 w-4" />
+              Guitar Tabs
+            </TabsTrigger>
+          )}
         </TabsList>
 
-        <TabsContent value="all-timers" className="mt-6 space-y-8">
-          {allTimers.length > 0 && (
-            <>
-              {/* Featured Performances (with reviews) */}
-              {(() => {
-                const withNotes = allTimers
-                  .filter((p) => p.notes)
-                  .sort((a, b) => new Date(b.show.date).getTime() - new Date(a.show.date).getTime());
+        {allTimers.length > 0 && (
+          <TabsContent value="all-timers" className="mt-6 space-y-8">
+            {/* Featured Performances (with reviews) */}
+            {(() => {
+              const withNotes = allTimers
+                .filter((p) => p.notes)
+                .sort((a, b) => new Date(b.show.date).getTime() - new Date(a.show.date).getTime());
 
-                return (
-                  withNotes.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {withNotes.map((p) => (
-                        <a
-                          href={`/shows/${p.show.slug}`}
-                          key={p.trackId}
-                          className="glass-content block rounded-lg hover:border-brand-primary/60 transition-all duration-200 p-4"
-                        >
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <div className="text-base font-medium text-content-text-primary">{p.show.date}</div>
-                            {p.rating && p.rating > 0 && (
-                              <div className="text-sm text-content-text-tertiary">{`★ ${p.rating.toFixed(1)}`}</div>
-                            )}
-                          </div>
-                          <div className="space-y-2">
-                            <div className="text-brand-secondary/90 font-medium text-sm">{p.venue?.name}</div>
-                            {p.venue?.city && (
-                              <div className="text-xs text-content-text-tertiary">
-                                {p.venue.city}, {p.venue.state}
-                              </div>
-                            )}
-                            <ReviewNote key={p.trackId} notes={p.notes!} />
-                          </div>
-                        </a>
-                      ))}
-                    </div>
-                  )
-                );
-              })()}
+              return (
+                withNotes.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {withNotes.map((p) => (
+                      <a
+                        href={`/shows/${p.show.slug}`}
+                        key={p.trackId}
+                        className="glass-content block rounded-lg hover:border-brand-primary/60 transition-all duration-200 p-4"
+                      >
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div className="text-lg font-medium text-content-text-primary">{p.show.date}</div>
+                          {p.rating && p.rating > 0 && (
+                            <div className="text-base text-yellow-500">{`★ ${p.rating.toFixed(1)}`}</div>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <div className="text-brand-secondary/90 font-medium text-base">{p.venue?.name}</div>
+                          {p.venue?.city && (
+                            <div className="text-sm text-content-text-tertiary">
+                              {p.venue.city}, {p.venue.state}
+                            </div>
+                          )}
+                          <ReviewNote key={p.trackId} notes={p.notes!} />
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )
+              );
+            })()}
 
-              {/* All Performances Table */}
-              {(() => {
-                const withoutNotes = allTimers
-                  .filter((p) => !p.notes)
-                  .sort((a, b) => new Date(b.show.date).getTime() - new Date(a.show.date).getTime());
+            {/* All Performances Table */}
+            {(() => {
+              const withoutNotes = allTimers
+                .filter((p) => !p.notes)
+                .sort((a, b) => new Date(b.show.date).getTime() - new Date(a.show.date).getTime());
 
-                return (
-                  withoutNotes.length > 0 && (
-                    <div className="glass-content rounded-lg p-4">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="text-left text-xs text-content-text-secondary border-b border-glass-border/30">
-                              <th className="p-3">Date</th>
-                              <th className="p-3">Venue</th>
-                              <th className="p-3">Location</th>
-                              <th className="p-3 text-right">Rating</th>
+              return (
+                withoutNotes.length > 0 && (
+                  <div className="glass-content rounded-lg p-4">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-base">
+                        <thead>
+                          <tr className="text-left text-sm text-content-text-secondary border-b border-glass-border/30">
+                            <th className="p-3">Date</th>
+                            <th className="p-3">Venue</th>
+                            <th className="p-3">Location</th>
+                            <th className="p-3 text-right">Rating</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {withoutNotes.map((p) => (
+                            <tr key={p.trackId} className="border-t border-glass-border/20 hover:bg-hover-glass">
+                              <td className="p-3">
+                                <a
+                                  href={`/shows/${p.show.slug}`}
+                                  className="text-brand-primary hover:text-brand-secondary"
+                                >
+                                  {p.show.date}
+                                </a>
+                              </td>
+                              <td className="p-3">
+                                <a
+                                  href={`/shows/${p.show.slug}`}
+                                  className="text-content-text-primary hover:text-brand-primary"
+                                >
+                                  {p.venue?.name}
+                                </a>
+                              </td>
+                              <td className="p-3 text-content-text-secondary">
+                                {p.venue?.city && `${p.venue.city}, ${p.venue.state}`}
+                              </td>
+                              <td className="p-3 text-right">
+                                {p.rating && p.rating > 0 ? (
+                                  <span className="text-yellow-500">{`★ ${p.rating.toFixed(1)}`}</span>
+                                ) : (
+                                  <span className="text-content-text-tertiary">—</span>
+                                )}
+                              </td>
                             </tr>
-                          </thead>
-                          <tbody>
-                            {withoutNotes.map((p) => (
-                              <tr key={p.trackId} className="border-t border-glass-border/20 hover:bg-hover-glass">
-                                <td className="p-3">
-                                  <a
-                                    href={`/shows/${p.show.slug}`}
-                                    className="text-brand-primary hover:text-brand-secondary"
-                                  >
-                                    {p.show.date}
-                                  </a>
-                                </td>
-                                <td className="p-3">
-                                  <a
-                                    href={`/shows/${p.show.slug}`}
-                                    className="text-content-text-primary hover:text-brand-primary"
-                                  >
-                                    {p.venue?.name}
-                                  </a>
-                                </td>
-                                <td className="p-3 text-content-text-secondary">
-                                  {p.venue?.city && `${p.venue.city}, ${p.venue.state}`}
-                                </td>
-                                <td className="p-3 text-right">
-                                  {p.rating && p.rating > 0 ? (
-                                    <span className="text-content-text-tertiary">{`★ ${p.rating.toFixed(1)}`}</span>
-                                  ) : (
-                                    <span className="text-content-text-tertiary">—</span>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                  )
-                );
-              })()}
-            </>
-          )}
+                  </div>
+                )
+              );
+            })()}
+          </TabsContent>
+        )}
+
+        <TabsContent value="performances" className="mt-6">
+          <div className="glass-content rounded-lg p-4 md:p-6">
+            <h3 className="text-lg font-semibold text-content-text-primary mb-4">All Performances</h3>
+            <PerformanceTable performances={performances} />
+          </div>
         </TabsContent>
 
-        <TabsContent value="lyrics" className="mt-4">
-          {song.lyrics && (
+        <TabsContent value="stats" className="mt-6">
+          <div className="glass-content rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-content-text-primary mb-4">Times Played by Year</h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={Object.entries(song.yearlyPlayData || {})
+                    .map(([year, count]) => ({
+                      year: parseInt(year),
+                      plays: count as number,
+                    }))
+                    .sort((a, b) => a.year - b.year)}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 20,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                  <XAxis 
+                    dataKey="year" 
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                  />
+                  <YAxis 
+                    stroke="#9CA3AF"
+                    fontSize={12}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1F2937',
+                      border: '1px solid #374151',
+                      borderRadius: '6px',
+                      color: '#F3F4F6',
+                    }}
+                    labelStyle={{ color: '#F3F4F6' }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="plays" 
+                    stroke="#8B5CF6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#8B5CF6', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </TabsContent>
+
+        {song.history && (
+          <TabsContent value="history" className="mt-4">
+            <div className="glass-content rounded-lg p-6">
+              <div 
+                className="text-base text-content-text-tertiary leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0"
+                dangerouslySetInnerHTML={{ 
+                  __html: song.history
+                    // First try to split on sentences that end with periods followed by spaces and capital letters
+                    .replace(/(\. )([A-Z])/g, '$1</p><p>$2')
+                    // Also handle line breaks
+                    .replace(/\n/g, '<br>')
+                    // Wrap the whole thing in a paragraph
+                    .replace(/^/, '<p>')
+                    .replace(/$/, '</p>')
+                }}
+              />
+            </div>
+          </TabsContent>
+        )}
+
+        {song.lyrics && (
+          <TabsContent value="lyrics" className="mt-4">
             <div className="glass-content rounded-lg p-4">
               <div className="overflow-x-auto">
                 <div
@@ -496,40 +615,34 @@ export default function SongPage() {
                 />
               </div>
             </div>
-          )}
-        </TabsContent>
+          </TabsContent>
+        )}
 
-        <TabsContent value="guitar-tabs" className="mt-4">
-          <div className="glass-content rounded-lg p-4">
-            <div className="overflow-x-auto">
-              <div className="text-md text-content-text-tertiary leading-relaxed">
-                {song.tabs ? (
-                  <div dangerouslySetInnerHTML={{ __html: song.tabs }} />
-                ) : song.guitarTabsUrl ? (
-                  <a
-                    href={song.guitarTabsUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-brand-primary hover:text-brand-secondary hover:underline"
-                  >
-                    View Guitar Tabs
-                  </a>
-                ) : (
-                  <p>No guitar tabs available for this song.</p>
-                )}
+        {(song.tabs || song.guitarTabsUrl) && (
+          <TabsContent value="guitar-tabs" className="mt-4">
+            <div className="glass-content rounded-lg p-4">
+              <div className="overflow-x-auto">
+                <div className="text-md text-content-text-tertiary leading-relaxed">
+                  {song.tabs ? (
+                    <div dangerouslySetInnerHTML={{ __html: song.tabs }} />
+                  ) : song.guitarTabsUrl ? (
+                    <a
+                      href={song.guitarTabsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-brand-primary hover:text-brand-secondary hover:underline"
+                    >
+                      View Guitar Tabs
+                    </a>
+                  ) : (
+                    <p>No guitar tabs available for this song.</p>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
+        )}
       </Tabs>
-
-      {/* Performance History */}
-      <div className="w-full">
-        <div className="card-premium rounded-lg p-4 md:p-6">
-          <h2 className="text-xl font-semibold text-content-text-primary mb-4">Performance History</h2>
-          <PerformanceTable performances={performances} />
-        </div>
-      </div>
     </div>
   );
 }
