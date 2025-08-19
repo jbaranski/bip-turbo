@@ -10,16 +10,6 @@ services:
     networks:
       - bip-network
 
-  temporal:
-    image: temporalio/server
-    entrypoint: temporal
-    command: server start-dev --ip 0.0.0.0
-    ports:
-      - "7235:7233"
-      - "8089:8233"
-    networks:
-      - bip-network
-
 networks:
   bip-network:
     driver: bridge

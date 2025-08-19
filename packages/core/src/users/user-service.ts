@@ -19,6 +19,10 @@ export class UserService {
     return this.repository.findBySlug(username);
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.repository.findByEmail(email);
+  }
+
   async update(id: string, data: Partial<User>): Promise<User | null> {
     return this.repository.update(id, data);
   }
