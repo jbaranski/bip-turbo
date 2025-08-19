@@ -278,9 +278,20 @@
   }
 
   /* Ensure content stays above the laser effect */
-  html > * {
+  body > * {
     position: relative;
-    z-index: 1;
+    z-index: 10;
+  }
+  
+  /* Ensure all cards and content are above background */
+  .glass-content,
+  .card-premium,
+  [class*="glass-"],
+  main,
+  header,
+  nav {
+    position: relative;
+    z-index: 20;
   }
 
   /* Apply default fonts */
