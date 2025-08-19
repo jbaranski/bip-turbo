@@ -8,7 +8,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
     "/.well-known/",
     "/robots.txt",
     "/favicon.ico",
-    "/sitemap.xml",
     "/apple-touch-icon",
     "/android-chrome-",
     "/mstile-",
