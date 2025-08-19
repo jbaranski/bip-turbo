@@ -29,15 +29,15 @@ interface LoaderData {
 
 export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const cacheKey = "community-page-data";
-  
+
   // Always try to get from cache first
   try {
     const redis = services.redis;
     const [cached, lastUpdated] = await Promise.all([
-      redis.get<Omit<LoaderData, 'lastUpdated'>>(cacheKey),
-      redis.get<string>("community-last-updated")
+      redis.get<Omit<LoaderData, "lastUpdated">>(cacheKey),
+      redis.get<string>("community-last-updated"),
     ]);
-    
+
     if (cached) {
       console.log("Community data served from Redis cache");
       // Debug: Log a sample user to see what we got from cache
@@ -46,7 +46,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
       }
       return {
         ...cached,
-        lastUpdated
+        lastUpdated,
       };
     }
   } catch (error) {
@@ -56,7 +56,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   // If no cache exists, return minimal fallback data
   // The cron job should populate the cache soon
   console.warn("No community cache found - returning minimal fallback data");
-  
+
   // Still try to get the last updated timestamp even without cached data
   let lastUpdated: string | undefined;
   try {
@@ -65,7 +65,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   } catch (error) {
     console.error("Failed to get last updated timestamp:", error);
   }
-  
+
   return {
     allUserStats: [],
     topReviewers: [],
@@ -93,7 +93,8 @@ export function meta() {
 }
 
 function UserCard({ userStats }: { userStats: UserStats }) {
-  const { user, reviewCount, attendanceCount, ratingCount, averageRating, communityScore, badges, blogPostCount } = userStats;
+  const { user, reviewCount, attendanceCount, ratingCount, averageRating, communityScore, badges, blogPostCount } =
+    userStats;
 
   // All scores use consistent brand color
   const getScoreColor = () => "text-brand-primary";
@@ -232,17 +233,17 @@ function LeaderboardSection({
 
 function getTimeAgo(timestamp?: string): string {
   if (!timestamp) return "Never";
-  
+
   const now = new Date();
   const past = new Date(timestamp);
   const diffMs = now.getTime() - past.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffMinutes = Math.floor(diffMs / (1000 * 60));
-  
+
   if (diffHours >= 1) {
-    return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
   } else if (diffMinutes >= 1) {
-    return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+    return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
   } else {
     return "Just now";
   }
@@ -256,8 +257,8 @@ export default function Community() {
   const [sortBy, setSortBy] = useState("score");
 
   // Filter users by search term
-  const filteredUsers = allUserStats.filter(userStat => 
-    userStat.user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = allUserStats.filter((userStat) =>
+    userStat.user.username?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Sort filtered users
@@ -291,9 +292,7 @@ export default function Community() {
       <div className="text-center">
         <h1 className="page-heading">BISCUITS COMMUNITY</h1>
         <p className="text-xl text-content-text-secondary mb-2">Community scores, badges, and leaderboards</p>
-        <p className="text-sm text-content-text-secondary mb-6">
-          Last calculated {getTimeAgo(lastUpdated)}
-        </p>
+        <p className="text-sm text-content-text-secondary mb-6">Last calculated {getTimeAgo(lastUpdated)}</p>
 
         {/* Community Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -390,7 +389,7 @@ export default function Community() {
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <h2 className="text-2xl font-bold text-content-text-primary">All Community Members</h2>
-          
+
           {/* Search and Sort Controls */}
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <div className="relative">
@@ -402,7 +401,7 @@ export default function Community() {
                 className="pl-10 w-full sm:w-64"
               />
             </div>
-            
+
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Sort by..." />
@@ -422,7 +421,7 @@ export default function Community() {
         <div className="text-sm text-content-text-secondary mb-4">
           Showing {sortedUsers.length} of {allUserStats.length} community members
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedUsers.map((userStats) => (
             <UserCard key={userStats.user.id} userStats={userStats} />

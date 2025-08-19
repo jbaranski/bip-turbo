@@ -16,7 +16,6 @@ interface Props {
 }
 
 export function AttendanceToggle({ showId, initialAttendance }: Props) {
-  console.log("AttendanceToggle render:", { showId, initialAttendance });
   const [isAttending, setIsAttending] = useState(!!initialAttendance);
   const [currentAttendance, setCurrentAttendance] = useState<Attendance | null>(initialAttendance);
   const queryClient = useQueryClient();
@@ -24,7 +23,6 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
 
   // Keep currentAttendance and isAttending in sync with initialAttendance
   useEffect(() => {
-    console.log("useEffect triggered:", { initialAttendance });
     setCurrentAttendance(initialAttendance);
     setIsAttending(!!initialAttendance);
   }, [initialAttendance]);
@@ -52,7 +50,6 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
       toast.loading("Marking attendance...");
     },
     onSuccess: (data) => {
-      console.log("Create success:", data);
       toast.dismiss();
       toast.success("Attendance marked! 🎵");
       setCurrentAttendance(data.attendance);
@@ -106,7 +103,6 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
       return { previousAttendance };
     },
     onError: (error, variables, context) => {
-      console.error("Delete failed:", error);
       toast.dismiss();
       toast.error(`Failed to remove attendance: ${error.message}`);
       // Revert optimistic update
@@ -116,7 +112,6 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
       }
     },
     onSuccess: (result) => {
-      console.log("Delete success:", result);
       toast.dismiss();
       toast.success("Attendance removed");
       setIsAttending(false);
@@ -136,13 +131,10 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
 
   const handleToggle = (checked: boolean) => {
     if (checked) {
-      console.log("Creating attendance");
       createMutation.mutate();
     } else if (currentAttendance?.id) {
-      console.log("Deleting attendance with id:", currentAttendance.id);
       deleteMutation.mutate(currentAttendance.id);
     } else {
-      console.log("No attendance to delete, just setting state to false");
       setIsAttending(false);
       setCurrentAttendance(null);
     }

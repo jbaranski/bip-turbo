@@ -39,9 +39,9 @@ export function createLoader<T, TContext extends PublicContext = PublicContext>(
     const startTime = performance.now();
 
     try {
-      const user = await getUser(args.request, { 
+      const user = await getUser(args.request, {
         requireAuth: options?.requireAuth ?? false,
-        requireAdmin: options?.requireAdmin ?? false
+        requireAdmin: options?.requireAdmin ?? false,
       });
 
       if (user) {
@@ -73,9 +73,9 @@ export function createAction<T, TContext extends PublicContext = PublicContext>(
     const startTime = performance.now();
 
     try {
-      const user = await getUser(args.request, { 
+      const user = await getUser(args.request, {
         requireAuth: options?.requireAuth ?? false,
-        requireAdmin: options?.requireAdmin ?? false
+        requireAdmin: options?.requireAdmin ?? false,
       });
 
       if (user) {
@@ -114,7 +114,10 @@ export const publicLoader = <T>(fn: (args: LoaderFunctionArgs & { context: Publi
 export const publicAction = <T>(fn: (args: ActionFunctionArgs & { context: PublicContext }) => Promise<T>) =>
   createAction<T, PublicContext>(fn, { requireAuth: false });
 
-async function getUser(request: Request, options: { requireAuth: boolean; requireAdmin?: boolean }): Promise<User | null> {
+async function getUser(
+  request: Request,
+  options: { requireAuth: boolean; requireAdmin?: boolean },
+): Promise<User | null> {
   const { supabase } = getServerClient(request);
 
   if (options?.requireAuth) {
@@ -135,7 +138,7 @@ async function getUser(request: Request, options: { requireAuth: boolean; requir
 
     // Check for admin flag in app_metadata (server-controlled, secure)
     const isAdmin = user.app_metadata?.isAdmin === true;
-    
+
     // Check admin access if required
     if (options?.requireAdmin && !isAdmin) {
       const isJsonRequest = request.headers.get("Accept")?.includes("application/json");
@@ -150,7 +153,7 @@ async function getUser(request: Request, options: { requireAuth: boolean; requir
 
     return {
       id: user.id,
-      email: user.email || '',
+      email: user.email || "",
       isAdmin,
     };
   }
@@ -163,7 +166,7 @@ async function getUser(request: Request, options: { requireAuth: boolean; requir
     const isAdmin = session.user.app_metadata?.isAdmin === true;
     return {
       id: session.user.id,
-      email: session.user.email || '',
+      email: session.user.email || "",
       isAdmin,
     };
   }

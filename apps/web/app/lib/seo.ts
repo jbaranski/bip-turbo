@@ -19,8 +19,8 @@ export const SEO_CONFIG = {
     "grateful dead",
     "trey anastasio",
     "electronic music",
-    "improvisation"
-  ]
+    "improvisation",
+  ],
 };
 
 // Base meta tags that should be on every page
@@ -31,7 +31,7 @@ export function getBaseMeta() {
     { name: "robots", content: "index, follow" },
     { name: "author", content: SEO_CONFIG.siteName },
     { name: "keywords", content: SEO_CONFIG.keywords.join(", ") },
-    
+
     // Open Graph
     { property: "og:site_name", content: SEO_CONFIG.siteName },
     { property: "og:type", content: "website" },
@@ -39,14 +39,14 @@ export function getBaseMeta() {
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: `${SEO_CONFIG.bandName} - ${SEO_CONFIG.siteName}` },
-    
+
     // Twitter Cards
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:image", content: `${SEO_CONFIG.url}${SEO_CONFIG.image}` },
-    
+
     // Additional SEO
     { name: "theme-color", content: "#6366f1" }, // Brand primary color
-    { name: "msapplication-TileColor", content: "#6366f1" }
+    { name: "msapplication-TileColor", content: "#6366f1" },
   ];
 }
 
@@ -64,7 +64,7 @@ export function getHomeMeta() {
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -74,23 +74,23 @@ export function getShowMeta(setlist: Setlist) {
   const date = new Date(show.date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
-    day: "numeric"
+    day: "numeric",
   });
   const venue = show.venue?.name || "Unknown Venue";
   const location = show.venue ? `${show.venue.city}, ${show.venue.state}` : "";
-  
+
   const title = `${date} - ${venue} ${location ? `- ${location}` : ""} | ${SEO_CONFIG.siteName}`;
   const description = `View setlist, reviews, and recordings from ${SEO_CONFIG.bandName} show at ${venue}${location ? ` in ${location}` : ""} on ${date}. ${setlist.sets?.length || 0} sets with ${setlist.songs?.length || 0} songs.`;
   const url = `${SEO_CONFIG.url}/shows/${show.slug}`;
 
   // Generate keywords based on songs played
-  const songNames = setlist.songs?.map(song => song.name) || [];
+  const songNames = setlist.songs?.map((song) => song.name) || [];
   const keywords = [
     ...SEO_CONFIG.keywords,
     venue,
     show.venue?.city || "",
     date,
-    ...songNames.slice(0, 10) // Include first 10 songs as keywords
+    ...songNames.slice(0, 10), // Include first 10 songs as keywords
   ].filter(Boolean);
 
   return [
@@ -103,7 +103,7 @@ export function getShowMeta(setlist: Setlist) {
     { property: "og:type", content: "article" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -132,7 +132,7 @@ export function getShowsMeta(year?: number, searchQuery?: string) {
     year?.toString() || "",
     "show database",
     "concert history",
-    "tour dates"
+    "tour dates",
   ].filter(Boolean);
 
   return [
@@ -144,7 +144,7 @@ export function getShowsMeta(year?: number, searchQuery?: string) {
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -162,7 +162,7 @@ export function getSongsMeta() {
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -179,7 +179,7 @@ export function getSongMeta(song: Song & { timesPlayed?: number; debutDate?: str
     "lyrics",
     "tabs",
     "performance history",
-    debutYear?.toString() || ""
+    debutYear?.toString() || "",
   ].filter(Boolean);
 
   return [
@@ -191,7 +191,7 @@ export function getSongMeta(song: Song & { timesPlayed?: number; debutDate?: str
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -209,7 +209,7 @@ export function getVenuesMeta() {
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -217,9 +217,10 @@ export function getVenuesMeta() {
 export function getVenueMeta(venue: Venue & { showCount?: number; firstShowYear?: number; lastShowYear?: number }) {
   const location = `${venue.city}, ${venue.state}`;
   const title = `${venue.name} - ${location} | ${SEO_CONFIG.siteName}`;
-  const showHistory = venue.showCount && venue.firstShowYear && venue.lastShowYear 
-    ? `${venue.showCount} shows from ${venue.firstShowYear} to ${venue.lastShowYear}`
-    : "";
+  const showHistory =
+    venue.showCount && venue.firstShowYear && venue.lastShowYear
+      ? `${venue.showCount} shows from ${venue.firstShowYear} to ${venue.lastShowYear}`
+      : "";
   const description = `View all ${SEO_CONFIG.bandName} shows at ${venue.name} in ${location}.${showHistory ? ` ${showHistory} with complete setlists and reviews.` : " Complete show history with setlists and reviews."}`;
   const url = `${SEO_CONFIG.url}/venues/${venue.slug}`;
 
@@ -231,7 +232,7 @@ export function getVenueMeta(venue: Venue & { showCount?: number; firstShowYear?
     "venue",
     "show history",
     venue.firstShowYear?.toString() || "",
-    venue.lastShowYear?.toString() || ""
+    venue.lastShowYear?.toString() || "",
   ].filter(Boolean);
 
   return [
@@ -243,7 +244,7 @@ export function getVenueMeta(venue: Venue & { showCount?: number; firstShowYear?
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -261,7 +262,7 @@ export function getBlogsMeta() {
     { property: "og:url", content: url },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -276,7 +277,7 @@ export function getBlogMeta(blogPost: { title: string; blurb?: string; slug: str
     "blog",
     "news",
     "community",
-    blogPost.publishedAt ? new Date(blogPost.publishedAt).getFullYear().toString() : ""
+    blogPost.publishedAt ? new Date(blogPost.publishedAt).getFullYear().toString() : "",
   ].filter(Boolean);
 
   return [
@@ -289,7 +290,7 @@ export function getBlogMeta(blogPost: { title: string; blurb?: string; slug: str
     { property: "og:type", content: "article" },
     { name: "twitter:title", content: title },
     { name: "twitter:description", content: description },
-    { link: { rel: "canonical", href: url } }
+    { link: { rel: "canonical", href: url } },
   ];
 }
 
@@ -301,31 +302,33 @@ export function getShowStructuredData(setlist: Setlist) {
   const musicEvent = {
     "@context": "https://schema.org",
     "@type": "MusicEvent",
-    "name": `${SEO_CONFIG.bandName} Live at ${venue?.name || "Unknown Venue"}`,
-    "startDate": show.date,
-    "performer": {
+    name: `${SEO_CONFIG.bandName} Live at ${venue?.name || "Unknown Venue"}`,
+    startDate: show.date,
+    performer: {
       "@type": "MusicGroup",
-      "name": SEO_CONFIG.bandName,
-      "genre": ["Jam Band", "Electronic", "Rock", "Improvisation"]
+      name: SEO_CONFIG.bandName,
+      genre: ["Jam Band", "Electronic", "Rock", "Improvisation"],
     },
-    "location": venue ? {
-      "@type": "Place",
-      "name": venue.name,
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": venue.city,
-        "addressRegion": venue.state,
-        "addressCountry": "US"
-      }
-    } : undefined,
-    "url": `${SEO_CONFIG.url}/shows/${show.slug}`,
-    "description": `Live performance by ${SEO_CONFIG.bandName}${venue ? ` at ${venue.name}` : ""} on ${new Date(show.date).toLocaleDateString()}`,
-    "offers": {
+    location: venue
+      ? {
+          "@type": "Place",
+          name: venue.name,
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: venue.city,
+            addressRegion: venue.state,
+            addressCountry: "US",
+          },
+        }
+      : undefined,
+    url: `${SEO_CONFIG.url}/shows/${show.slug}`,
+    description: `Live performance by ${SEO_CONFIG.bandName}${venue ? ` at ${venue.name}` : ""} on ${new Date(show.date).toLocaleDateString()}`,
+    offers: {
       "@type": "Offer",
-      "availability": "https://schema.org/OutOfStock",
-      "price": "0",
-      "priceCurrency": "USD"
-    }
+      availability: "https://schema.org/OutOfStock",
+      price: "0",
+      priceCurrency: "USD",
+    },
   };
 
   return JSON.stringify(musicEvent);
@@ -336,15 +339,15 @@ export function getVenueStructuredData(venue: Venue) {
   const venueData = {
     "@context": "https://schema.org",
     "@type": "MusicVenue",
-    "name": venue.name,
-    "address": {
+    name: venue.name,
+    address: {
       "@type": "PostalAddress",
-      "addressLocality": venue.city,
-      "addressRegion": venue.state,
-      "addressCountry": "US"
+      addressLocality: venue.city,
+      addressRegion: venue.state,
+      addressCountry: "US",
     },
-    "url": `${SEO_CONFIG.url}/venues/${venue.slug}`,
-    "description": `${venue.name} - Music venue in ${venue.city}, ${venue.state}`
+    url: `${SEO_CONFIG.url}/venues/${venue.slug}`,
+    description: `${venue.name} - Music venue in ${venue.city}, ${venue.state}`,
   };
 
   return JSON.stringify(venueData);
@@ -355,40 +358,46 @@ export function getSongStructuredData(song: Song & { timesPlayed?: number }) {
   const songData = {
     "@context": "https://schema.org",
     "@type": "MusicRecording",
-    "name": song.name,
-    "byArtist": {
+    name: song.name,
+    byArtist: {
       "@type": "MusicGroup",
-      "name": SEO_CONFIG.bandName
+      name: SEO_CONFIG.bandName,
     },
-    "genre": ["Jam Band", "Electronic", "Rock"],
-    "url": `${SEO_CONFIG.url}/songs/${song.slug}`,
-    "description": `${song.name} by ${SEO_CONFIG.bandName}${song.timesPlayed ? ` - Played ${song.timesPlayed} times` : ""}`
+    genre: ["Jam Band", "Electronic", "Rock"],
+    url: `${SEO_CONFIG.url}/songs/${song.slug}`,
+    description: `${song.name} by ${SEO_CONFIG.bandName}${song.timesPlayed ? ` - Played ${song.timesPlayed} times` : ""}`,
   };
 
   return JSON.stringify(songData);
 }
 
 // Generate JSON-LD structured data for blog post
-export function getBlogStructuredData(blogPost: { title: string; blurb?: string; slug: string; publishedAt?: string; authorName?: string }) {
+export function getBlogStructuredData(blogPost: {
+  title: string;
+  blurb?: string;
+  slug: string;
+  publishedAt?: string;
+  authorName?: string;
+}) {
   const blogData = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
-    "headline": blogPost.title,
-    "description": blogPost.blurb || `${blogPost.title} on ${SEO_CONFIG.siteName}`,
-    "url": `${SEO_CONFIG.url}/blog/${blogPost.slug}`,
-    "datePublished": blogPost.publishedAt,
-    "author": {
+    headline: blogPost.title,
+    description: blogPost.blurb || `${blogPost.title} on ${SEO_CONFIG.siteName}`,
+    url: `${SEO_CONFIG.url}/blog/${blogPost.slug}`,
+    datePublished: blogPost.publishedAt,
+    author: {
       "@type": "Organization",
-      "name": SEO_CONFIG.siteName
+      name: SEO_CONFIG.siteName,
     },
-    "publisher": {
+    publisher: {
       "@type": "Organization",
-      "name": SEO_CONFIG.siteName
+      name: SEO_CONFIG.siteName,
     },
-    "mainEntityOfPage": {
+    mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${SEO_CONFIG.url}/blog/${blogPost.slug}`
-    }
+      "@id": `${SEO_CONFIG.url}/blog/${blogPost.slug}`,
+    },
   };
 
   return JSON.stringify(blogData);
@@ -399,12 +408,12 @@ export function getBreadcrumbStructuredData(items: Array<{ name: string; url: st
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": items.map((item, index) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      "position": index + 1,
-      "name": item.name,
-      "item": item.url
-    }))
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
   };
 
   return JSON.stringify(breadcrumbData);
@@ -429,12 +438,12 @@ export function generateSitemapEntry(
     lastmod?: Date;
     changefreq?: SitemapEntry["changefreq"];
     priority?: number;
-  } = {}
+  } = {},
 ): SitemapEntry {
   return {
     url: getCanonicalUrl(path),
     lastmod: options.lastmod?.toISOString(),
     changefreq: options.changefreq || "weekly",
-    priority: options.priority || 0.5
+    priority: options.priority || 0.5,
   };
 }

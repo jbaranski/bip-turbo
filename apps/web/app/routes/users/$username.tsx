@@ -80,7 +80,9 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const totalRatings = showRatingsCount + trackRatingsCount;
 
   // Calculate first and last show dates
-  const sortedAttendances = userAttendances.sort((a, b) => new Date(a.show.date).getTime() - new Date(b.show.date).getTime());
+  const sortedAttendances = userAttendances.sort(
+    (a, b) => new Date(a.show.date).getTime() - new Date(b.show.date).getTime(),
+  );
   const firstShow = sortedAttendances[0]?.show || null;
   const lastShow = sortedAttendances[sortedAttendances.length - 1]?.show || null;
 
@@ -152,18 +154,20 @@ export default function UserProfile() {
                 <p className="text-content-text-secondary">
                   Member since {formatDateLong(user.createdAt.toISOString())}
                 </p>
-                
+
                 {/* First and Last Show - compact */}
                 {(firstShow || lastShow) && (
                   <div className="flex items-center gap-4 text-sm mt-2">
                     {firstShow && (
                       <span className="text-content-text-secondary">
-                        First show: <span className="font-medium text-content-text-primary">{formatDateLong(firstShow.date)}</span>
+                        First show:{" "}
+                        <span className="font-medium text-content-text-primary">{formatDateLong(firstShow.date)}</span>
                       </span>
                     )}
                     {lastShow && firstShow?.id !== lastShow?.id && (
                       <span className="text-content-text-secondary">
-                        Last show: <span className="font-medium text-content-text-primary">{formatDateLong(lastShow.date)}</span>
+                        Last show:{" "}
+                        <span className="font-medium text-content-text-primary">{formatDateLong(lastShow.date)}</span>
                       </span>
                     )}
                   </div>
@@ -187,7 +191,7 @@ export default function UserProfile() {
                   ))}
                 </div>
               )}
-              
+
               {/* Edit Profile Button */}
               {isOwnProfile && (
                 <Button asChild className="btn-secondary">

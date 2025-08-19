@@ -38,11 +38,11 @@ interface SongCardProps {
 
 function SongCard({ song }: SongCardProps) {
   const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", { 
+    return new Date(date).toLocaleDateString("en-US", {
       timeZone: "UTC",
       month: "short",
-      day: "numeric", 
-      year: "numeric"
+      day: "numeric",
+      year: "numeric",
     });
   };
 
@@ -55,38 +55,28 @@ function SongCard({ song }: SongCardProps) {
           </Link>
         </CardTitle>
       </CardHeader>
-      
+
       {song.timesPlayed > 0 ? (
         <CardContent className="space-y-3">
           {/* Play count and last played in one clean line */}
           <div className="flex items-center justify-between">
-            <span className="text-content-text-primary font-semibold text-lg">
-              {song.timesPlayed} plays
-            </span>
+            <span className="text-content-text-primary font-semibold text-lg">{song.timesPlayed} plays</span>
             {song.dateLastPlayed && (
-              <span className="text-content-text-secondary text-sm">
-                Last: {formatDate(song.dateLastPlayed)}
-              </span>
+              <span className="text-content-text-secondary text-sm">Last: {formatDate(song.dateLastPlayed)}</span>
             )}
           </div>
-          
+
           {/* Peak/Rare years - only if available */}
           {(song.mostCommonYear || song.leastCommonYear) && (
             <div className="flex gap-3 text-xs text-content-text-tertiary">
-              {song.mostCommonYear && (
-                <span>Peak: {song.mostCommonYear}</span>
-              )}
-              {song.leastCommonYear && (
-                <span>Rare: {song.leastCommonYear}</span>
-              )}
+              {song.mostCommonYear && <span>Peak: {song.mostCommonYear}</span>}
+              {song.leastCommonYear && <span>Rare: {song.leastCommonYear}</span>}
             </div>
           )}
         </CardContent>
       ) : (
         <CardContent>
-          <span className="text-content-text-tertiary text-sm italic">
-            Never performed
-          </span>
+          <span className="text-content-text-tertiary text-sm italic">Never performed</span>
         </CardContent>
       )}
     </Card>
@@ -103,27 +93,23 @@ function TrendingSongCard({ song, recentShowsCount }: TrendingSongCardProps) {
     <Card className="glass-content hover:border-brand-primary/50 transition-all duration-300 group">
       <CardContent className="p-4">
         <div className="space-y-3">
-          <Link 
-            to={`/songs/${song.slug}`} 
+          <Link
+            to={`/songs/${song.slug}`}
             className="block text-lg font-semibold text-brand-primary hover:text-brand-secondary transition-colors group-hover:text-brand-secondary"
           >
             {song.title}
           </Link>
-          
+
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-brand-primary/20 text-brand-primary font-bold text-sm">
                 {song.count}
               </div>
-              <span className="text-content-text-secondary text-sm">
-                of {recentShowsCount} recent shows
-              </span>
+              <span className="text-content-text-secondary text-sm">of {recentShowsCount} recent shows</span>
             </div>
           </div>
-          
-          <div className="text-xs text-content-text-tertiary">
-            {song.timesPlayed} total performances
-          </div>
+
+          <div className="text-xs text-content-text-tertiary">{song.timesPlayed} total performances</div>
         </div>
       </CardContent>
     </Card>

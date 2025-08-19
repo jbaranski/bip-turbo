@@ -269,7 +269,7 @@ export function meta({ data }: { data: SongPageView }) {
     name: data.song.title,
     slug: data.song.slug,
     timesPlayed: data.song.timesPlayed,
-    debutDate: data.song.debutDate
+    debutDate: data.song.debutDate,
   });
 }
 
@@ -287,11 +287,11 @@ export default function SongPage() {
             ...song,
             name: song.title,
             slug: song.slug,
-            timesPlayed: song.timesPlayed
-          })
+            timesPlayed: song.timesPlayed,
+          }),
         }}
       />
-      
+
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap items-baseline gap-4">
           <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">{song.title}</h1>

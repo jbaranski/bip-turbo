@@ -4,6 +4,16 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/postcss";
 
 export default defineConfig({
+  server: {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+    },
+    // Increase header size limit for development
+    middlewareMode: false,
+    hmr: {
+      port: 24678,
+    },
+  },
   build: {
     commonjsOptions: {
       transformMixedEsModules: true,
@@ -29,6 +39,19 @@ export default defineConfig({
           res.statusCode = 404;
           res.end();
         });
+      },
+    },
+    {
+      name: "increase-header-limit",
+      configureServer(server) {
+        // Increase Node.js server header size limit
+        const originalListen = server.listen.bind(server);
+        server.listen = function(...args) {
+          if (server.httpServer) {
+            server.httpServer.maxHeaderSize = 32768;
+          }
+          return originalListen(...args);
+        };
       },
     },
   ],

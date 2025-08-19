@@ -37,7 +37,7 @@ export function meta({ data }: { data: LoaderData }) {
     title: data.blogPost.title,
     blurb: data.blogPost.blurb,
     slug: data.blogPost.slug,
-    publishedAt: data.blogPost.publishedAt
+    publishedAt: data.blogPost.publishedAt,
   });
 }
 
@@ -64,11 +64,11 @@ export default function BlogPostPage() {
             title: blogPost.title,
             blurb: blogPost.blurb,
             slug: blogPost.slug,
-            publishedAt: blogPost.publishedAt
-          })
+            publishedAt: blogPost.publishedAt,
+          }),
         }}
       />
-      
+
       <div className="flex items-center justify-between">
         <div className="flex flex-wrap items-baseline gap-4">
           <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">{blogPost.title}</h1>

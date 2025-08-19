@@ -52,7 +52,7 @@ export default function ProfileEdit() {
 
       if (response.ok) {
         toast.success("Profile updated successfully!");
-        
+
         // Refresh the session to pick up updated user metadata
         if (supabase) {
           try {

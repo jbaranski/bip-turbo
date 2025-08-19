@@ -41,5 +41,4 @@ export class SetlistService {
   }): Promise<Setlist[]> {
     return this.repository.findMany(options);
   }
-
 }

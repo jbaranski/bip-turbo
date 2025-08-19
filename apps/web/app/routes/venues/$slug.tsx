@@ -246,7 +246,7 @@ export function meta({ data }: { data: LoaderData }) {
     ...data.venue,
     showCount: data.stats.totalShows,
     firstShowYear: data.stats.firstShow ? new Date(data.stats.firstShow).getFullYear() : undefined,
-    lastShowYear: data.stats.lastShow ? new Date(data.stats.lastShow).getFullYear() : undefined
+    lastShowYear: data.stats.lastShow ? new Date(data.stats.lastShow).getFullYear() : undefined,
   });
 }
 
@@ -318,10 +318,10 @@ export default function VenuePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: getVenueStructuredData(venue)
+          __html: getVenueStructuredData(venue),
         }}
       />
-      
+
       <div className="space-y-4 mb-6">
         <div className="flex justify-between items-start">
           <div>

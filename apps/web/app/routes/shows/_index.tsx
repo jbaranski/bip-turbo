@@ -26,20 +26,17 @@ const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "
 const MIN_SEARCH_CHARS = 4;
 
 export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
-  console.log("⚡️ shows loader start:", request.method, new URL(request.url).pathname);
 
   const url = new URL(request.url);
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const yearInt = Number.parseInt(year as string);
   const searchQuery = url.searchParams.get("q") || undefined;
 
-  console.log("⚡️ shows loader - params:", { year: yearInt, searchQuery });
 
   let setlists: Setlist[] = [];
 
   // If there's a search query with at least MIN_SEARCH_CHARS characters, use the search functionality
   if (searchQuery && searchQuery.length >= MIN_SEARCH_CHARS) {
-    console.log("⚡️ shows loader - searching for:", searchQuery);
 
     // Get show IDs from search
     const shows = await services.shows.search(searchQuery);
@@ -50,7 +47,6 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
 
       // Fetch setlists for these shows
       setlists = await services.setlists.findManyByShowIds(showIds);
-      console.log("⚡️ shows loader - found setlists from search:", setlists.length);
     }
 
     return { setlists, year: yearInt, searchQuery };
@@ -60,7 +56,7 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
   // Current year gets reverse chronological, other years get normal chronological
   const currentYear = new Date().getFullYear();
   const sortDirection = yearInt === currentYear ? "desc" : "asc";
-  
+
   setlists = await services.setlists.findMany({
     filters: {
       year: yearInt,
@@ -68,7 +64,6 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
     sort: [{ field: "date", direction: sortDirection }],
   });
 
-  console.log("⚡️ shows loader - found setlists:", setlists.length);
   return { setlists, year: yearInt };
 });
 
@@ -81,16 +76,9 @@ export default function Shows() {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const queryClient = useQueryClient();
 
-  // Log initial render
-  console.log("Shows component initial render", {
-    setlistCount: setlists.length,
-    year,
-    searchQuery,
-  });
 
   const rateMutation = useMutation({
     mutationFn: async ({ showId, rating }: { showId: string; rating: number }) => {
-      console.log("rateMutation.mutationFn called with:", { showId, rating });
       const response = await fetch("/api/ratings", {
         method: "POST",
         credentials: "include",
@@ -115,7 +103,6 @@ export default function Shows() {
       return data;
     },
     onSuccess: (data, variables) => {
-      console.log("rateMutation.onSuccess called with:", { data, variables });
       toast.success("Rating submitted successfully");
       // Update the setlist in the cache with the new rating
       queryClient.setQueryData(["setlists"], (old: Setlist[] = []) => {
@@ -301,7 +288,7 @@ export default function Shows() {
               ) : (
                 <div className="space-y-8">
                   {monthsWithShows
-                    .sort((a, b) => year === new Date().getFullYear() ? b - a : a - b)
+                    .sort((a, b) => (year === new Date().getFullYear() ? b - a : a - b))
                     .map((month) => (
                       <div key={month} className="space-y-4">
                         {setlistsByMonth[month]
@@ -311,17 +298,17 @@ export default function Shows() {
                             return year === new Date().getFullYear() ? dateB - dateA : dateA - dateB;
                           })
                           .map((setlist, index) => (
-                          <div key={setlist.show.id}>
-                            {index === 0 && <div id={`month-${month}`} className="scroll-mt-20" />}
-                            <SetlistCard
-                              setlist={setlist}
-                              userAttendance={null}
-                              userRating={null}
-                              showRating={setlist.show.averageRating}
-                              className="transition-all duration-300 transform hover:scale-[1.01]"
-                            />
-                          </div>
-                        ))}
+                            <div key={setlist.show.id}>
+                              {index === 0 && <div id={`month-${month}`} className="scroll-mt-20" />}
+                              <SetlistCard
+                                setlist={setlist}
+                                userAttendance={null}
+                                userRating={null}
+                                showRating={setlist.show.averageRating}
+                                className="transition-all duration-300 transform hover:scale-[1.01]"
+                              />
+                            </div>
+                          ))}
                       </div>
                     ))}
                 </div>

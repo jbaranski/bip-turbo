@@ -51,7 +51,7 @@ export const action = publicAction(async ({ request }) => {
           <div style="margin: 20px 0;">
             <h3 style="color: #333; margin-bottom: 10px;">Message:</h3>
             <div style="background-color: #ffffff; padding: 15px; border-left: 4px solid #6366f1; border-radius: 4px;">
-              ${validatedData.message.replace(/\n/g, '<br>')}
+              ${validatedData.message.replace(/\n/g, "<br>")}
             </div>
           </div>
           
@@ -85,10 +85,9 @@ Reply directly to this email to respond to ${validatedData.name}.
     console.log("Contact form email sent successfully:", emailResult.data?.id);
 
     return { success: true, message: "Message sent successfully!" };
-
   } catch (error) {
     console.error("Contact form submission error:", error);
-    
+
     if (error instanceof z.ZodError) {
       return badRequest("Invalid form data");
     }

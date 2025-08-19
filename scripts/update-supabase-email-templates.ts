@@ -212,10 +212,10 @@ async function updateEmailTemplate(templateName: string, template: { subject: st
     console.log(`📧 Updating ${templateName} template...`);
 
     const response = await fetch(`https://api.supabase.com/v1/projects/${projectRef}/config/auth`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Authorization': `Bearer ${env.SUPABASE_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${env.SUPABASE_ACCESS_TOKEN}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         [`MAILER_TEMPLATES_${templateName.toUpperCase()}_SUBJECT`]: template.subject,
@@ -236,31 +236,31 @@ async function updateEmailTemplate(templateName: string, template: { subject: st
 
 // Main function to update all templates
 async function updateAllEmailTemplates() {
-  console.log('🚀 Starting email template updates...\n');
+  console.log("🚀 Starting email template updates...\n");
 
   for (const [templateName, template] of Object.entries(emailTemplates)) {
     await updateEmailTemplate(templateName, template);
     // Add a small delay between requests
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
-  console.log('\n✨ All email templates have been updated!');
-  console.log('\n📝 Updated templates:');
-  console.log('   • Email confirmation (signup)');
-  console.log('   • Magic link (passwordless login)');
-  console.log('   • Password recovery');
-  console.log('   • Email change confirmation');
-  
-  console.log('\n🔧 Next steps:');
-  console.log('   • Templates are now active for all new auth emails');
-  console.log('   • Test the flows to verify the styling');
-  console.log('   • Check Supabase dashboard > Authentication > Email Templates');
+  console.log("\n✨ All email templates have been updated!");
+  console.log("\n📝 Updated templates:");
+  console.log("   • Email confirmation (signup)");
+  console.log("   • Magic link (passwordless login)");
+  console.log("   • Password recovery");
+  console.log("   • Email change confirmation");
+
+  console.log("\n🔧 Next steps:");
+  console.log("   • Templates are now active for all new auth emails");
+  console.log("   • Test the flows to verify the styling");
+  console.log("   • Check Supabase dashboard > Authentication > Email Templates");
 }
 
 // Run the script
 if (import.meta.main) {
   updateAllEmailTemplates().catch((error) => {
-    console.error('💥 Script failed:', error);
+    console.error("💥 Script failed:", error);
     process.exit(1);
   });
 }

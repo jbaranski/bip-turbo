@@ -122,17 +122,15 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const allShowIds = [
     ...new Set([...mobileRecentShows.map((s) => s.show.id), ...desktopRecentShows.map((s) => s.show.id)]),
   ];
-  
+
   // Find local user by email if authenticated
   let localUserId: string | null = null;
   if (currentUser) {
     const localUser = await services.users.findByEmail(currentUser.email);
     localUserId = localUser?.id || null;
   }
-  
-  const attendances = localUserId
-    ? await services.attendances.findManyByUserIdAndShowIds(localUserId, allShowIds)
-    : [];
+
+  const attendances = localUserId ? await services.attendances.findManyByUserIdAndShowIds(localUserId, allShowIds) : [];
   const ratings = localUserId
     ? await services.ratings.findManyByUserIdAndRateableIds(localUserId, allShowIds, "Show")
     : [];
@@ -275,7 +273,6 @@ export default function Index() {
 
           {/* Right Column - Sidebar Content */}
           <div className="space-y-8">
-
             {/* Latest Podcast Episode */}
             {latestEpisode && (
               <div>

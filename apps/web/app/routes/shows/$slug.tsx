@@ -59,7 +59,7 @@ export const loader = publicLoader(async ({ params, context }): Promise<ShowLoad
     // Try to get from cache first
     const redis = services.redis;
     const cachedRecordings = await redis.get<ArchiveItem[]>(archiveCacheKey);
-    
+
     if (cachedRecordings) {
       console.log(`Archive.org recordings served from Redis cache for ${setlist.show.date}`);
       if (cachedRecordings.length > 0) {
@@ -68,9 +68,9 @@ export const loader = publicLoader(async ({ params, context }): Promise<ShowLoad
     } else {
       // Fetch from archive.org if not cached
       const detailsUrl = `https://archive.org/advancedsearch.php?q=collection:DiscoBiscuits AND date:${setlist.show.date}&fl=identifier,title,date&sort=date desc&rows=100&output=json`;
-      
+
       console.log("Fetching recording details from archive.org:", detailsUrl);
-      
+
       const detailsResponse = await fetch(detailsUrl);
       if (!detailsResponse.ok) {
         throw new Error(`Failed to fetch recording details: ${detailsResponse.status}`);
@@ -81,7 +81,7 @@ export const loader = publicLoader(async ({ params, context }): Promise<ShowLoad
 
       if (detailsData?.response?.docs && detailsData.response.docs.length > 0) {
         archiveRecordings = detailsData.response.docs as ArchiveItem[];
-        
+
         if (archiveRecordings.length > 0) {
           selectedRecordingId = archiveRecordings[0].identifier;
         }
@@ -252,10 +252,10 @@ export default function Show() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: getShowStructuredData(setlist)
+          __html: getShowStructuredData(setlist),
         }}
       />
-      
+
       <div className="flex justify-between items-center">
         <h1 className="text-3xl md:text-4xl font-bold text-content-text-primary">
           {formatDateLong(setlist.show.date)}
