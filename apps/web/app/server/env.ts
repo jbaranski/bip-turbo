@@ -10,6 +10,7 @@ export const envSchema = z.object({
   OPENAI_API_KEY: z.string(),
   RESEND_API_KEY: z.string(),
   CONTACT_EMAIL: z.string().email(),
+  HONEYBADGER_API_KEY: z.string(),
 });
 
 export const env = envSchema.parse(process.env);

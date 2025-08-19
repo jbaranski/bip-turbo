@@ -2,6 +2,7 @@ import type { ActionFunctionArgs } from "react-router-dom";
 import { z } from "zod";
 import { services } from "~/server/services";
 import { getServerClient } from "~/server/supabase";
+import honeybadger from "~/lib/honeybadger";
 
 const updateUserSchema = z.object({
   username: z.string().min(3).max(50).optional(),
@@ -38,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
     const validatedData = updateUserSchema.parse(data);
 
     // Find the local user by email to get the correct local user ID
-    const localUser = await services.users.findByEmail(user.email || '');
+    const localUser = await services.users.findByEmail(user.email || "");
     if (!localUser) {
       return new Response(JSON.stringify({ error: "User not found in local database" }), {
         status: 404,
@@ -52,10 +53,11 @@ export async function action({ request }: ActionFunctionArgs) {
         await supabase.auth.updateUser({
           data: {
             ...user.user_metadata,
-            username: localUser.username
-          }
+            username: localUser.username,
+          },
         });
       } catch (error) {
+        honeybadger.notify(error);
         console.error("Failed to initialize username in Supabase:", error);
       }
     }
@@ -75,10 +77,11 @@ export async function action({ request }: ActionFunctionArgs) {
         await supabase.auth.updateUser({
           data: {
             ...user.user_metadata,
-            username: validatedData.username
-          }
+            username: validatedData.username,
+          },
         });
       } catch (error) {
+        honeybadger.notify(error);
         console.error("Failed to sync username to Supabase:", error);
         // Don't fail the request if Supabase sync fails
       }
@@ -89,6 +92,7 @@ export async function action({ request }: ActionFunctionArgs) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    honeybadger.notify(error);
     console.error("Error updating user:", error);
     return new Response(JSON.stringify({ error: "Invalid request data" }), {
       status: 400,
