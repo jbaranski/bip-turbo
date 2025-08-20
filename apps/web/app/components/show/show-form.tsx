@@ -28,7 +28,7 @@ interface ShowFormProps {
   bands?: Band[];
 }
 
-export function ShowForm({ defaultValues, onSubmit, submitLabel = "Submit", cancelHref, bands = [] }: ShowFormProps) {
+export function ShowForm({ defaultValues, onSubmit, submitLabel = "Submit", cancelHref }: ShowFormProps) {
   const form = useForm<ShowFormValues>({
     resolver: zodResolver(showFormSchema),
     defaultValues: defaultValues || {

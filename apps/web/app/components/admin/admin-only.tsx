@@ -1,4 +1,3 @@
-import { useSupabaseContext } from "~/context/supabase-provider";
 import { useSession } from "~/hooks/use-session";
 
 interface AdminOnlyProps {

@@ -73,6 +73,7 @@ export function SongSearch({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
+        {/* biome-ignore lint/a11y/useSemanticElements: This is a custom searchable dropdown, not a simple select */}
         <Button
           variant="outline"
           role="combobox"

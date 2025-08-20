@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Save, Trash, X, Edit2, Check } from "lucide-react";
+import { Plus, Save, Trash, X } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -14,13 +14,11 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-ki
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import type { Track } from "@bip/domain";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { SongSearch } from "~/components/song/song-search";
 import { SortableTrackItem } from "./sortable-track-item";
 import { toast } from "sonner";
-import { cn } from "~/lib/utils";
 
 interface TrackManagerProps {
   showId: string;

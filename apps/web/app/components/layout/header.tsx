@@ -7,9 +7,7 @@ import {
   Eye,
   FileText,
   Headphones,
-  Home,
   LogOut,
-  Mail,
   Menu,
   TrendingUp,
   User,
@@ -23,9 +21,7 @@ import { UserDropdown } from "~/components/layout/user-dropdown";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useSession } from "~/hooks/use-session";
 import { useGlobalSearch } from "~/hooks/use-global-search";
-import { cn } from "~/lib/utils";
-import { useEffect, useState } from "react";
-import type { User as LocalUser } from "@bip/domain";
+import { useState } from "react";
 
 const navigation = [
   { name: "shows", href: "/shows", icon: Headphones },
@@ -40,7 +36,7 @@ const navigation = [
 export function Header() {
   const isMobile = useIsMobile();
   const { user, loading } = useSession();
-  const { open: openSearch } = useGlobalSearch();
+  const { open: _openSearch } = useGlobalSearch();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const username = user?.user_metadata?.username ?? user?.email?.split("@")[0];

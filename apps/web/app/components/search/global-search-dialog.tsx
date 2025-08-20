@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
   CommandDialog,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -11,7 +10,6 @@ import {
 import { useVectorSearch } from "~/hooks/use-vector-search";
 import { Badge } from "~/components/ui/badge";
 import { Loader2, Music, MapPin, Calendar, Play } from "lucide-react";
-import { cn } from "~/lib/utils";
 
 interface GlobalSearchDialogProps {
   open: boolean;

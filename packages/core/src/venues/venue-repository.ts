@@ -98,7 +98,7 @@ export class VenueRepository {
   }
 
   async update(id: string, data: Partial<Venue>): Promise<Venue> {
-    let updateData: any = {
+    const updateData: any = {
       ...this.mapToDbModel(data),
       updatedAt: new Date(),
     };
