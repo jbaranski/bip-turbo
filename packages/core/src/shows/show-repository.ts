@@ -3,6 +3,7 @@ import type { Prisma } from "@prisma/client";
 import type { DbClient, DbShow } from "../_shared/database/models";
 import { buildIncludeClause, buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
+import { slugify } from "../_shared/utils/slugify";
 
 export type ShowCreateInput = Prisma.ShowCreateInput;
 
@@ -25,6 +26,29 @@ export function mapShowToDbModel(show: Partial<Show>): Partial<DbShow> {
 
 export class ShowRepository {
   constructor(protected db: DbClient) {}
+
+  private async generateShowSlug(date: string, venueId?: string): Promise<string> {
+    let slug = slugify(String(date));
+    
+    if (venueId) {
+      const venue = await this.db.venue.findUnique({
+        where: { id: venueId },
+        select: { name: true, city: true, state: true }
+      });
+      
+      if (venue) {
+        const venueParts = [
+          String(date),
+          venue.name,
+          venue.city,
+          venue.state
+        ].filter(Boolean).join("-");
+        slug = slugify(venueParts);
+      }
+    }
+    
+    return slug;
+  }
 
   async findById(id: string): Promise<Show | null> {
     const result = await this.db.show.findUnique({ where: { id } });
@@ -132,9 +156,13 @@ export class ShowRepository {
   }
 
   async create(data: ShowCreateInput): Promise<Show> {
+    const venueId = data.venue?.connect?.id;
+    const slug = await this.generateShowSlug(String(data.date), venueId);
+    
     const result = await this.db.show.create({
       data: {
         date: data.date,
+        slug,
         venue: data.venue,
         band: data.band,
         notes: data.notes,
@@ -147,10 +175,28 @@ export class ShowRepository {
   }
 
   async update(slug: string, data: Partial<ShowCreateInput>): Promise<Show> {
+    let newSlug: string | undefined;
+    
+    // If date or venue is being updated, regenerate the slug
+    if (data.date || data.venue) {
+      // Get current show to have fallback values
+      const currentShow = await this.db.show.findUnique({
+        where: { slug },
+        select: { date: true, venueId: true }
+      });
+      
+      if (currentShow) {
+        const date = data.date || currentShow.date;
+        const venueId = data.venue?.connect?.id || currentShow.venueId || undefined;
+        newSlug = await this.generateShowSlug(String(date), venueId);
+      }
+    }
+    
     const result = await this.db.show.update({
       where: { slug },
       data: {
         ...data,
+        ...(newSlug && { slug: newSlug }),
         updatedAt: new Date(),
       },
     });

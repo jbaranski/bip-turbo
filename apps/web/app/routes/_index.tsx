@@ -44,8 +44,8 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const now = new Date();
   const nextTourDate = allTourDates.find((date) => new Date(date.date) >= now) || null;
 
-  // Find today's or yesterday's show
-  const today = new Date();
+  // Find today's or yesterday's show (using Eastern Time for show dates)
+  const today = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
   today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
