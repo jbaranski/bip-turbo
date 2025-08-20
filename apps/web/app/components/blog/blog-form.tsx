@@ -19,8 +19,6 @@ const BlogPostState = {
   PUBLISHED: "published",
 } as const;
 
-type BlogPostState = (typeof BlogPostState)[keyof typeof BlogPostState];
-
 interface UploadedFile {
   path: string;
   url: string;

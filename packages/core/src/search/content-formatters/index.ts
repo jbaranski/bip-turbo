@@ -1,4 +1,4 @@
-export { type ContentFormatter } from "./base-content-formatter";
+export type { ContentFormatter } from "./base-content-formatter";
 export { ShowContentFormatter } from "./show-content-formatter";
 export { SongContentFormatter } from "./song-content-formatter";
 export { VenueContentFormatter } from "./venue-content-formatter";

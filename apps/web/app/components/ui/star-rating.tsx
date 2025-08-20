@@ -39,11 +39,6 @@ interface SetlistData {
   [key: string]: unknown;
 }
 
-interface LoaderData {
-  json: string;
-  meta?: unknown;
-}
-
 export function StarRating({ className, disabled, rateableId, rateableType, initialRating }: StarRatingProps) {
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
