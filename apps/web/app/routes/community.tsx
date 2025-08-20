@@ -46,7 +46,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
       }
       return {
         ...cached,
-        lastUpdated,
+        lastUpdated: lastUpdated || undefined,
       };
     }
   } catch (error) {
@@ -61,7 +61,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   let lastUpdated: string | undefined;
   try {
     const redis = services.redis;
-    lastUpdated = await redis.get<string>("community-last-updated");
+    lastUpdated = (await redis.get<string>("community-last-updated")) || undefined;
   } catch (error) {
     console.error("Failed to get last updated timestamp:", error);
   }
