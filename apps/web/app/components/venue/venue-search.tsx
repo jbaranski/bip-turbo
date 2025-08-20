@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
 import type { Venue } from "@bip/domain";
-import { cn } from "~/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "~/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import { cn } from "~/lib/utils";
 
 interface VenueSearchProps {
   value?: string;
@@ -63,7 +63,6 @@ export function VenueSearch({ value, onValueChange, placeholder = "Search venues
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          role="combobox"
           aria-expanded={open}
           className={cn(
             "justify-between bg-content-bg border-content-bg-secondary text-white hover:bg-content-bg-secondary",

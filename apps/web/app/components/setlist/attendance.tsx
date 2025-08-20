@@ -1,10 +1,10 @@
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import type { Attendance } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 interface AttendanceData {
   attendances: Attendance[];

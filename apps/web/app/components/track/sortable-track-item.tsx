@@ -1,7 +1,7 @@
+import type { Track } from "@bip/domain";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Edit2, Trash } from "lucide-react";
-import type { Track } from "@bip/domain";
+import { Edit2, GripVertical, Trash } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
 

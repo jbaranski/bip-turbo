@@ -1,6 +1,6 @@
 import { Search } from "lucide-react";
-import { useGlobalSearch } from "~/hooks/use-global-search";
 import { Button } from "~/components/ui/button";
+import { useGlobalSearch } from "~/hooks/use-global-search";
 import { cn } from "~/lib/utils";
 
 interface SearchButtonProps {

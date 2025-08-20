@@ -13,15 +13,15 @@ import {
   User,
   X,
 } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { UserDropdown } from "~/components/layout/user-dropdown";
+import { SearchButton } from "~/components/search/search-button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { SearchButton } from "~/components/search/search-button";
-import { UserDropdown } from "~/components/layout/user-dropdown";
+import { useGlobalSearch } from "~/hooks/use-global-search";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useSession } from "~/hooks/use-session";
-import { useGlobalSearch } from "~/hooks/use-global-search";
-import { useState } from "react";
 
 const navigation = [
   { name: "shows", href: "/shows", icon: Headphones },

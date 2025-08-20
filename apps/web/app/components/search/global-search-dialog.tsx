@@ -1,15 +1,9 @@
-import { useEffect, useState, useCallback } from "react";
+import { Calendar, Loader2, MapPin, Music, Play } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  CommandDialog,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "~/components/ui/command";
-import { useVectorSearch } from "~/hooks/use-vector-search";
 import { Badge } from "~/components/ui/badge";
-import { Loader2, Music, MapPin, Calendar, Play } from "lucide-react";
+import { CommandDialog, CommandGroup, CommandInput, CommandItem, CommandList } from "~/components/ui/command";
+import { useVectorSearch } from "~/hooks/use-vector-search";
 
 interface GlobalSearchDialogProps {
   open: boolean;
@@ -133,9 +127,9 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
                         <Icon className="h-5 w-5 text-gray-400" />
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-lg truncate text-white">{result.displayText}</div>
-                          {result.metadata?.similarity && (
-                            <div className="text-sm text-gray-400">{Math.round(result.score)}% match</div>
-                          )}
+                          {(result.metadata as Record<string, unknown>)?.similarity ? (
+                            <div className="text-sm text-gray-400">{Math.round(result.score as number)}% match</div>
+                          ) : null}
                         </div>
                         <Badge variant="outline" className="text-sm border-green-500/40 text-green-300 bg-green-500/10">
                           {label}

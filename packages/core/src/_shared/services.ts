@@ -60,7 +60,7 @@ export function createServices(container: ServiceContainer): Services {
     venues: new VenueService(container.repositories.venues, container.logger),
     users: new UserService(container.repositories.users, container.logger),
     reviews: new ReviewService(container.repositories.reviews, container.logger),
-    ratings: new RatingService(container.repositories.ratings, container.logger),
+    ratings: new RatingService(container.repositories.ratings),
     attendances: new AttendanceService(container.repositories.attendances, container.logger),
     songPageComposer: new SongPageComposer(container.db, container.repositories.songs),
     tourDatesService: new TourDatesService(container.redis),

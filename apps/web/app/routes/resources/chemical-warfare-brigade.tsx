@@ -1,5 +1,4 @@
 import type React from "react";
-import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { publicLoader } from "~/lib/base-loaders";
@@ -462,7 +461,7 @@ const ChemicalWarfareBrigade: React.FC = () => {
     }
   };
 
-  const OperaMenuCard = ({ title, items }: { title: string; items: { name: string; anchor: string }[] }) => (
+  const _OperaMenuCard = ({ title, items }: { title: string; items: { name: string; anchor: string }[] }) => (
     <Card className="mb-6 card-premium">
       <CardContent className="p-4">
         <h3 className="text-lg font-semibold mb-3 text-content-text-primary">{title}</h3>

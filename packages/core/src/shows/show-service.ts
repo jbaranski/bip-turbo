@@ -1,7 +1,6 @@
 import type { Logger, Show } from "@bip/domain";
 import type { FilterCondition, QueryOptions } from "../_shared/database/types";
 import type { ShowRepository } from "./show-repository";
-import type { ShowCreateInput } from "./show-repository";
 
 export interface ShowFilter {
   year?: number;

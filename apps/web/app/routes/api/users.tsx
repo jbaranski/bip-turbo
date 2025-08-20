@@ -1,8 +1,8 @@
 import type { ActionFunctionArgs } from "react-router-dom";
 import { z } from "zod";
+import honeybadger from "~/lib/honeybadger";
 import { services } from "~/server/services";
 import { getServerClient } from "~/server/supabase";
-import honeybadger from "~/lib/honeybadger";
 
 const updateUserSchema = z.object({
   username: z.string().min(3).max(50).optional(),

@@ -173,7 +173,7 @@ export class UserRepository {
         data: dbData,
       });
       return mapUserToDomainEntity(result);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -184,7 +184,7 @@ export class UserRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

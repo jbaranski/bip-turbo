@@ -29,24 +29,19 @@ export class ShowRepository {
 
   private async generateShowSlug(date: string, venueId?: string): Promise<string> {
     let slug = slugify(String(date));
-    
+
     if (venueId) {
       const venue = await this.db.venue.findUnique({
         where: { id: venueId },
-        select: { name: true, city: true, state: true }
+        select: { name: true, city: true, state: true },
       });
-      
+
       if (venue) {
-        const venueParts = [
-          String(date),
-          venue.name,
-          venue.city,
-          venue.state
-        ].filter(Boolean).join("-");
+        const venueParts = [String(date), venue.name, venue.city, venue.state].filter(Boolean).join("-");
         slug = slugify(venueParts);
       }
     }
-    
+
     return slug;
   }
 
@@ -150,7 +145,7 @@ export class ShowRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -158,7 +153,7 @@ export class ShowRepository {
   async create(data: ShowCreateInput): Promise<Show> {
     const venueId = data.venue?.connect?.id;
     const slug = await this.generateShowSlug(String(data.date), venueId);
-    
+
     const result = await this.db.show.create({
       data: {
         date: data.date,
@@ -176,22 +171,22 @@ export class ShowRepository {
 
   async update(slug: string, data: Partial<ShowCreateInput>): Promise<Show> {
     let newSlug: string | undefined;
-    
+
     // If date or venue is being updated, regenerate the slug
     if (data.date || data.venue) {
       // Get current show to have fallback values
       const currentShow = await this.db.show.findUnique({
         where: { slug },
-        select: { date: true, venueId: true }
+        select: { date: true, venueId: true },
       });
-      
+
       if (currentShow) {
         const date = data.date || currentShow.date;
         const venueId = data.venue?.connect?.id || currentShow.venueId || undefined;
         newSlug = await this.generateShowSlug(String(date), venueId);
       }
     }
-    
+
     const result = await this.db.show.update({
       where: { slug },
       data: {

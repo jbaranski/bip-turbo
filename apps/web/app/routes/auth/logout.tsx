@@ -1,7 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useEffect } from "react";
-import { useRouteLoaderData } from "react-router-dom";
 import type { LoaderFunctionArgs } from "react-router-dom";
+import { useRouteLoaderData } from "react-router-dom";
+import { clearAllCookies } from "~/lib/cookies";
 import type { RootData } from "~/root";
 import { getServerClient } from "~/server/supabase";
 
@@ -32,10 +33,7 @@ export default function Logout() {
         }
 
         // Clear any cookies
-        for (const cookie of document.cookie.split(";")) {
-          const [name] = cookie.split("=");
-          document.cookie = `${name.trim()}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-        }
+        await clearAllCookies();
 
         // Clear any session storage
         sessionStorage.clear();

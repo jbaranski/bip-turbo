@@ -1,55 +1,75 @@
 import type { ContentFormatter } from "./base-content-formatter";
 
+// Helper function to safely cast venue data
+function asVenue(venue: Record<string, unknown>) {
+  return venue as {
+    name?: string;
+    city?: string;
+    state?: string;
+    timesPlayed?: number;
+    shows?: Array<{
+      date?: string;
+      averageRating?: number;
+    }>;
+    country?: string;
+    latitude?: number;
+    longitude?: number;
+    postalCode?: string;
+  };
+}
+
 export class VenueContentFormatter implements ContentFormatter {
   entityType = "venue";
 
-  generateDisplayText(venue: any): string {
-    let displayText = venue.name || "Unknown Venue";
+  generateDisplayText(venue: Record<string, unknown>): string {
+    const v = asVenue(venue);
+    let displayText = v.name || "Unknown Venue";
 
-    if (venue.city && venue.state) {
-      displayText += ` • ${venue.city}, ${venue.state}`;
+    if (v.city && v.state) {
+      displayText += ` • ${v.city}, ${v.state}`;
     }
 
-    if (venue.timesPlayed > 0) {
-      displayText += ` • ${venue.timesPlayed} shows`;
+    if (v.timesPlayed && v.timesPlayed > 0) {
+      displayText += ` • ${v.timesPlayed} shows`;
     }
 
     return displayText;
   }
 
-  generateContent(venue: any): string {
+  generateContent(venue: Record<string, unknown>): string {
     // Implementation following strategy: "[Venue Name] in [City, State]. [Times played]. Notable shows from database. [Basic characteristics from existing data]."
 
-    const venueName = venue.name || "Unknown Venue";
+    const v = asVenue(venue);
+    const venueName = v.name || "Unknown Venue";
 
     // Emphasize venue name by repeating it (like we do for songs)
     let content = `${venueName}. Venue name: ${venueName}. Concert venue: ${venueName}`;
 
-    if (venue.city && venue.state) {
-      content += ` in ${venue.city}, ${venue.state}`;
+    if (v.city && v.state) {
+      content += ` in ${v.city}, ${v.state}`;
     }
 
-    if (venue.timesPlayed !== undefined) {
-      content += `. Played ${venue.timesPlayed} times`;
+    if (v.timesPlayed !== undefined) {
+      content += `. Played ${v.timesPlayed} times`;
     }
 
     // Add notable shows from database
-    if (venue.shows && venue.shows.length > 0) {
-      const notableShows = venue.shows
-        .sort((a: any, b: any) => {
+    if (v.shows && v.shows.length > 0) {
+      const notableShows = v.shows
+        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
           // Sort by rating first, then by date
           if (a.averageRating && b.averageRating) {
-            return b.averageRating - a.averageRating;
+            return (b.averageRating as number) - (a.averageRating as number);
           }
-          return new Date(b.date).getTime() - new Date(a.date).getTime();
+          return new Date(b.date as string).getTime() - new Date(a.date as string).getTime();
         })
         .slice(0, 5); // Top 5 shows
 
       if (notableShows.length > 0) {
-        const showDescriptions = notableShows.map((show: any) => {
+        const showDescriptions = notableShows.map((show: Record<string, unknown>) => {
           let desc = show.date;
-          if (show.averageRating && show.averageRating > 0) {
-            desc += ` (★${show.averageRating.toFixed(1)})`;
+          if (show.averageRating && (show.averageRating as number) > 0) {
+            desc += ` (★${(show.averageRating as number).toFixed(1)})`;
           }
           return desc;
         });
@@ -60,18 +80,18 @@ export class VenueContentFormatter implements ContentFormatter {
     // Add basic characteristics from existing data
     const characteristics: string[] = [];
 
-    if (venue.country && venue.country !== "USA") {
-      characteristics.push(`international venue (${venue.country})`);
+    if (v.country && v.country !== "USA") {
+      characteristics.push(`international venue (${v.country})`);
     }
 
     // Add location coordinates if available
-    if (venue.latitude && venue.longitude) {
-      characteristics.push(`coordinates: ${venue.latitude}, ${venue.longitude}`);
+    if (v.latitude && v.longitude) {
+      characteristics.push(`coordinates: ${v.latitude}, ${v.longitude}`);
     }
 
     // Add postal code for identification
-    if (venue.postalCode) {
-      characteristics.push(`postal code: ${venue.postalCode}`);
+    if (v.postalCode) {
+      characteristics.push(`postal code: ${v.postalCode}`);
     }
 
     if (characteristics.length > 0) {

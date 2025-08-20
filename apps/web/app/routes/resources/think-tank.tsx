@@ -1,5 +1,4 @@
 import type React from "react";
-import { Link } from "react-router-dom";
 import { publicLoader } from "~/lib/base-loaders";
 
 export const loader = publicLoader<void>(async () => {});
@@ -18,7 +17,7 @@ interface SoundCloudLink {
   title: string;
 }
 
-const p = ({ children }: { children: React.ReactNode }) => {
+const _p = ({ children }: { children: React.ReactNode }) => {
   return <div className="mb-4 text-content-text-tertiary">{children}</div>;
 };
 
