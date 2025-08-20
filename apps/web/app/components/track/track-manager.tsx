@@ -104,9 +104,23 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       if (!response.ok) throw new Error("Failed to create track");
       return response.json();
     },
-    onSuccess: (newTrack) => {
+    onSuccess: async (newTrack) => {
+      // Fetch song information for the newly created track
+      let trackWithSong = newTrack;
+      if (newTrack.songId && !newTrack.song) {
+        try {
+          const response = await fetch(`/api/songs/${newTrack.songId}`);
+          if (response.ok) {
+            const song = await response.json();
+            trackWithSong = { ...newTrack, song };
+          }
+        } catch (error) {
+          console.error("Failed to fetch song:", error);
+        }
+      }
+
       setTracks((prev) =>
-        [...prev, newTrack].sort((a, b) => {
+        [...prev, trackWithSong].sort((a, b) => {
           if (a.set !== b.set) return sortSets(a.set, b.set);
           return a.position - b.position;
         }),

@@ -96,6 +96,7 @@ export default [
     route("attendances", "routes/api/attendances.tsx"),
     route("venues", "routes/api/venues.tsx"),
     route("songs", "routes/api/songs.tsx"),
+    route("songs/:id", "routes/api/songs/$id.tsx"),
     route("tracks", "routes/api/tracks.tsx"),
     route("tracks/reorder", "routes/api/tracks/reorder.tsx"),
     route("tracks/:id", "routes/api/tracks/$id.tsx"),
