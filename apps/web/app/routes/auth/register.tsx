@@ -1,8 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
-import { redirect, useRouteLoaderData } from "react-router-dom";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate, useRouteLoaderData } from "react-router-dom";
 import { RegisterForm } from "~/components/register-form";
 import type { RootData } from "~/root";
 import { getServerClient } from "~/server/supabase";

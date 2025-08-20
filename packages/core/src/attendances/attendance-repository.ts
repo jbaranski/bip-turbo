@@ -1,6 +1,6 @@
 import type { Attendance, AttendanceWithUser } from "@bip/domain";
 import type { DbAttendance, DbClient, DbUser } from "../_shared/database/models";
-import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
+import { buildOrderByClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
 import { mapToUserMinimal } from "../users/user-repository";
 
@@ -123,21 +123,21 @@ export class AttendanceRepository {
       },
     });
 
-    return results.map((result: any) => ({
-      id: result.id,
-      userId: result.userId,
-      showId: result.showId,
-      createdAt: new Date(result.createdAt),
-      updatedAt: new Date(result.updatedAt),
+    return results.map((result: Record<string, unknown>) => ({
+      id: result.id as string,
+      userId: result.userId as string,
+      showId: result.showId as string,
+      createdAt: new Date(result.createdAt as string),
+      updatedAt: new Date(result.updatedAt as string),
       show: {
-        id: result.show.id,
-        slug: result.show.slug,
-        date: result.show.date,
-        venue: result.show.venue
+        id: (result.show as Record<string, unknown>).id as string,
+        slug: (result.show as Record<string, unknown>).slug as string,
+        date: (result.show as Record<string, unknown>).date as string,
+        venue: (result.show as Record<string, unknown>).venue
           ? {
-              name: result.show.venue.name,
-              city: result.show.venue.city,
-              state: result.show.venue.state,
+              name: ((result.show as Record<string, unknown>).venue as Record<string, unknown>).name as string,
+              city: ((result.show as Record<string, unknown>).venue as Record<string, unknown>).city as string | null,
+              state: ((result.show as Record<string, unknown>).venue as Record<string, unknown>).state as string | null,
             }
           : null,
       },
@@ -150,7 +150,7 @@ export class AttendanceRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

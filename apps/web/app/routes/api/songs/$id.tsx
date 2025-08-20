@@ -10,11 +10,11 @@ export const loader = publicLoader(async ({ params }) => {
 
   try {
     const song = await services.songs.findById(id);
-    
+
     if (!song) {
       throw new Response("Song not found", { status: 404 });
     }
-    
+
     return song;
   } catch (error) {
     console.error("Error fetching song:", error);

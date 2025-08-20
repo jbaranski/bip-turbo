@@ -86,10 +86,8 @@ function StatBox({ icon, label, value, sublabel }: StatBoxProps) {
 // Custom setlist card that displays the exact date without timezone adjustments
 function VenueSetlistCard({
   setlist,
-  onRate,
 }: {
   setlist: Setlist;
-  onRate?: (showId: string, rating: number) => Promise<void>;
 }) {
   // Create a flat array of all tracks in order for annotations
   const allTracks = [];
@@ -255,7 +253,7 @@ export default function VenuePage() {
   const queryClient = useQueryClient();
 
   // Mutation for rating
-  const rateMutation = useMutation({
+  const _rateMutation = useMutation({
     mutationFn: async ({ showId, rating }: { showId: string; rating: number }) => {
       const response = await fetch("/api/ratings", {
         method: "POST",

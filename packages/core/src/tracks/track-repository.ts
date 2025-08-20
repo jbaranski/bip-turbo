@@ -40,23 +40,28 @@ export class TrackRepository {
     return mapTrackToDbModel(entity);
   }
 
-  private async generateTrackSlug(showId: string, songId: string, showDate: string, songTitle: string): Promise<string> {
+  private async generateTrackSlug(
+    showId: string,
+    songId: string,
+    showDate: string,
+    songTitle: string,
+  ): Promise<string> {
     const baseSlug = slugify(`${showDate}-${songTitle}`);
-    
+
     // Count how many times this song already appears in the show
     const existingTracks = await this.db.track.findMany({
-      where: { 
+      where: {
         showId,
         songId,
       },
-      orderBy: { position: 'asc' }
+      orderBy: { position: "asc" },
     });
-    
+
     // If this is a repeat, add a number suffix
     if (existingTracks.length > 0) {
       return `${baseSlug}-${existingTracks.length + 1}`;
     }
-    
+
     return baseSlug;
   }
 
@@ -95,18 +100,18 @@ export class TrackRepository {
 
   async create(data: Partial<Track>): Promise<Track> {
     let slug: string | undefined;
-    
+
     if (data.showId && data.songId) {
       const [show, song] = await Promise.all([
-        this.db.show.findUnique({ where: { id: data.showId }, select: { date: true }}),
-        this.db.song.findUnique({ where: { id: data.songId }, select: { title: true }})
+        this.db.show.findUnique({ where: { id: data.showId }, select: { date: true } }),
+        this.db.song.findUnique({ where: { id: data.songId }, select: { title: true } }),
       ]);
-      
+
       if (show && song) {
         slug = await this.generateTrackSlug(data.showId, data.songId, show.date, song.title);
       }
     }
-    
+
     const dbData = this.mapToDbModel({ ...data, slug });
     const result = await this.db.track.create({
       data: dbData as any,
@@ -116,30 +121,30 @@ export class TrackRepository {
 
   async update(id: string, data: Partial<Track>): Promise<Track> {
     let updateData = this.mapToDbModel(data);
-    
+
     // If song or show changes, regenerate slug
     if (data.songId || data.showId) {
       const current = await this.db.track.findUnique({
         where: { id },
-        select: { showId: true, songId: true }
+        select: { showId: true, songId: true },
       });
-      
+
       if (current) {
         const showId = data.showId || current.showId;
         const songId = data.songId || current.songId;
-        
+
         const [show, song] = await Promise.all([
-          this.db.show.findUnique({ where: { id: showId }, select: { date: true }}),
-          this.db.song.findUnique({ where: { id: songId }, select: { title: true }})
+          this.db.show.findUnique({ where: { id: showId }, select: { date: true } }),
+          this.db.song.findUnique({ where: { id: songId }, select: { title: true } }),
         ]);
-        
+
         if (show && song) {
           const slug = await this.generateTrackSlug(showId, songId, show.date, song.title);
           updateData = { ...updateData, slug };
         }
       }
     }
-    
+
     const result = await this.db.track.update({
       where: { id },
       data: updateData as any,
@@ -173,7 +178,7 @@ export class TrackRepository {
       return a.position - b.position;
     });
 
-    return sortedResults.map((result: any) => this.mapToDomainEntity(result));
+    return sortedResults.map((result: Record<string, unknown>) => this.mapToDomainEntity(result as DbTrack));
   }
 
   async delete(id: string): Promise<boolean> {

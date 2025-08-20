@@ -1,4 +1,4 @@
-import type { Setlist, Song, Show, Venue } from "@bip/domain";
+import type { Setlist, Song, Venue } from "@bip/domain";
 
 // SEO configuration
 export const SEO_CONFIG = {

@@ -1,6 +1,6 @@
 import type { Attendance, BlogPostWithUser, Rating, Setlist, TourDate } from "@bip/domain";
-import { ArrowRight, Calendar, FileText, MapPin, Music, Search } from "lucide-react";
-import { Link, redirect } from "react-router-dom";
+import { Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import { BlogCard } from "~/components/blog/blog-card";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Card } from "~/components/ui/card";
@@ -32,7 +32,7 @@ interface LoaderData {
   recentShows: Setlist[];
 }
 
-export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
+export const loader = publicLoader<LoaderData>(async ({ context }) => {
   const { currentUser } = context;
 
   const allTourDates = Array.isArray(await services.tourDatesService.getTourDates())

@@ -25,7 +25,7 @@ export const loader = publicLoader(async ({ request }) => {
   });
 });
 
-export const action = protectedAction(async ({ request, params, context }) => {
+export const action = protectedAction(async ({ request, context }) => {
   const { currentUser } = context;
 
   if (request.method === "POST") {

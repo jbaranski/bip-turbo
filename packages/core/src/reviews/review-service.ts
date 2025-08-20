@@ -1,6 +1,6 @@
 import type { Logger, Review, ReviewMinimal } from "@bip/domain";
 import type { QueryOptions } from "../_shared/database/types";
-import type { ReviewRepository, ReviewWithShow } from "./review-repository";
+import type { ReviewRepository } from "./review-repository";
 
 export class ReviewService {
   constructor(

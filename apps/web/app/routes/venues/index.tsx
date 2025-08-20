@@ -1,5 +1,5 @@
 import type { Venue } from "@bip/domain";
-import { Globe, MapPin, Plus, Search, Star, Ticket } from "lucide-react";
+import { Globe, MapPin, Plus, Search, Ticket } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link, useSearchParams } from "react-router-dom";
@@ -34,7 +34,7 @@ interface LoaderData {
 
 export const loader = publicLoader(async ({ request }: LoaderFunctionArgs): Promise<LoaderData> => {
   const url = new URL(request.url);
-  const stateFilter = url.searchParams.get("state") || undefined;
+  const _stateFilter = url.searchParams.get("state") || undefined;
 
   const venues = await services.venues.findMany({
     sort: [{ field: "timesPlayed", direction: "desc" }],

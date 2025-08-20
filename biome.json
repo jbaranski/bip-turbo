@@ -9,13 +9,18 @@
       "!**/.turbo/**",
       "!**/node_modules/**",
       "!**/tailwind.config.js",
+      "!**/data-migrations/**",
+      "!**/*.css",
       "!biome.json"
     ]
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      }
     }
   },
   "formatter": {

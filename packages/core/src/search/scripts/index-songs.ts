@@ -12,7 +12,7 @@ async function indexSongs() {
 
   try {
     const searchIndexService = container.searchIndexService();
-    const songRepository = container.songRepository();
+    const _songRepository = container.songRepository();
     // Get all songs with related data
     console.log("📊 Fetching songs...");
     const songs = await container.db().song.findMany({

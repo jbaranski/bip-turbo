@@ -1,6 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
-import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import type { LoaderFunctionArgs } from "react-router-dom";
+import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import { toast } from "sonner";
 import { ForgotPasswordForm } from "~/components/forgot-password-form";
 import type { ClientSideEnv } from "~/root";

@@ -181,7 +181,11 @@ export function StarRating({ className, disabled, rateableId, rateableType, init
   const displayRating = hoveredRating !== null ? hoveredRating : (rating?.userRating ?? initialRating ?? 0);
 
   return (
-    <div className={cn("flex items-center gap-1 group", className)} onMouseLeave={handleMouseLeave}>
+    <fieldset
+      className={cn("flex items-center gap-1 group border-0 p-0 m-0", className)}
+      onMouseLeave={handleMouseLeave}
+    >
+      <legend className="sr-only">Star rating</legend>
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = displayRating !== null && star <= displayRating;
         const half = displayRating !== null && star - 0.5 === displayRating;
@@ -205,7 +209,7 @@ export function StarRating({ className, disabled, rateableId, rateableType, init
           </button>
         );
       })}
-    </div>
+    </fieldset>
   );
 }
 

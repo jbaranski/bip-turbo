@@ -85,7 +85,7 @@ export function useFileUpload() {
       const folder = options.folder;
 
       // Generate a unique file path
-      const timestamp = new Date().getTime();
+      const timestamp = Date.now();
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "-").toLowerCase();
       const path = `${folder}/${timestamp}-${sanitizedFileName}`;
 

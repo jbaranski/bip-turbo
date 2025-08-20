@@ -1,4 +1,3 @@
-import type { Venue } from "@bip/domain";
 import { ArrowLeft } from "lucide-react";
 import { Link, redirect, useSubmit } from "react-router-dom";
 import { Button } from "~/components/ui/button";

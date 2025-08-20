@@ -33,7 +33,7 @@ export class SearchIndexer {
         if (!entity) {
           throw new Error(`Entity required for ${type} operation`);
         }
-        await this.searchIndexService.indexEntity(entityType, entityId);
+        await this.searchIndexService.indexEntity(entity, entityType);
       }
     } catch (error) {
       // Log error but don't throw to avoid breaking the main operation

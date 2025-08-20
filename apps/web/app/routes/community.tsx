@@ -1,16 +1,15 @@
-import type { User } from "@bip/domain";
-import { UserRound, Trophy, Star, Music, Calendar, Search, FileText } from "lucide-react";
+import type { UserStats } from "@bip/core";
+import { FileText, Music, Search, Star, Trophy, UserRound } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Badge } from "~/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
 import { services } from "~/server/services";
-import type { UserStats } from "@bip/core";
-import { useState } from "react";
 
 interface LoaderData {
   allUserStats: UserStats[];
@@ -27,7 +26,7 @@ interface LoaderData {
   lastUpdated?: string;
 }
 
-export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
+export const loader = publicLoader<LoaderData>(async () => {
   const cacheKey = "community-page-data";
 
   // Always try to get from cache first
@@ -97,7 +96,7 @@ function UserCard({ userStats }: { userStats: UserStats }) {
     userStats;
 
   // All scores use consistent brand color
-  const getScoreColor = () => "text-brand-primary";
+  const _getScoreColor = () => "text-brand-primary";
 
   // Show multiple badges (up to 3 for space)
   const displayBadges = badges?.slice(0, 3) || [];

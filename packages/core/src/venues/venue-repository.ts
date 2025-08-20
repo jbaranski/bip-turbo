@@ -31,23 +31,28 @@ export class VenueRepository {
     return mapVenueToDbModel(entity);
   }
 
-  private async generateVenueSlug(name: string, city?: string | null, state?: string | null, excludeId?: string): Promise<string> {
+  private async generateVenueSlug(
+    name: string,
+    city?: string | null,
+    state?: string | null,
+    excludeId?: string,
+  ): Promise<string> {
     let baseSlug = slugify(name);
-    
+
     // Check if slug already exists (excluding current venue if updating)
     const existing = await this.db.venue.findFirst({
-      where: { 
+      where: {
         slug: baseSlug,
-        ...(excludeId && { id: { not: excludeId } })
-      }
+        ...(excludeId && { id: { not: excludeId } }),
+      },
     });
-    
+
     // If duplicate, add city and state
     if (existing) {
       const parts = [name, city, state].filter(Boolean).join("-");
       baseSlug = slugify(parts);
     }
-    
+
     return baseSlug;
   }
 
@@ -98,19 +103,19 @@ export class VenueRepository {
   }
 
   async update(id: string, data: Partial<Venue>): Promise<Venue> {
-    const updateData: any = {
+    const updateData: Partial<DbVenue> & { updatedAt: Date; slug?: string } = {
       ...this.mapToDbModel(data),
       updatedAt: new Date(),
     };
-    
+
     // Regenerate slug if name, city, or state changes
     if (data.name || data.city || data.state) {
       // Get current venue for fallback values
       const current = await this.db.venue.findUnique({
         where: { id },
-        select: { name: true, city: true, state: true }
+        select: { name: true, city: true, state: true },
       });
-      
+
       if (current) {
         const name = data.name || current.name || "";
         const city = data.city || current.city;
@@ -118,7 +123,7 @@ export class VenueRepository {
         updateData.slug = await this.generateVenueSlug(name, city, state, id);
       }
     }
-    
+
     const result = await this.db.venue.update({
       where: { id },
       data: updateData,
@@ -132,7 +137,7 @@ export class VenueRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

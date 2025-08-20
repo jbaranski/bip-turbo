@@ -1,14 +1,12 @@
-import type { LoaderFunctionArgs, MetaFunction } from "react-router-dom";
-import { useLoaderData } from "react-router-dom";
 import { CalendarDays, Edit, MessageSquare, Star, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import type { LoaderFunctionArgs, MetaFunction } from "react-router-dom";
+import { Link, useLoaderData } from "react-router-dom";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import { SetlistCard } from "~/components/setlist/setlist-card";
-import { services } from "~/server/services";
 import { formatDateLong } from "~/lib/utils";
+import { services } from "~/server/services";
 import { getServerClient } from "~/server/supabase";
 
 export const meta: MetaFunction<typeof loader> = ({ data }) => {
@@ -56,7 +54,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   });
 
   // Get user's blog posts (simplified - we'll enhance this later)
-  const blogPosts: any[] = []; // TODO: Implement blog post retrieval
+  const blogPosts: Array<Record<string, unknown>> = []; // TODO: Implement blog post retrieval
 
   // Get user's attendances with show data
   const userAttendances = await services.attendances.findByUserIdWithShow(user.id, {
@@ -456,12 +454,12 @@ export default function UserProfile() {
                         </Link>
                       </CardTitle>
                       <span className="text-sm text-content-text-tertiary">
-                        {formatDateLong(post.createdAt.toISOString())}
+                        {formatDateLong(post.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString())}
                       </span>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-content-text-secondary line-clamp-3">{post.content?.substring(0, 200)}...</p>
+                    <p className="text-content-text-secondary line-clamp-3">{(post.content || "").substring(0, 200)}...</p>
                     <Link
                       to={`/blog/${post.slug}`}
                       className="inline-flex items-center gap-1 text-brand-primary hover:text-brand-secondary text-sm font-medium mt-3 hover:underline transition-colors"

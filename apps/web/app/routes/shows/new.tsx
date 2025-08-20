@@ -1,4 +1,3 @@
-import type { Show } from "@bip/domain";
 import { ArrowLeft } from "lucide-react";
 import { Link, redirect, useSubmit } from "react-router-dom";
 import { ShowForm, type ShowFormValues } from "~/components/show/show-form";

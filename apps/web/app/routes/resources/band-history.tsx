@@ -1,8 +1,8 @@
 import { Twitter } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { publicLoader } from "~/lib/base-loaders";
 
 const Link = (props: React.ComponentProps<typeof RouterLink>) => (
@@ -36,7 +36,7 @@ export function meta() {
 }
 
 const BandHistory: React.FC = () => {
-  const [data, setData] = useState<BandHistoryData>({
+  const [data, _setData] = useState<BandHistoryData>({
     currentMembers: [
       { name: "Jon Gutwillig", instrument: "Guitar", twitter: "BarberShreds" },
       { name: "Marc Brownstein", instrument: "Bass", twitter: "Marc_Brownstein" },
