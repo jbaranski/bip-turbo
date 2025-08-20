@@ -56,6 +56,9 @@ db-reset:
 db-generate:
 	cd packages/core && bun prisma:generate
 
+db-reset-prod:
+	cd packages/core && bun prisma:reset
+
 db-introspect:
 	cd packages/core && bun prisma:introspect
 
