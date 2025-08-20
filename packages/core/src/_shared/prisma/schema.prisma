@@ -433,8 +433,8 @@ model Track {
   set             String       @db.VarChar
   position        Int
   segue           String?      @db.VarChar
-  createdAt       DateTime     @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime     @map("updated_at") @db.Timestamp(6)
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
   likesCount      Int          @default(0) @map("likes_count")
   slug            String?      @unique(map: "tracks_slug_unique") @db.VarChar
   note            String?      @db.VarChar
