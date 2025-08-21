@@ -42,15 +42,17 @@ interface StatBoxProps {
   label: string;
   value: string | number;
   sublabel?: string;
+  sublabel2?: string;
 }
 
-function StatBox({ label, value, sublabel }: StatBoxProps) {
+function StatBox({ label, value, sublabel, sublabel2 }: StatBoxProps) {
   return (
     <div className="glass-content p-6 rounded-lg">
       <dt className="text-sm font-medium text-content-text-secondary">{label}</dt>
       <dd className="mt-2">
         <span className="text-3xl font-bold text-content-text-primary">{value}</span>
         {sublabel && <span className="ml-2 text-sm text-content-text-tertiary">{sublabel}</span>}
+        {sublabel2 && <div className="mt-3 text-sm text-content-text-tertiary">{sublabel2}</div>}
       </dd>
     </div>
   );
@@ -335,11 +337,29 @@ export default function SongPage() {
         <StatBox
           label="Last Played"
           value={
-            song.dateLastPlayed
-              ? new Date(song.dateLastPlayed).toLocaleDateString("en-US", {
-                  timeZone: "UTC",
-                })
+            song.actualLastPlayedDate
+              ? (() => {
+                  const date = new Date(song.actualLastPlayedDate);
+                  const month = date.getUTCMonth() + 1;
+                  const day = date.getUTCDate();
+                  const year = date.getUTCFullYear();
+                  return `${month}/${day}/${year}`;
+                })()
               : "Never"
+          }
+          sublabel={
+            song.actualLastPlayedDate && song.showsSinceLastPlayed !== null && song.showsSinceLastPlayed !== undefined
+              ? song.showsSinceLastPlayed <= 1
+                ? "last show"
+                : `${song.showsSinceLastPlayed} shows ago`
+              : undefined
+          }
+          sublabel2={
+            song.lastVenue
+              ? song.lastVenue.city && song.lastVenue.state
+                ? `${song.lastVenue.name}, ${song.lastVenue.city}, ${song.lastVenue.state}`
+                : song.lastVenue.name
+              : undefined
           }
         />
         <StatBox label="Most Common Year" value={song.mostCommonYear || "—"} />

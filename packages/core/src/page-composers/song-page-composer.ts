@@ -13,6 +13,53 @@ export class SongPageComposer {
 
     if (!song) throw new Error("Song not found");
 
+    // Calculate shows since last played and get last venue
+    let showsSinceLastPlayed: number | null = null;
+    if (song.dateLastPlayed) {
+      const showsAfterLastPlayed = await this.db.$queryRaw<[{ count: string }]>`
+        SELECT COUNT(*)::text as count
+        FROM shows 
+        WHERE date::date > ${song.dateLastPlayed}::date
+      `;
+      showsSinceLastPlayed = parseInt(showsAfterLastPlayed[0].count);
+    }
+
+    // Get actual last performance date and venue
+    let actualLastPlayedDate: Date | null = null;
+    let lastVenue: { name: string; city?: string; state?: string } | null = null;
+    const lastPerformance = await this.db.$queryRaw<[{ show_date: string | null; venue_name: string | null; venue_city: string | null; venue_state: string | null }]>`
+      SELECT shows.date as show_date, venues.name as venue_name, venues.city as venue_city, venues.state as venue_state
+      FROM tracks
+      JOIN shows ON tracks.show_id = shows.id
+      LEFT JOIN venues ON shows.venue_id = venues.id
+      WHERE tracks.song_id = ${song.id}::uuid
+      ORDER BY shows.date DESC
+      LIMIT 1
+    `;
+    
+    if (lastPerformance[0]) {
+      if (lastPerformance[0].show_date) {
+        actualLastPlayedDate = new Date(lastPerformance[0].show_date);
+      }
+      if (lastPerformance[0].venue_name) {
+        lastVenue = {
+          name: lastPerformance[0].venue_name,
+          city: lastPerformance[0].venue_city || undefined,
+          state: lastPerformance[0].venue_state || undefined,
+        };
+      }
+    }
+
+    // Recalculate shows since last played using the actual date
+    if (actualLastPlayedDate) {
+      const showsAfterLastPlayed = await this.db.$queryRaw<[{ count: string }]>`
+        SELECT COUNT(*)::text as count
+        FROM shows 
+        WHERE date::date > ${actualLastPlayedDate}::date
+      `;
+      showsSinceLastPlayed = parseInt(showsAfterLastPlayed[0].count);
+    }
+
     const result = await this.db.$queryRaw<PerformanceDto[]>`
       SELECT
         shows.id,
@@ -57,7 +104,12 @@ export class SongPageComposer {
     const performances = result.map((row: PerformanceDto) => this.transformToSongPagePerformanceView(row));
 
     return {
-      song,
+      song: {
+        ...song,
+        actualLastPlayedDate,
+        showsSinceLastPlayed,
+        lastVenue,
+      },
       performances,
     };
   }
