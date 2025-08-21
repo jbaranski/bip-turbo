@@ -31,7 +31,7 @@ export const loader = adminLoader(async ({ params }) => {
   }
 
   // Get venues for the venue selector
-  const venues = await services.venues.findMany();
+  const venues = await services.venues.findMany({});
 
   // Get tracks for this show
   const tracks = await services.tracks.findByShowId(show.id);

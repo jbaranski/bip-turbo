@@ -25,7 +25,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       return redirect("/auth/reset-password", { headers });
     }
 
-    logger.info("Redirecting to next page", { next });
+    logger.info({ message: "Redirecting to next page", next });
     return redirect(next, { headers });
   }
 
