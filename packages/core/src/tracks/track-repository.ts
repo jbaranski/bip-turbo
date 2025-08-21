@@ -1,4 +1,5 @@
 import type { Annotation, Track } from "@bip/domain";
+import type { CacheInvalidationService } from "../_shared/cache";
 import type { DbAnnotation, DbClient, DbTrack } from "../_shared/database/models";
 import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
@@ -30,7 +31,10 @@ export function mapTrackToDbModel(entity: Partial<Track>): Partial<DbTrack> {
 }
 
 export class TrackRepository {
-  constructor(private readonly db: DbClient) {}
+  constructor(
+    private readonly db: DbClient,
+    private readonly cacheInvalidation?: CacheInvalidationService,
+  ) {}
 
   protected mapToDomainEntity(dbTrack: DbTrack): Track {
     return mapTrackToDomainEntity(dbTrack);
@@ -38,6 +42,20 @@ export class TrackRepository {
 
   protected mapToDbModel(entity: Partial<Track>): Partial<DbTrack> {
     return mapTrackToDbModel(entity);
+  }
+
+  private async invalidateShowCaches(showId: string): Promise<void> {
+    if (!this.cacheInvalidation) return;
+
+    // Get show slug for invalidation
+    const show = await this.db.show.findUnique({
+      where: { id: showId },
+      select: { slug: true },
+    });
+
+    if (show?.slug) {
+      await this.cacheInvalidation.invalidateShowComprehensive(showId, show.slug);
+    }
   }
 
   private async generateTrackSlug(
@@ -57,12 +75,15 @@ export class TrackRepository {
       orderBy: { position: "asc" },
     });
 
-    // If this is a repeat, add a number suffix
+    // Add random chars to ensure uniqueness
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+
+    // If this is a repeat, add a number suffix + random chars
     if (existingTracks.length > 0) {
-      return `${baseSlug}-${existingTracks.length + 1}`;
+      return `${baseSlug}-${existingTracks.length + 1}-${randomSuffix}`;
     }
 
-    return baseSlug;
+    return `${baseSlug}-${randomSuffix}`;
   }
 
   async findById(id: string): Promise<Track | null> {
@@ -131,7 +152,15 @@ export class TrackRepository {
       // biome-ignore lint/suspicious/noExplicitAny: Prisma type requires any for dynamic data mapping
       data: dbData as any,
     });
-    return this.mapToDomainEntity(result);
+
+    const track = this.mapToDomainEntity(result);
+
+    // Invalidate show caches (track changes affect setlist data)
+    if (this.cacheInvalidation && data.showId) {
+      await this.invalidateShowCaches(data.showId);
+    }
+
+    return track;
   }
 
   async update(id: string, data: Partial<Track>): Promise<Track> {
@@ -160,12 +189,26 @@ export class TrackRepository {
       }
     }
 
+    // Get current track info for cache invalidation
+    const currentTrack = await this.db.track.findUnique({
+      where: { id },
+      select: { showId: true },
+    });
+
     const result = await this.db.track.update({
       where: { id },
       // biome-ignore lint/suspicious/noExplicitAny: Prisma type requires any for dynamic data mapping
       data: updateData as any,
     });
-    return this.mapToDomainEntity(result);
+
+    const track = this.mapToDomainEntity(result);
+
+    // Invalidate show caches
+    if (currentTrack?.showId) {
+      await this.invalidateShowCaches(currentTrack.showId);
+    }
+
+    return track;
   }
 
   async findByShowId(showId: string): Promise<Track[]> {
@@ -208,9 +251,21 @@ export class TrackRepository {
   }
 
   async delete(id: string): Promise<boolean> {
+    // Get track info before deletion for cache invalidation
+    const track = await this.db.track.findUnique({
+      where: { id },
+      select: { showId: true },
+    });
+
     await this.db.track.delete({
       where: { id },
     });
+
+    // Invalidate show caches
+    if (track?.showId) {
+      await this.invalidateShowCaches(track.showId);
+    }
+
     return true;
   }
 }

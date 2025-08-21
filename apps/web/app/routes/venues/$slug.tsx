@@ -1,11 +1,12 @@
 import type { Setlist, Venue } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import { ArrowLeft, CalendarDays, Edit, MapPin, Ticket } from "lucide-react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { AdminOnly } from "~/components/admin/admin-only";
+import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
@@ -83,161 +84,6 @@ function StatBox({ icon, label, value, sublabel }: StatBoxProps) {
   );
 }
 
-// Custom setlist card that displays the exact date without timezone adjustments
-function VenueSetlistCard({
-  setlist,
-}: {
-  setlist: Setlist;
-}) {
-  // Create a flat array of all tracks in order for annotations
-  const allTracks = [];
-  for (const set of setlist.sets) {
-    for (const track of set.tracks) {
-      allTracks.push(track);
-    }
-  }
-
-  // Process annotations
-  const uniqueAnnotations = new Map<string, { index: number; desc: string }>();
-  const trackAnnotationMap = new Map<string, number>();
-  let annotationIndex = 1;
-
-  // First pass: identify all unique annotations and assign indices in order of appearance
-  for (const track of allTracks) {
-    // Get annotations for this track
-    const trackAnnotations = setlist.annotations.filter((a) => a.trackId === track.id);
-
-    for (const annotation of trackAnnotations) {
-      if (annotation.desc) {
-        // If this description hasn't been seen before, assign a new index
-        if (!uniqueAnnotations.has(annotation.desc)) {
-          uniqueAnnotations.set(annotation.desc, {
-            index: annotationIndex++,
-            desc: annotation.desc,
-          });
-        }
-
-        // Map this track to the annotation index
-        const index = uniqueAnnotations.get(annotation.desc)?.index;
-        if (index) {
-          trackAnnotationMap.set(track.id, index);
-        }
-      }
-    }
-  }
-
-  // Convert the unique annotations map to an array for display
-  const orderedAnnotations = Array.from(uniqueAnnotations.values()).sort((a, b) => a.index - b.index);
-
-  // Format the date directly from the ISO string using parseISO to avoid timezone issues
-  // This ensures we get the exact date as stored in the database
-  let formattedDate: string;
-
-  if (typeof setlist.show.date === "string") {
-    // If it's already a string, parse it directly
-    formattedDate = format(parseISO(setlist.show.date), "M/d/yyyy");
-  } else {
-    // If it's a Date object, extract the date parts and format them
-    const date = setlist.show.date as Date;
-    // Use the date parts directly to avoid timezone issues
-    formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-  }
-
-  return (
-    <Card className="card-premium relative overflow-hidden transition-all duration-300 hover:border-brand-primary/60">
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900/95 to-purple-950/20 pointer-events-none" />
-
-      <CardHeader className="relative z-10 border-b border-glass-border/50 px-6 py-5">
-        <div className="flex justify-between items-start">
-          <div className="flex flex-col gap-1">
-            <div className="text-2xl font-medium text-brand-primary hover:text-brand-secondary transition-colors">
-              <Link to={`/shows/${setlist.show.slug}`}>{formattedDate}</Link>
-            </div>
-            <div className="text-xl text-content-text-primary">
-              {setlist.venue.name} - {setlist.venue.city}, {setlist.venue.state}
-            </div>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="relative z-10 px-6 py-5">
-        {setlist.show.notes && (
-          <div className="mb-4 text-sm text-content-text-secondary italic border-l border-glass-border pl-3 py-1">
-            {setlist.show.notes}
-          </div>
-        )}
-
-        <div className="space-y-4">
-          {setlist.sets.map((set) => (
-            <div key={setlist.show.id + set.label} className="flex gap-4">
-              <span
-                className={cn(
-                  "w-9 h-9 flex items-center justify-center rounded-full text-white font-medium",
-                  set.label === "I" && "bg-brand/20",
-                  set.label === "II" && "bg-brand-secondary/20",
-                  set.label === "III" && "bg-info/20",
-                  set.label === "E" && "bg-chart-tertiary/20",
-                  !["I", "II", "III", "E"].includes(set.label) && "bg-content-bg-secondary/50",
-                )}
-              >
-                {set.label}
-              </span>
-              <div className="flex-1 pt-1">
-                {set.tracks.map((track, i) => (
-                  <span key={track.id} className="inline-flex items-baseline">
-                    <span className="inline-flex items-center gap-1">
-                      <span
-                        className={cn(
-                          "relative text-content-text-primary hover:text-brand-primary hover:underline transition-colors",
-                          track.allTimer && "font-medium",
-                        )}
-                      >
-                        {track.allTimer && <span className="text-chart-accent inline-block mr-1">🔥</span>}
-                        <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
-                        {trackAnnotationMap.has(track.id) && (
-                          <sup className="text-brand-primary ml-0.5 font-medium">
-                            {trackAnnotationMap.get(track.id)}
-                          </sup>
-                        )}
-                      </span>
-                    </span>
-                    {i < set.tracks.length - 1 && (
-                      <span className="text-content-text-secondary mx-1 font-medium">{track.segue ? " > " : ", "}</span>
-                    )}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {orderedAnnotations.length > 0 && (
-          <div className="mt-6 space-y-2 pt-4 border-t border-glass-border/50">
-            {orderedAnnotations.map((annotation) => (
-              <div key={`annotation-${annotation.index}`} className="text-sm text-content-text-secondary">
-                <sup className="text-brand-primary">{annotation.index}</sup> {annotation.desc}
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex justify-between items-end mt-6 pt-4 border-t border-glass-border/50">
-          {orderedAnnotations.length > 0 ? (
-            <div className="space-y-2">
-              {orderedAnnotations.map((annotation) => (
-                <div key={`annotation-${annotation.index}`} className="text-sm text-content-text-secondary">
-                  <sup className="text-brand-primary">{annotation.index}</sup> {annotation.desc}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div />
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 export function meta({ data }: { data: LoaderData }) {
   return getVenueMeta({
@@ -378,7 +224,15 @@ export default function VenuePage() {
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-content-text-primary mb-4">Shows at this Venue</h2>
           {setlists.length > 0 ? (
-            setlists.map((setlist) => <VenueSetlistCard key={setlist.show.id} setlist={setlist} />)
+            setlists.map((setlist) => (
+              <SetlistCard 
+                key={setlist.show.id} 
+                setlist={setlist} 
+                userAttendance={null}
+                userRating={null}
+                showRating={setlist.show.averageRating}
+              />
+            ))
           ) : (
             <div className="glass-content rounded-lg p-6 text-center text-content-text-secondary">
               No shows found for this venue.

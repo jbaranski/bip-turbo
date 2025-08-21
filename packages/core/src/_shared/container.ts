@@ -14,6 +14,7 @@ import { SongRepository } from "../songs/song-repository";
 import { TrackRepository } from "../tracks/track-repository";
 import { UserRepository } from "../users/user-repository";
 import { VenueRepository } from "../venues/venue-repository";
+import { CacheInvalidationService, CacheService } from "./cache";
 import type { DbClient } from "./database/models";
 import type { Env } from "./env";
 import { RedisService } from "./redis";
@@ -21,6 +22,8 @@ import { RedisService } from "./redis";
 export interface ServiceContainer {
   db: DbClient;
   redis: RedisService;
+  cache: CacheService;
+  cacheInvalidation: CacheInvalidationService;
   logger: Logger;
   searchIndexer: SearchIndexer;
   repositories: {
@@ -56,13 +59,19 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
   // Create search index repository first
   const searchIndexRepository = new SearchIndexRepository(db);
 
+  const redis = new RedisService(env.REDIS_URL);
+
+  // Create cache services
+  const cache = new CacheService(redis, logger);
+  const cacheInvalidation = new CacheInvalidationService(cache, logger);
+
   // Create repositories
   const repositories = {
-    annotations: new AnnotationRepository(db),
+    annotations: new AnnotationRepository(db, cacheInvalidation),
     setlists: new SetlistRepository(db),
-    shows: new ShowRepository(db),
+    shows: new ShowRepository(db, cacheInvalidation),
     songs: new SongRepository(db),
-    tracks: new TrackRepository(db),
+    tracks: new TrackRepository(db, cacheInvalidation),
     users: new UserRepository(db),
     venues: new VenueRepository(db),
     blogPosts: new BlogPostRepository(db),
@@ -73,14 +82,14 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
     searchIndex: searchIndexRepository,
   };
 
-  const redis = new RedisService(env.REDIS_URL);
-
   // Create SearchIndexer - will be initialized with SearchIndexService later
   const searchIndexer = new SearchIndexer();
 
   return {
     db,
     redis,
+    cache,
+    cacheInvalidation,
     logger,
     searchIndexer,
     repositories,

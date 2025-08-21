@@ -1,5 +1,6 @@
 import type { Show } from "@bip/domain";
 import type { Prisma } from "@prisma/client";
+import type { CacheInvalidationService } from "../_shared/cache";
 import type { DbClient, DbShow } from "../_shared/database/models";
 import { buildIncludeClause, buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
@@ -25,7 +26,10 @@ export function mapShowToDbModel(show: Partial<Show>): Partial<DbShow> {
 }
 
 export class ShowRepository {
-  constructor(protected db: DbClient) {}
+  constructor(
+    protected db: DbClient,
+    protected cacheInvalidation?: CacheInvalidationService,
+  ) {}
 
   private async generateShowSlug(date: string, venueId?: string): Promise<string> {
     let slug = slugify(String(date));
@@ -141,9 +145,21 @@ export class ShowRepository {
 
   async delete(id: string): Promise<boolean> {
     try {
+      // Get show data before deletion for cache invalidation
+      const show = await this.db.show.findUnique({
+        where: { id },
+        select: { slug: true },
+      });
+
       await this.db.show.delete({
         where: { id },
       });
+
+      // Invalidate caches
+      if (this.cacheInvalidation && show?.slug) {
+        await this.cacheInvalidation.invalidateShowComprehensive(id, show.slug);
+      }
+
       return true;
     } catch (_error) {
       return false;
@@ -166,25 +182,35 @@ export class ShowRepository {
         updatedAt: new Date(),
       },
     });
-    return mapShowToDomainEntity(result);
+
+    const show = mapShowToDomainEntity(result);
+
+    // Invalidate show listing caches (new show affects listings)
+    if (this.cacheInvalidation) {
+      await this.cacheInvalidation.invalidateShowListings();
+    }
+
+    return show;
   }
 
   async update(slug: string, data: Partial<ShowCreateInput>): Promise<Show> {
     let newSlug: string | undefined;
 
+    // Get current show data for cache invalidation
+    const currentShow = await this.db.show.findUnique({
+      where: { slug },
+      select: { id: true, date: true, venueId: true },
+    });
+
+    if (!currentShow) {
+      throw new Error(`Show with slug ${slug} not found`);
+    }
+
     // If date or venue is being updated, regenerate the slug
     if (data.date || data.venue) {
-      // Get current show to have fallback values
-      const currentShow = await this.db.show.findUnique({
-        where: { slug },
-        select: { date: true, venueId: true },
-      });
-
-      if (currentShow) {
-        const date = data.date || currentShow.date;
-        const venueId = data.venue?.connect?.id || currentShow.venueId || undefined;
-        newSlug = await this.generateShowSlug(String(date), venueId);
-      }
+      const date = data.date || currentShow.date;
+      const venueId = data.venue?.connect?.id || currentShow.venueId || undefined;
+      newSlug = await this.generateShowSlug(String(date), venueId);
     }
 
     const result = await this.db.show.update({
@@ -195,6 +221,24 @@ export class ShowRepository {
         updatedAt: new Date(),
       },
     });
-    return mapShowToDomainEntity(result);
+
+    const show = mapShowToDomainEntity(result);
+
+    // Invalidate caches
+    if (this.cacheInvalidation) {
+      if (newSlug && newSlug !== slug) {
+        // Slug changed - invalidate both old and new
+        await Promise.all([
+          this.cacheInvalidation.invalidateShow(slug), // old slug
+          this.cacheInvalidation.invalidateShow(newSlug), // new slug
+          this.cacheInvalidation.invalidateShowListings(),
+        ]);
+      } else {
+        // Regular update - invalidate current show and listings
+        await this.cacheInvalidation.invalidateShowComprehensive(currentShow.id, slug);
+      }
+    }
+
+    return show;
   }
 }
