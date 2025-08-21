@@ -1,17 +1,16 @@
-import type { LoaderFunctionArgs, MetaFunction } from "react-router-dom";
-import { Form, useLoaderData, useNavigation } from "react-router-dom";
+import type { User } from "@bip/domain";
 import { ArrowLeft, Upload, User as UserIcon } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
+import type { MetaFunction } from "react-router-dom";
+import { Form, Link, useLoaderData, useNavigation } from "react-router-dom";
 import { toast } from "sonner";
-import { useSession } from "~/hooks/use-session";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useSession } from "~/hooks/use-session";
 import { protectedLoader } from "~/lib/base-loaders";
 import { services } from "~/server/services";
-import type { User } from "@bip/domain";
 
 export const meta: MetaFunction = () => {
   return [
@@ -65,7 +64,7 @@ export default function ProfileEdit() {
         const error = await response.json();
         toast.error(error.error || "Failed to update profile");
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error("Failed to update profile");
     } finally {
       setIsSubmitting(false);

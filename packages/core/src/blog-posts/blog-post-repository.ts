@@ -1,8 +1,6 @@
-import type { BlogPost, BlogPostState, BlogPostType } from "@bip/domain";
-import type { DbBlogPost } from "../_shared/database/models";
-import type { DbClient } from "../_shared/database/models";
-import { buildOrderByClause } from "../_shared/database/query-utils";
-import { buildWhereClause } from "../_shared/database/query-utils";
+import type { BlogPost, BlogPostState, BlogPostType, BlogPostWithUser, BlogPostWithFiles } from "@bip/domain";
+import type { DbBlogPost, DbClient } from "../_shared/database/models";
+import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
 import { slugify } from "../_shared/utils/slugify";
 
@@ -44,7 +42,7 @@ export class BlogPostRepository {
     return result ? mapBlogPostToDomainEntity(result) : null;
   }
 
-  async findBySlugWithFiles(slug: string): Promise<any | null> {
+  async findBySlugWithFiles(slug: string): Promise<BlogPostWithFiles | null> {
     const result = await this.db.blogPost.findFirst({
       where: { slug },
       include: {
@@ -59,12 +57,12 @@ export class BlogPostRepository {
     if (!result) return null;
 
     const files = result.files || [];
-    const coverFile = files.find((f: any) => f.isCover);
+    const coverFile = files.find((f: Record<string, unknown>) => f.isCover);
     const coverImage = coverFile
-      ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}`
+      ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${(coverFile.file as Record<string, unknown>).path}`
       : undefined;
 
-    const imageUrls = files.map((f: any) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${f.file.path}`);
+    const imageUrls = files.map((f: Record<string, unknown>) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${(f.file as Record<string, unknown>).path}`);
 
     return {
       ...mapBlogPostToDomainEntity(result),
@@ -112,7 +110,7 @@ export class BlogPostRepository {
     return domainBlogPosts;
   }
 
-  async findManyWithUser(options?: QueryOptions<BlogPost>): Promise<any[]> {
+  async findManyWithUser(options?: QueryOptions<BlogPost>): Promise<BlogPostWithUser[]> {
     const where = options?.filters ? buildWhereClause(options.filters) : {};
     const orderBy = options?.sort ? buildOrderByClause(options.sort) : [{ publishedAt: "desc" }];
     const skip =
@@ -141,18 +139,18 @@ export class BlogPostRepository {
       },
     });
 
-    const domainBlogPosts = blogPosts.map((blogPost: any) => {
-      const files = blogPost.files || [];
-      const coverFile = files.find((f: any) => f.isCover);
+    const domainBlogPosts = blogPosts.map((blogPost: Record<string, unknown>) => {
+      const files = (blogPost.files as Record<string, unknown>[]) || [];
+      const coverFile = files.find((f: Record<string, unknown>) => f.isCover);
       const coverImage = coverFile
-        ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${coverFile.file.path}`
+        ? `${process.env.SUPABASE_STORAGE_URL}/object/public/${(coverFile.file as Record<string, unknown>).path}`
         : undefined;
 
-      const imageUrls = files.map((f: any) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${f.file.path}`);
+      const imageUrls = files.map((f: Record<string, unknown>) => `${process.env.SUPABASE_STORAGE_URL}/object/public/${(f.file as Record<string, unknown>).path}`);
 
       return {
-        ...mapBlogPostToDomainEntity(blogPost),
-        user: blogPost.user,
+        ...mapBlogPostToDomainEntity(blogPost as DbBlogPost),
+        user: blogPost.user as { id: string; username: string; avatarUrl: string | null; },
         coverImage,
         imageUrls,
       };

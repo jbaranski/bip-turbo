@@ -1,6 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouteLoaderData } from "react-router";
 import type { RootData } from "~/root";
 

@@ -1,26 +1,24 @@
-import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Save, Trash, X, Edit2, Check } from "lucide-react";
+import type { Track } from "@bip/domain";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  type DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import type { Track } from "@bip/domain";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { SongSearch } from "~/components/song/song-search";
-import { SortableTrackItem } from "./sortable-track-item";
+import { arrayMove, SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useMutation } from "@tanstack/react-query";
+import { Check, Plus, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { cn } from "~/lib/utils";
+import { SongSearch } from "~/components/song/song-search";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { SortableTrackItem } from "./sortable-track-item";
 
 interface TrackManagerProps {
   showId: string;
@@ -63,19 +61,10 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
     note: null,
   });
 
-  const queryClient = useQueryClient();
-
   // Set up drag and drop sensors
   const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor));
 
-  // Load tracks when component mounts
-  useEffect(() => {
-    if (initialTracks.length === 0) {
-      loadTracks();
-    }
-  }, [showId]);
-
-  const loadTracks = async () => {
+  const loadTracks = useCallback(async () => {
     try {
       const response = await fetch(`/api/tracks?showId=${showId}`);
       if (response.ok) {
@@ -86,7 +75,14 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       console.error("Failed to load tracks:", error);
       toast.error("Failed to load tracks");
     }
-  };
+  }, [showId]);
+
+  // Load tracks when component mounts
+  useEffect(() => {
+    if (initialTracks.length === 0) {
+      loadTracks();
+    }
+  }, [initialTracks.length, loadTracks]);
 
   // Create track mutation
   const createTrackMutation = useMutation({
@@ -104,9 +100,23 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       if (!response.ok) throw new Error("Failed to create track");
       return response.json();
     },
-    onSuccess: (newTrack) => {
+    onSuccess: async (newTrack) => {
+      // Fetch song information for the newly created track
+      let trackWithSong = newTrack;
+      if (newTrack.songId && !newTrack.song) {
+        try {
+          const response = await fetch(`/api/songs/${newTrack.songId}`);
+          if (response.ok) {
+            const song = await response.json();
+            trackWithSong = { ...newTrack, song };
+          }
+        } catch (error) {
+          console.error("Failed to fetch song:", error);
+        }
+      }
+
       setTracks((prev) =>
-        [...prev, newTrack].sort((a, b) => {
+        [...prev, trackWithSong].sort((a, b) => {
           if (a.set !== b.set) return sortSets(a.set, b.set);
           return a.position - b.position;
         }),
@@ -326,7 +336,9 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
     return (
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-content-bg/50 rounded-lg border border-content-bg-secondary">
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-content-text-secondary mb-1">Song</label>
+          <label htmlFor="track-song" className="block text-sm font-medium text-content-text-secondary mb-1">
+            Song
+          </label>
           <SongSearch
             value={formData.songId}
             onValueChange={(value) => setFormData((prev) => ({ ...prev, songId: value }))}
@@ -337,9 +349,14 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-content-text-secondary mb-1">Set</label>
+          <label htmlFor="track-set" className="block text-sm font-medium text-content-text-secondary mb-1">
+            Set
+          </label>
           <Select value={formData.set} onValueChange={(value) => setFormData((prev) => ({ ...prev, set: value }))}>
-            <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary">
+            <SelectTrigger
+              id="track-set"
+              className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-content-bg-secondary border-content-bg-secondary">
@@ -353,9 +370,14 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-content-text-secondary mb-1">Segue</label>
+          <label htmlFor="track-segue" className="block text-sm font-medium text-content-text-secondary mb-1">
+            Segue
+          </label>
           <Select value={formData.segue} onValueChange={(value) => setFormData((prev) => ({ ...prev, segue: value }))}>
-            <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary">
+            <SelectTrigger
+              id="track-segue"
+              className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-content-bg-secondary border-content-bg-secondary">

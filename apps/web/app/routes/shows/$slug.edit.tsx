@@ -1,4 +1,4 @@
-import type { Show, Band, Venue, Track } from "@bip/domain";
+import type { Band, Show, Track, Venue } from "@bip/domain";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";

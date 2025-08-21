@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 
 export interface SearchResult {
   id: string;
@@ -7,7 +7,7 @@ export interface SearchResult {
   displayText: string;
   score: number;
   url: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface SearchResponse {
@@ -45,63 +45,6 @@ export function useVectorSearch(): UseVectorSearchReturn {
   // Keep track of the latest request to avoid race conditions
   const latestRequestRef = useRef<number>(0);
 
-  const search = useCallback(async (searchQuery: string, options: SearchOptions = {}) => {
-    if (!searchQuery.trim()) {
-      clear();
-      return;
-    }
-
-    const requestId = ++latestRequestRef.current;
-
-    setIsLoading(true);
-    setError(null);
-    setQuery(searchQuery);
-
-    try {
-      const response = await fetch("/api/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: searchQuery.trim(),
-          entityTypes: options.entityTypes,
-          limit: options.limit || 20,
-          threshold: options.threshold || 0.3,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Search failed" }));
-        throw new Error(errorData.error || `HTTP ${response.status}`);
-      }
-
-      const data: SearchResponse = await response.json();
-
-      // Only update state if this is still the latest request
-      if (requestId === latestRequestRef.current) {
-        setResults(data.results);
-        setTotalResults(data.totalResults);
-        setExecutionTimeMs(data.executionTimeMs);
-        setError(null);
-      }
-    } catch (err) {
-      // Only update error state if this is still the latest request
-      if (requestId === latestRequestRef.current) {
-        const errorMessage = err instanceof Error ? err.message : "Search failed";
-        setError(errorMessage);
-        setResults([]);
-        setTotalResults(0);
-        setExecutionTimeMs(null);
-      }
-    } finally {
-      // Only update loading state if this is still the latest request
-      if (requestId === latestRequestRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, []);
-
   const clear = useCallback(() => {
     setResults([]);
     setIsLoading(false);
@@ -112,6 +55,66 @@ export function useVectorSearch(): UseVectorSearchReturn {
     // Increment to invalidate any pending requests
     latestRequestRef.current++;
   }, []);
+
+  const search = useCallback(
+    async (searchQuery: string, options: SearchOptions = {}) => {
+      if (!searchQuery.trim()) {
+        clear();
+        return;
+      }
+
+      const requestId = ++latestRequestRef.current;
+
+      setIsLoading(true);
+      setError(null);
+      setQuery(searchQuery);
+
+      try {
+        const response = await fetch("/api/search", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: searchQuery.trim(),
+            entityTypes: options.entityTypes,
+            limit: options.limit || 20,
+            threshold: options.threshold || 0.3,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Search failed" }));
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+
+        const data: SearchResponse = await response.json();
+
+        // Only update state if this is still the latest request
+        if (requestId === latestRequestRef.current) {
+          setResults(data.results);
+          setTotalResults(data.totalResults);
+          setExecutionTimeMs(data.executionTimeMs);
+          setError(null);
+        }
+      } catch (err) {
+        // Only update error state if this is still the latest request
+        if (requestId === latestRequestRef.current) {
+          const errorMessage = err instanceof Error ? err.message : "Search failed";
+          setError(errorMessage);
+          setResults([]);
+          setTotalResults(0);
+          setExecutionTimeMs(null);
+        }
+      } finally {
+        // Only update loading state if this is still the latest request
+        if (requestId === latestRequestRef.current) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [clear],
+  );
 
   return {
     results,

@@ -1,26 +1,25 @@
+import type { Route } from ".react-router/types/app/+types/root";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { LoaderFunctionArgs } from "react-router-dom";
 import {
+  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  isRouteErrorResponse,
   useLoaderData,
   useRouteError,
 } from "react-router-dom";
 import { Toaster } from "sonner";
+import { ConcertLights } from "~/components/concert-lights";
 import { NotFound, ServerError } from "~/components/layout/errors";
 import { HeaderLayout } from "~/components/layout/header-layout";
 import { SearchProvider } from "~/components/search/search-provider";
-import { GlobalSearchProvider } from "~/hooks/use-global-search";
 import { SupabaseProvider } from "~/context/supabase-provider";
-import { ConcertLights } from "~/components/concert-lights";
+import { GlobalSearchProvider } from "~/hooks/use-global-search";
 import { env } from "~/server/env";
 import stylesheet from "./styles.css?url";
-import type { Route } from ".react-router/types/app/+types/root";
 
 export type RootData = {
   env: ClientSideEnv;
@@ -35,7 +34,7 @@ export type ClientSideEnv = {
 
 export const links: Route.LinksFunction = () => [{ rel: "stylesheet", href: stylesheet }];
 
-export async function loader({ request }: LoaderFunctionArgs<RootData>) {
+export async function loader(): Promise<RootData> {
   const clientEnv = {
     SUPABASE_URL: env.SUPABASE_URL,
     SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY,

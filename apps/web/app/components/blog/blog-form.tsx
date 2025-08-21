@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import type { ControllerRenderProps } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useNavigate, useSubmit } from "react-router-dom";
 import { z } from "zod";
 import { Badge } from "~/components/ui/badge";
@@ -18,8 +18,6 @@ const BlogPostState = {
   DRAFT: "draft",
   PUBLISHED: "published",
 } as const;
-
-type BlogPostState = (typeof BlogPostState)[keyof typeof BlogPostState];
 
 interface UploadedFile {
   path: string;

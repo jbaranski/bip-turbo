@@ -1,7 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
-import { redirect, useNavigate, useRouteLoaderData } from "react-router-dom";
 import type { LoaderFunctionArgs } from "react-router-dom";
+import { redirect, useNavigate, useRouteLoaderData } from "react-router-dom";
 import { LoginForm } from "~/components/login-form";
 import type { RootData } from "~/root";
 import { getServerClient } from "~/server/supabase";
@@ -32,7 +32,7 @@ export default function Login() {
         sameSite: "lax",
       },
     });
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${BASE_URL}/auth/callback`,

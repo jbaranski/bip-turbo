@@ -1,8 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import type { ControllerRenderProps } from "react-hook-form";
-import { z } from "zod";
 import type { Band } from "@bip/domain";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { ControllerRenderProps } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
@@ -28,7 +28,7 @@ interface ShowFormProps {
   bands?: Band[];
 }
 
-export function ShowForm({ defaultValues, onSubmit, submitLabel = "Submit", cancelHref, bands = [] }: ShowFormProps) {
+export function ShowForm({ defaultValues, onSubmit, submitLabel = "Submit", cancelHref }: ShowFormProps) {
   const form = useForm<ShowFormValues>({
     resolver: zodResolver(showFormSchema),
     defaultValues: defaultValues || {

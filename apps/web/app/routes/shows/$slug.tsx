@@ -32,16 +32,8 @@ interface ShowLoaderData {
   selectedRecordingId: string | null;
 }
 
-// Add interface for the beta search API response
-interface ArchiveSearchHit {
-  _source: {
-    identifier: string;
-    title?: string;
-    date?: string;
-  };
-}
 
-export const loader = publicLoader(async ({ params, context }): Promise<ShowLoaderData> => {
+export const loader = publicLoader(async ({ params }): Promise<ShowLoaderData> => {
   console.log("⚡️ shows.$slug loader:", params.slug);
   const slug = params.slug;
   if (!slug) throw notFound();
@@ -109,7 +101,7 @@ export function meta({ data }: { data: ShowLoaderData }) {
 
 export default function Show() {
   const { setlist, reviews: initialReviews, selectedRecordingId } = useSerializedLoaderData<ShowLoaderData>();
-  const { user, supabase } = useSession();
+  const { user } = useSession();
   const queryClient = useQueryClient();
 
   // Query for reviews

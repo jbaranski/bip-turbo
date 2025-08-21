@@ -1,10 +1,8 @@
-import type { Logger } from "@bip/domain";
 import type { RatingRepository, RatingWithShow, RatingWithTrack } from "./rating-repository";
 
 export class RatingService {
   constructor(
     private repository: RatingRepository,
-    private logger: Logger,
   ) {}
 
   async findManyByUserIdAndRateableIds(userId: string, rateableIds: string[], rateableType: string) {

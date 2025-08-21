@@ -1,5 +1,4 @@
 import type { Logger, Track } from "@bip/domain";
-import type { DbTrack } from "../_shared/database/models";
 import type { QueryOptions } from "../_shared/database/types";
 import type { TrackRepository } from "./track-repository";
 

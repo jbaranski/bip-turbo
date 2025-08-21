@@ -1,38 +1,61 @@
 import type { ContentFormatter } from "./base-content-formatter";
 
+// Helper function to safely cast track data
+function asTrack(track: Record<string, unknown>) {
+  return track as {
+    song?: { title?: string; author?: { name?: string }; cover?: boolean; timesPlayed?: number };
+    show?: { 
+      date?: string; 
+      venue?: { name?: string; city?: string; state?: string };
+      averageRating?: number;
+      notes?: string;
+    };
+    averageRating?: number;
+    allTimer?: boolean;
+    set?: string;
+    position?: number;
+    segue?: string;
+    note?: string;
+    previousTrackId?: string;
+    nextTrackId?: string;
+  };
+}
+
 export class TrackContentFormatter implements ContentFormatter {
   entityType = "track";
 
-  generateDisplayText(track: any): string {
-    const songTitle = track.song?.title || "Unknown Song";
-    const showDate = track.show?.date || "Unknown Date";
-    const venue = track.show?.venue?.name || "Unknown Venue";
+  generateDisplayText(track: Record<string, unknown>): string {
+    const t = asTrack(track);
+    const songTitle = t.song?.title || "Unknown Song";
+    const showDate = t.show?.date || "Unknown Date";
+    const venue = t.show?.venue?.name || "Unknown Venue";
 
     let displayText = `${songTitle} • ${showDate} • ${venue}`;
 
-    if (track.averageRating && track.averageRating > 0) {
-      displayText += ` • ★ ${track.averageRating.toFixed(1)}`;
+    if (t.averageRating && t.averageRating > 0) {
+      displayText += ` • ★ ${t.averageRating.toFixed(1)}`;
     }
 
-    if (track.allTimer) {
+    if (t.allTimer) {
       displayText += " • All-Timer";
     }
 
     return displayText;
   }
 
-  generateContent(track: any): string {
+  generateContent(track: Record<string, unknown>): string {
     // Implementation following strategy: "[Song] performed on [Date] at [Venue]. [Segue context: song before > current > song after]. [Track notes]. Rating: [X]. [All-timer status]."
 
-    let content = track.song?.title || "Unknown Song";
+    const t = asTrack(track);
+    let content = t.song?.title || "Unknown Song";
 
-    if (track.show) {
-      content += ` performed on ${track.show.date || "Unknown Date"}`;
+    if (t.show) {
+      content += ` performed on ${t.show.date || "Unknown Date"}`;
 
-      if (track.show.venue) {
-        content += ` at ${track.show.venue.name || "Unknown Venue"}`;
-        if (track.show.venue.city && track.show.venue.state) {
-          content += `, ${track.show.venue.city}, ${track.show.venue.state}`;
+      if (t.show.venue) {
+        content += ` at ${t.show.venue.name || "Unknown Venue"}`;
+        if (t.show.venue.city && t.show.venue.state) {
+          content += `, ${t.show.venue.city}, ${t.show.venue.state}`;
         }
       }
     }
@@ -42,23 +65,23 @@ export class TrackContentFormatter implements ContentFormatter {
     // For now, we'll use the segue field to indicate the flow
     const segueContext: string[] = [];
 
-    if (track.previousTrackId || track.nextTrackId) {
+    if (t.previousTrackId || t.nextTrackId) {
       // If we have track linking data, we could fetch the adjacent songs
       // For now, we'll just note the segue information
-      if (track.segue && track.segue !== "none") {
-        segueContext.push(`segues into ${track.segue}`);
+      if (t.segue && t.segue !== "none") {
+        segueContext.push(`segues into ${t.segue}`);
       }
-    } else if (track.segue && track.segue !== "none") {
+    } else if (t.segue && t.segue !== "none") {
       segueContext.push(`segues into next song`);
     }
 
     // Add set and position context
-    if (track.set) {
-      segueContext.push(`${track.set} set`);
+    if (t.set) {
+      segueContext.push(`${t.set} set`);
     }
 
-    if (track.position) {
-      segueContext.push(`position ${track.position}`);
+    if (t.position) {
+      segueContext.push(`position ${t.position}`);
     }
 
     if (segueContext.length > 0) {
@@ -66,34 +89,34 @@ export class TrackContentFormatter implements ContentFormatter {
     }
 
     // Add track notes
-    if (track.note) {
-      content += `. ${track.note}`;
+    if (t.note) {
+      content += `. ${t.note}`;
     }
 
     // Add rating
-    if (track.averageRating && track.averageRating > 0) {
-      content += `. Rating: ${track.averageRating.toFixed(1)}`;
+    if (t.averageRating && t.averageRating > 0) {
+      content += `. Rating: ${t.averageRating.toFixed(1)}`;
     }
 
     // Add all-timer status
-    if (track.allTimer) {
+    if (t.allTimer) {
       content += ". All-timer performance";
     }
 
     // Add song context
-    if (track.song) {
+    if (t.song) {
       const songDetails: string[] = [];
 
-      if (track.song.author?.name) {
-        songDetails.push(`by ${track.song.author.name}`);
+      if (t.song.author?.name) {
+        songDetails.push(`by ${t.song.author.name}`);
       }
 
-      if (track.song.cover) {
+      if (t.song.cover) {
         songDetails.push("cover song");
       }
 
-      if (track.song.timesPlayed) {
-        songDetails.push(`played ${track.song.timesPlayed} times total`);
+      if (t.song.timesPlayed) {
+        songDetails.push(`played ${t.song.timesPlayed} times total`);
       }
 
       if (songDetails.length > 0) {
@@ -102,15 +125,15 @@ export class TrackContentFormatter implements ContentFormatter {
     }
 
     // Add show context
-    if (track.show) {
+    if (t.show) {
       const showDetails: string[] = [];
 
-      if (track.show.averageRating && track.show.averageRating > 0) {
-        showDetails.push(`show rated ${track.show.averageRating.toFixed(1)}`);
+      if (t.show.averageRating && t.show.averageRating > 0) {
+        showDetails.push(`show rated ${t.show.averageRating.toFixed(1)}`);
       }
 
-      if (track.show.notes) {
-        showDetails.push(`show notes: ${track.show.notes}`);
+      if (t.show.notes) {
+        showDetails.push(`show notes: ${t.show.notes}`);
       }
 
       if (showDetails.length > 0) {

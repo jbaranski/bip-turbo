@@ -1,42 +1,68 @@
 import type { ContentFormatter } from "./base-content-formatter";
 
+// Helper function to safely cast show data
+function asShow(show: Record<string, unknown>) {
+  return show as {
+    date?: string;
+    venue?: {
+      name?: string;
+      city?: string;
+      state?: string;
+    };
+    averageRating?: number;
+    tracks?: Array<{
+      set: string;
+      position: number;
+      song?: { title?: string };
+      segue?: string;
+      note?: string;
+      allTimer?: boolean;
+    }>;
+    notes?: string;
+    yearlyPlayData?: Record<string, number>;
+    longestGapsData?: Record<string, number>;
+  };
+}
+
 export class ShowContentFormatter implements ContentFormatter {
   entityType = "show";
 
-  generateDisplayText(show: any): string {
-    const date = show.date || "Unknown Date";
-    const venue = show.venue?.name || "Unknown Venue";
+  generateDisplayText(show: Record<string, unknown>): string {
+    const s = asShow(show);
+    const date = s.date || "Unknown Date";
+    const venue = s.venue?.name || "Unknown Venue";
     const location =
-      show.venue?.city && show.venue?.state ? `${show.venue.city}, ${show.venue.state}` : "Unknown Location";
+      s.venue?.city && s.venue?.state ? `${s.venue.city}, ${s.venue.state}` : "Unknown Location";
 
     let displayText = `${date} • ${venue}, ${location}`;
 
-    if (show.averageRating && show.averageRating > 0) {
-      displayText += ` • ★ ${show.averageRating.toFixed(1)}`;
+    if (s.averageRating && s.averageRating > 0) {
+      displayText += ` • ★ ${s.averageRating.toFixed(1)}`;
     }
 
     return displayText;
   }
 
-  generateContent(show: any): string {
+  generateContent(show: Record<string, unknown>): string {
     // Strategy: Emphasize date + venue, full setlists with openers/closers/encores, prioritize highly-rated shows
 
-    const date = show.date || "Unknown Date";
-    const venueName = show.venue?.name || "Unknown Venue";
+    const s = asShow(show);
+    const date = s.date || "Unknown Date";
+    const venueName = s.venue?.name || "Unknown Venue";
     const venueLocation =
-      show.venue?.city && show.venue?.state ? `${show.venue.city}, ${show.venue.state}` : "Unknown Location";
+      s.venue?.city && s.venue?.state ? `${s.venue.city}, ${s.venue.state}` : "Unknown Location";
 
     // Emphasize date and venue by repeating them
     let content = `${date} at ${venueName}, ${venueLocation}. Show date: ${date}. Concert venue: ${venueName}. Concert at ${venueName}`;
 
     // Add comprehensive setlist with set numbers and key moments
-    if (show.tracks && show.tracks.length > 0) {
+    if (s.tracks && s.tracks.length > 0) {
       // Group tracks by set and sort by position
-      const tracksBySet = show.tracks.reduce((acc: any, track: any) => {
+      const tracksBySet = s.tracks.reduce((acc: Record<string, Array<NonNullable<typeof s.tracks>[0]>>, track) => {
         if (!acc[track.set]) acc[track.set] = [];
         acc[track.set].push(track);
         return acc;
-      }, {});
+      }, {} as Record<string, Array<NonNullable<typeof s.tracks>[0]>>);
 
       const setlistParts: string[] = [];
       const keyMoments: string[] = [];
@@ -49,22 +75,22 @@ export class ShowContentFormatter implements ContentFormatter {
       });
 
       sortedSets.forEach((setName) => {
-        const setTracks = tracksBySet[setName].sort((a: any, b: any) => a.position - b.position);
+        const setTracks = tracksBySet[setName].sort((a: Record<string, unknown>, b: Record<string, unknown>) => (a.position as number) - (b.position as number));
 
         // Identify set opener and closer
         if (setTracks.length > 0) {
           const opener = setTracks[0];
           const closer = setTracks[setTracks.length - 1];
 
-          keyMoments.push(`Set ${setName} opener: ${opener.song?.title || "Unknown"}`);
+          keyMoments.push(`Set ${setName} opener: ${(opener.song as Record<string, unknown>)?.title || "Unknown"}`);
           if (setTracks.length > 1) {
-            keyMoments.push(`Set ${setName} closer: ${closer.song?.title || "Unknown"}`);
+            keyMoments.push(`Set ${setName} closer: ${(closer.song as Record<string, unknown>)?.title || "Unknown"}`);
           }
         }
 
         // Build full setlist with segues
-        const setTrackTexts = setTracks.map((track: any) => {
-          let trackText = track.song?.title || "Unknown Song";
+        const setTrackTexts = setTracks.map((track: Record<string, unknown>) => {
+          let trackText = (track.song as Record<string, unknown>)?.title || "Unknown Song";
           if (track.segue && track.segue !== "none") trackText += " >";
           return trackText;
         });
@@ -73,40 +99,40 @@ export class ShowContentFormatter implements ContentFormatter {
       });
 
       // Identify overall show opener and closer
-      const allTracks = show.tracks.sort((a: any, b: any) => {
+      const allTracks = s.tracks.sort((a, b) => {
         // Sort by set first, then position
         if (a.set !== b.set) {
           if (a.set.toLowerCase() === "encore") return 1;
           if (b.set.toLowerCase() === "encore") return -1;
           return a.set.localeCompare(b.set);
         }
-        return a.position - b.position;
+        return (a.position as number) - (b.position as number);
       });
 
       if (allTracks.length > 0) {
-        keyMoments.unshift(`Show opener: ${allTracks[0].song?.title || "Unknown"}`);
-        keyMoments.push(`Show closer: ${allTracks[allTracks.length - 1].song?.title || "Unknown"}`);
+        keyMoments.unshift(`Show opener: ${(allTracks[0].song as Record<string, unknown>)?.title || "Unknown"}`);
+        keyMoments.push(`Show closer: ${(allTracks[allTracks.length - 1].song as Record<string, unknown>)?.title || "Unknown"}`);
       }
 
-      content += ". " + keyMoments.join(". ") + ". Full setlist: " + setlistParts.join(". ");
+      content += `. ${keyMoments.join(". ")}. Full setlist: ${setlistParts.join(". ")}`;
     }
 
     // Add show notes
-    if (show.notes) {
-      content += `. ${show.notes}`;
+    if (s.notes) {
+      content += `. ${s.notes}`;
     }
 
     // Emphasize ratings, especially for highly-rated shows
-    if (show.averageRating && show.averageRating > 0) {
-      const rating = show.averageRating.toFixed(1);
+    if (s.averageRating && s.averageRating > 0) {
+      const rating = s.averageRating.toFixed(1);
       content += `. Average rating: ${rating}`;
 
       // Emphasize high ratings for better search relevance
-      if (show.averageRating >= 4.5) {
+      if (s.averageRating >= 4.5) {
         content += `. Highly rated show: ${rating} stars. Excellent performance: ${rating}/5`;
-      } else if (show.averageRating >= 4.0) {
+      } else if (s.averageRating >= 4.0) {
         content += `. High quality show: ${rating} stars. Great performance: ${rating}/5`;
-      } else if (show.averageRating >= 3.5) {
+      } else if (s.averageRating >= 3.5) {
         content += `. Good show: ${rating} stars`;
       }
     }
@@ -114,11 +140,11 @@ export class ShowContentFormatter implements ContentFormatter {
     // Add key characteristics (debuts, bustouts, notable segues)
     const characteristics: string[] = [];
 
-    if (show.tracks && show.tracks.length > 0) {
+    if (s.tracks && s.tracks.length > 0) {
       // Check for notable segues
-      const segues = show.tracks
-        .filter((track: any) => track.segue && track.segue !== "none")
-        .map((track: any) => `${track.song?.title} > ${track.segue}`)
+      const segues = s.tracks
+        .filter((track) => track.segue && track.segue !== "none")
+        .map((track) => `${track.song?.title} > ${track.segue}`)
         .slice(0, 3); // Limit to avoid too much text
 
       if (segues.length > 0) {
@@ -126,9 +152,9 @@ export class ShowContentFormatter implements ContentFormatter {
       }
 
       // Check for tracks with notes (could indicate debuts, bustouts, etc.)
-      const tracksWithNotes = show.tracks
-        .filter((track: any) => track.note)
-        .map((track: any) => `${track.song?.title} (${track.note})`)
+      const tracksWithNotes = s.tracks
+        .filter((track) => track.note)
+        .map((track) => `${track.song?.title} (${track.note})`)
         .slice(0, 3); // Limit to avoid too much text
 
       if (tracksWithNotes.length > 0) {
@@ -136,9 +162,9 @@ export class ShowContentFormatter implements ContentFormatter {
       }
 
       // Check for all-timer tracks
-      const allTimers = show.tracks
-        .filter((track: any) => track.allTimer)
-        .map((track: any) => track.song?.title)
+      const allTimers = s.tracks
+        .filter((track) => track.allTimer)
+        .map((track) => track.song?.title)
         .slice(0, 3);
 
       if (allTimers.length > 0) {

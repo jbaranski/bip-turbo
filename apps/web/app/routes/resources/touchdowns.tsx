@@ -1,6 +1,5 @@
-import React from "react";
-import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { publicLoader } from "~/lib/base-loaders";
 

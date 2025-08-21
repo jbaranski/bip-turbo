@@ -89,7 +89,7 @@ export const convertToArchiveDate = (dateString: string): string => {
   }
 };
 
-const ArchiveMusicPlayer: React.FC<ArchivePlayerProps> = ({ identifier, className, showDate }) => {
+const ArchiveMusicPlayer: React.FC<ArchivePlayerProps> = ({ identifier, className }) => {
   const [metadata, setMetadata] = useState<ArchiveMetadata | null>(null);
   const [audioFiles, setAudioFiles] = useState<ArchiveFile[]>([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(0);

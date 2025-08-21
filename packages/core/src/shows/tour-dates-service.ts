@@ -1,5 +1,4 @@
 import type { TourDate } from "@bip/domain";
-import type { RedisClientType } from "redis";
 import type { RedisService } from "../_shared/redis";
 
 export class TourDatesService {

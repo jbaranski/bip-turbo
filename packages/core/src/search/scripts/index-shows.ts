@@ -12,7 +12,7 @@ async function indexShows() {
 
   try {
     const searchIndexService = container.searchIndexService();
-    const showRepository = container.showRepository();
+    const _showRepository = container.showRepository();
 
     // Get all shows with related data - use raw Prisma client for search indexing
     console.log("📊 Fetching shows...");

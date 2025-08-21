@@ -1,5 +1,5 @@
 import { protectedAction, publicLoader } from "~/lib/base-loaders";
-import { badRequest, methodNotAllowed, unauthorized } from "~/lib/errors";
+import { badRequest, methodNotAllowed } from "~/lib/errors";
 import { services } from "~/server/services";
 
 export const loader = publicLoader(async ({ request, context }) => {
