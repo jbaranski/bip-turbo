@@ -1,4 +1,5 @@
 import type { Logger } from "@bip/domain";
+import { AnnotationService } from "../annotations/annotation-service";
 import { AttendanceService } from "../attendances/attendance-service";
 import { BlogPostService } from "../blog-posts/blog-post-service";
 import { FileService } from "../files/file-service";
@@ -18,6 +19,7 @@ import type { ServiceContainer } from "./container";
 import type { RedisService } from "./redis";
 
 export interface Services {
+  annotations: AnnotationService;
   blogPosts: BlogPostService;
   shows: ShowService;
   songs: SongService;
@@ -52,6 +54,7 @@ export function createServices(container: ServiceContainer): Services {
   container.searchIndexer.searchIndexService = searchIndexService;
 
   return {
+    annotations: new AnnotationService(container.repositories.annotations, container.logger),
     blogPosts: new BlogPostService(container.repositories.blogPosts, container.redis, container.logger),
     shows: new ShowService(container.repositories.shows, container.logger),
     songs: new SongService(container.repositories.songs, container.logger),

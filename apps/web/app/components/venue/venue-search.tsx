@@ -18,8 +18,9 @@ export function VenueSearch({ value, onValueChange, placeholder = "Search venues
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentVenue, setCurrentVenue] = useState<Venue | null>(null);
 
-  const selectedVenue = venues.find((venue) => venue.id === value);
+  const selectedVenue = venues.find((venue) => venue.id === value) || currentVenue;
 
   const searchVenues = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
@@ -44,6 +45,27 @@ export function VenueSearch({ value, onValueChange, placeholder = "Search venues
       setLoading(false);
     }
   }, []);
+
+  // Load current venue when value changes
+  useEffect(() => {
+    const loadCurrentVenue = async () => {
+      if (value && value !== "none" && !venues.find((v) => v.id === value) && !currentVenue) {
+        try {
+          const response = await fetch(`/api/venues/${value}`);
+          if (response.ok) {
+            const venue = await response.json();
+            setCurrentVenue(venue);
+          }
+        } catch (error) {
+          console.error("Failed to load current venue:", error);
+        }
+      } else if (!value || value === "none") {
+        setCurrentVenue(null);
+      }
+    };
+
+    loadCurrentVenue();
+  }, [value, venues, currentVenue]);
 
   useEffect(() => {
     const delayedSearch = setTimeout(() => {

@@ -68,8 +68,22 @@ export class TrackRepository {
   async findById(id: string): Promise<Track | null> {
     const result = await this.db.track.findUnique({
       where: { id },
+      include: {
+        annotations: true,
+        song: true,
+      },
     });
-    return result ? this.mapToDomainEntity(result) : null;
+    
+    if (!result) return null;
+    
+    const track = this.mapToDomainEntity(result);
+    if (result.annotations) {
+      track.annotations = result.annotations.map(mapAnnotationToDomainEntity);
+    }
+    if (result.song) {
+      track.song = result.song as any;
+    }
+    return track;
   }
 
   async findBySlug(slug: string): Promise<Track | null> {
@@ -160,6 +174,7 @@ export class TrackRepository {
       orderBy: [{ position: "asc" }],
       include: {
         song: true,
+        annotations: true,
       },
     });
 
@@ -180,7 +195,16 @@ export class TrackRepository {
       return a.position - b.position;
     });
 
-    return sortedResults.map((result: Record<string, unknown>) => this.mapToDomainEntity(result as DbTrack));
+    return sortedResults.map((result: Record<string, unknown>) => {
+      const track = this.mapToDomainEntity(result as DbTrack);
+      if ((result as any).annotations) {
+        track.annotations = (result as any).annotations.map(mapAnnotationToDomainEntity);
+      }
+      if ((result as any).song) {
+        track.song = (result as any).song as any;
+      }
+      return track;
+    });
   }
 
   async delete(id: string): Promise<boolean> {

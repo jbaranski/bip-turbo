@@ -33,6 +33,7 @@ interface TrackFormData {
   segue: string;
   note: string | null;
   song?: Track["song"];
+  annotationDesc?: string | null;
 }
 
 const SET_OPTIONS = [
@@ -59,6 +60,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
     position: 1,
     segue: "none",
     note: null,
+    annotationDesc: null,
   });
 
   // Set up drag and drop sensors
@@ -95,6 +97,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
           showId,
           songId: data.songId === "none" ? undefined : data.songId,
           segue: data.segue === "none" ? null : data.segue,
+          annotationDesc: data.annotationDesc,
         }),
       });
       if (!response.ok) throw new Error("Failed to create track");
@@ -138,6 +141,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
           ...data,
           songId: data.songId === "none" ? undefined : data.songId,
           segue: data.segue === "none" ? null : data.segue,
+          annotationDesc: data.annotationDesc,
         }),
       });
       if (!response.ok) throw new Error("Failed to update track");
@@ -223,11 +227,18 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       position: 1,
       segue: "none",
       note: null,
+      annotationDesc: null,
     });
   };
 
   const startEditing = (track: Track) => {
     setEditingId(track.id);
+    // Join all annotations with line breaks for editing
+    const annotationsText = track.annotations
+      ?.map(annotation => annotation.desc)
+      .filter(desc => desc)
+      .join('\n') || null;
+    
     setFormData({
       id: track.id,
       songId: track.songId,
@@ -236,6 +247,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       segue: track.segue || "none",
       note: track.note,
       song: track.song,
+      annotationDesc: annotationsText,
     });
   };
 
@@ -334,7 +346,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
       : Math.max(0, ...tracks.filter((t) => t.set === formData.set).map((t) => t.position)) + 1;
 
     return (
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-content-bg/50 rounded-lg border border-content-bg-secondary">
+      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 p-4 bg-content-bg/50 rounded-lg border border-content-bg-secondary">
         <div className="md:col-span-2">
           <label htmlFor="track-song" className="block text-sm font-medium text-content-text-secondary mb-1">
             Song
@@ -388,6 +400,21 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="md:col-span-2">
+          <label htmlFor="track-annotation" className="block text-sm font-medium text-content-text-secondary mb-1">
+            Annotations
+            <span className="ml-2 text-xs text-content-text-tertiary">(one per line)</span>
+          </label>
+          <textarea
+            id="track-annotation"
+            value={formData.annotationDesc || ""}
+            onChange={(e) => setFormData((prev) => ({ ...prev, annotationDesc: e.target.value || null }))}
+            placeholder="Add annotations (one per line)..."
+            className="w-full px-3 py-2 bg-content-bg-secondary border border-content-bg-secondary text-content-text-primary rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary"
+            rows={3}
+          />
         </div>
 
         <div className="flex items-end gap-2">
