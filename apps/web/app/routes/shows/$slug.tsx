@@ -1,4 +1,4 @@
-import type { ReviewMinimal, Setlist } from "@bip/domain";
+import { CacheKeys, type ReviewMinimal, type Setlist } from "@bip/domain";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -38,14 +38,27 @@ export const loader = publicLoader(async ({ params }): Promise<ShowLoaderData> =
   const slug = params.slug;
   if (!slug) throw notFound();
 
-  const setlist = await services.setlists.findByShowSlug(slug);
-  if (!setlist) throw notFound();
-
+  // Cache the setlist data (core show data that's expensive to compute)
+  const cacheKey = CacheKeys.show.data(slug);
+  
+  const setlist = await services.cache.getOrSet(
+    cacheKey,
+    async () => {
+      console.log(`📀 Loading setlist data from DB for ${slug}`);
+      const setlist = await services.setlists.findByShowSlug(slug);
+      if (!setlist) throw notFound();
+      return setlist;
+    }
+  );
+  
+  // Load reviews fresh (not cached - infrequent access, simple query)
   const reviews = await services.reviews.findByShowId(setlist.show.id);
+  
+  console.log(`🎯 Show data loaded for ${slug} - setlist cached, reviews fresh`);
 
   // Find Archive.org recordings for this show date with Redis caching
   let selectedRecordingId: string | null = null;
-  const archiveCacheKey = `archive-recordings-${setlist.show.date}`;
+  const archiveCacheKey = CacheKeys.archive.recordings(setlist.show.date);
 
   try {
     // Try to get from cache first

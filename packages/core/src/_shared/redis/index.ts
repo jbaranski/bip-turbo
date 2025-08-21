@@ -34,6 +34,19 @@ export class RedisService {
     await this.client.del(key);
   }
 
+  async delPattern(pattern: string): Promise<number> {
+    await this.connect();
+    const keys = await this.client.keys(pattern);
+    if (keys.length === 0) return 0;
+    return await this.client.del(keys);
+  }
+
+  async exists(key: string): Promise<boolean> {
+    await this.connect();
+    const result = await this.client.exists(key);
+    return result === 1;
+  }
+
   getClient(): RedisClientType {
     if (!this.isConnected) {
       throw new Error("Redis client not connected. Call connect() first");
