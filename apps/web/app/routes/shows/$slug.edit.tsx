@@ -30,10 +30,13 @@ export const loader = adminLoader(async ({ params }) => {
     throw notFound(`Show with slug "${slug}" not found`);
   }
 
+  // Get venues for the venue selector
+  const venues = await services.venues.findMany();
+
   // Get tracks for this show
   const tracks = await services.tracks.findByShowId(show.id);
 
-  return { show, bands, tracks };
+  return { show, bands, venues, tracks };
 });
 
 export const action = adminAction(async ({ request, params }) => {

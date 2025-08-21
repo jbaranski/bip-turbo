@@ -40,8 +40,16 @@ export const action = adminAction(async ({ request }) => {
         note: data.note,
       });
 
+      // Create annotations if provided
+      if (data.annotationDesc && track.id) {
+        await services.annotations.upsertMultipleForTrack(track.id, data.annotationDesc);
+      }
+
+      // Fetch the track with annotations
+      const trackWithAnnotations = await services.tracks.findById(track.id);
+
       console.log("Created track:", track.id);
-      return track;
+      return trackWithAnnotations;
     } catch (error) {
       console.error("Error creating track:", error);
       throw new Response("Failed to create track", { status: 500 });

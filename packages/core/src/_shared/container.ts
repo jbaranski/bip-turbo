@@ -1,5 +1,6 @@
 import type { Logger } from "@bip/domain";
 import type { RedisClientType } from "redis";
+import { AnnotationRepository } from "../annotations/annotation-repository";
 import { AttendanceRepository } from "../attendances/attendance-repository";
 import { BlogPostRepository } from "../blog-posts/blog-post-repository";
 import { FileRepository } from "../files/file-repository";
@@ -23,6 +24,7 @@ export interface ServiceContainer {
   logger: Logger;
   searchIndexer: SearchIndexer;
   repositories: {
+    annotations: AnnotationRepository;
     setlists: SetlistRepository;
     shows: ShowRepository;
     songs: SongRepository;
@@ -56,6 +58,7 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
 
   // Create repositories
   const repositories = {
+    annotations: new AnnotationRepository(db),
     setlists: new SetlistRepository(db),
     shows: new ShowRepository(db),
     songs: new SongRepository(db),

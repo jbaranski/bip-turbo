@@ -4,7 +4,6 @@ import { memo, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { StarRating } from "~/components/ui/star-rating";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
 import { useSession } from "~/hooks/use-session";
 import { cn, formatDateShort } from "~/lib/utils";
 import { AttendanceToggle } from "./attendance";
@@ -41,8 +40,8 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
   // Create a map to store unique annotations by description
   const uniqueAnnotations = new Map<string, { index: number; desc: string }>();
 
-  // Create a map of trackId to annotation index for quick lookup
-  const trackAnnotationMap = new Map<string, number>();
+  // Create a map of trackId to array of annotation indices for quick lookup
+  const trackAnnotationMap = new Map<string, number[]>();
 
   // Process annotations in order of tracks in the setlist
   let annotationIndex = 1;
@@ -59,6 +58,7 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
   for (const track of allTracks) {
     // Get annotations for this track
     const trackAnnotations = setlist.annotations.filter((a) => a.trackId === track.id);
+    const trackIndices: number[] = [];
 
     for (const annotation of trackAnnotations) {
       if (annotation.desc) {
@@ -70,12 +70,17 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
           });
         }
 
-        // Map this track to the annotation index
+        // Add this annotation index to the track's indices array
         const index = uniqueAnnotations.get(annotation.desc)?.index;
         if (index) {
-          trackAnnotationMap.set(track.id, index);
+          trackIndices.push(index);
         }
       }
+    }
+
+    // Map this track to all its annotation indices
+    if (trackIndices.length > 0) {
+      trackAnnotationMap.set(track.id, trackIndices);
     }
   }
 
@@ -146,38 +151,26 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
                 {set.tracks.map((track, i) => (
                   <span key={track.id} className="inline-flex items-baseline">
                     <span className="inline-flex items-center gap-1">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span
-                              className={cn(
-                                "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
-                                track.allTimer && "font-medium",
-                              )}
-                            >
-                              {track.allTimer && (
-                                <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
-                              )}
-                              <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
-                              {trackAnnotationMap.has(track.id) && (
-                                <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
-                                  {trackAnnotationMap.get(track.id)}
-                                </sup>
-                              )}
-                            </span>
-                          </TooltipTrigger>
-                          {trackAnnotationMap.has(track.id) && (
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p className="text-sm">
-                                <span className="font-medium text-brand-secondary">
-                                  Note {trackAnnotationMap.get(track.id)}:{" "}
-                                </span>
-                                {orderedAnnotations.find((a) => a.index === trackAnnotationMap.get(track.id))?.desc}
-                              </p>
-                            </TooltipContent>
-                          )}
-                        </Tooltip>
-                      </TooltipProvider>
+                      <span
+                        className={cn(
+                          "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
+                          track.allTimer && "font-medium",
+                        )}
+                      >
+                        {track.allTimer && (
+                          <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
+                        )}
+                        <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
+                        {trackAnnotationMap.has(track.id) && (
+                          <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
+                            {trackAnnotationMap.get(track.id)?.map((index, i) => (
+                              <span key={index} className={i > 0 ? 'ml-1' : ''}>
+                                {index}
+                              </span>
+                            ))}
+                          </sup>
+                        )}
+                      </span>
                     </span>
                     {i < set.tracks.length - 1 && (
                       <span className="text-content-text-secondary mx-1 font-medium text-sm md:text-base">

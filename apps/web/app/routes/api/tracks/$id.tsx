@@ -24,8 +24,16 @@ export const action = adminAction(async ({ request, params }) => {
         note: data.note,
       });
 
+      // Update annotations if provided
+      if (data.annotationDesc !== undefined) {
+        await services.annotations.upsertMultipleForTrack(id, data.annotationDesc);
+      }
+
+      // Fetch the track with annotations
+      const trackWithAnnotations = await services.tracks.findById(id);
+
       console.log(`Updated track ${id}`);
-      return track;
+      return trackWithAnnotations;
     } catch (error) {
       console.error(`Error updating track ${id}:`, error);
       throw new Response("Failed to update track", { status: 500 });
@@ -36,6 +44,9 @@ export const action = adminAction(async ({ request, params }) => {
     console.log(`Deleting track ${id}`);
 
     try {
+      // Delete annotations first (in case cascade delete is not set up)
+      await services.annotations.deleteByTrackId(id);
+      
       await services.tracks.delete(id);
       console.log(`Deleted track ${id}`);
       return { success: true };
