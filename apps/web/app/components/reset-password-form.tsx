@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "~/components/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -6,39 +6,58 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/com
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
-type ForgotPasswordFormProps = {
+type ResetPasswordFormProps = {
   className?: string;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
 };
 
-export function ForgotPasswordForm({ className, onSubmit, ...props }: ForgotPasswordFormProps) {
+export function ResetPasswordForm({ className, onSubmit, ...props }: ResetPasswordFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="relative border border-brand/10 bg-content-bg/90 backdrop-blur-2xl transition-colors duration-300 hover:border-brand/30">
+      <Card className="relative border border-brand/20 bg-content-bg/90 backdrop-blur-2xl transition-colors duration-300 hover:border-brand/30">
         <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-brand/10 via-transparent to-transparent" />
         <div className="absolute inset-0 rounded-[inherit] shadow-2xl shadow-brand/5" />
         <div className="absolute -inset-0.5 rounded-lg bg-gradient-to-b from-brand/5 to-brand/0 opacity-50" />
         <CardHeader className="space-y-1">
-          <CardTitle className="text-3xl font-bold tracking-tight text-white">Reset password</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tight text-white">Set new password</CardTitle>
           <CardDescription className="text-base text-content-text-secondary">
-            Enter your email address and we'll send you a link to reset your password
+            Enter your new password below
           </CardDescription>
         </CardHeader>
         <CardContent className="relative">
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-zinc-200">
-                  Email
+              <div className="space-y-3">
+                <Label htmlFor="password" className="text-sm font-medium text-zinc-200">
+                  New Password
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-content-text-secondary" />
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-content-text-secondary" />
                   <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="m@example.com"
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter new password"
                     required
+                    minLength={6}
+                    className="glass-content pl-9 text-content-text-primary placeholder:text-content-text-tertiary"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-zinc-200">
+                  Confirm New Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-content-text-secondary" />
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Confirm new password"
+                    required
+                    minLength={6}
                     className="glass-content pl-9 text-content-text-primary placeholder:text-content-text-tertiary"
                   />
                 </div>
@@ -51,7 +70,7 @@ export function ForgotPasswordForm({ className, onSubmit, ...props }: ForgotPass
                 variant="outline"
                 className="w-full text-content-text-secondary border-content-bg-secondary hover:bg-content-bg-secondary/50"
               >
-                Send reset link
+                Update password
               </Button>
             </div>
 

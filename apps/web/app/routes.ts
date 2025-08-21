@@ -47,6 +47,7 @@ export default [
     route("callback", "routes/auth/callback.tsx"),
     route("logout", "routes/auth/logout.tsx"),
     route("forgot-password", "routes/auth/forgot-password.tsx"),
+    route("reset-password", "routes/auth/reset-password.tsx"),
   ]),
 
   // Profile routes
