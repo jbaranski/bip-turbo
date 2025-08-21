@@ -1,7 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router-dom";
 import { redirect, useNavigate, useRouteLoaderData } from "react-router-dom";
+import { toast } from "sonner";
 import { LoginForm } from "~/components/login-form";
 import type { RootData } from "~/root";
 import { getServerClient } from "~/server/supabase";
@@ -23,6 +24,27 @@ export default function Login() {
   const navigate = useNavigate();
   const rootData = useRouteLoaderData("root") as RootData;
   const { SUPABASE_URL, SUPABASE_ANON_KEY, BASE_URL } = rootData.env;
+
+  // Handle error messages from URL hash (e.g., expired OTP)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash.substring(1));
+      const errorParam = params.get("error");
+      const errorDescription = params.get("error_description");
+      const errorCode = params.get("error_code");
+
+      if (errorParam && errorDescription) {
+        if (errorCode === "otp_expired") {
+          setError("Email link has expired. Please request a new password reset.");
+        } else {
+          setError(decodeURIComponent(errorDescription));
+        }
+        // Clear the hash from the URL
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    }
+  }, []);
 
   const doGoogleAuth = async () => {
     const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
@@ -75,9 +97,17 @@ export default function Login() {
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm space-y-6">
+        {error && (
+          <div className="relative border border-red-500/20 bg-red-900/10 backdrop-blur-2xl transition-colors duration-300 rounded-lg p-4">
+            <div className="absolute inset-0 rounded-[inherit] bg-gradient-to-b from-red-500/10 via-transparent to-transparent" />
+            <div className="absolute inset-0 rounded-[inherit] shadow-2xl shadow-red-500/5" />
+            <div className="relative">
+              <p className="text-sm text-red-200">{error}</p>
+            </div>
+          </div>
+        )}
         <LoginForm onSubmit={doEmailLogin} onGoogleClick={doGoogleAuth} />
-        {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
       </div>
     </div>
   );

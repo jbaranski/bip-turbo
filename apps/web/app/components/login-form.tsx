@@ -86,7 +86,7 @@ export function LoginForm({ className, onSubmit, onGoogleClick, ...props }: Logi
                     <Label htmlFor="password" className="text-sm font-medium text-zinc-200">
                       Password
                     </Label>
-                    <Link to="/forgot-password" className="text-sm text-brand-secondary hover:text-hover-accent">
+                    <Link to="/auth/forgot-password" className="text-sm text-brand-secondary hover:text-hover-accent">
                       Forgot password?
                     </Link>
                   </div>
