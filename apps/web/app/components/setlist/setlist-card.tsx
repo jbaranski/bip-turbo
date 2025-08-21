@@ -136,9 +136,10 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
 
       <CardContent className="relative z-10 px-3 py-3 md:px-6 md:py-5">
         {setlist.show.notes && (
-          <div className="mb-4 text-sm text-content-text-secondary italic border-l border-glass-border pl-3 py-1">
-            {setlist.show.notes}
-          </div>
+          <div 
+            className="mb-4 text-sm text-content-text-secondary italic border-l border-glass-border pl-3 py-1"
+            dangerouslySetInnerHTML={{ __html: setlist.show.notes }}
+          />
         )}
 
         <div className="space-y-2 md:space-y-4">

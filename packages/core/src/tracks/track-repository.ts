@@ -75,12 +75,15 @@ export class TrackRepository {
       orderBy: { position: "asc" },
     });
 
-    // If this is a repeat, add a number suffix
+    // Add random chars to ensure uniqueness
+    const randomSuffix = Math.random().toString(36).substring(2, 8);
+
+    // If this is a repeat, add a number suffix + random chars
     if (existingTracks.length > 0) {
-      return `${baseSlug}-${existingTracks.length + 1}`;
+      return `${baseSlug}-${existingTracks.length + 1}-${randomSuffix}`;
     }
 
-    return baseSlug;
+    return `${baseSlug}-${randomSuffix}`;
   }
 
   async findById(id: string): Promise<Track | null> {
