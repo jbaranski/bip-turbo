@@ -1,4 +1,4 @@
-import { Mail } from "lucide-react";
+import { Heart, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ContactDialog } from "~/components/contact/contact-dialog";
 
@@ -18,6 +18,15 @@ export function Footer() {
               Contact
             </button>
           </ContactDialog>
+          <a
+            href="https://www.paypal.com/donate/?business=coteflakes@gmail.com&item_name=BIP+Support"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-content-text-secondary hover:text-content-text-primary transition-colors duration-200 flex items-center gap-2"
+          >
+            <Heart className="h-4 w-4 text-red-500" />
+            Support
+          </a>
           <Link
             to="/about"
             className="text-content-text-secondary hover:text-content-text-primary transition-colors duration-200"

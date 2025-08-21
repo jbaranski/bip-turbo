@@ -1,4 +1,4 @@
-import type { Setlist } from "@bip/domain";
+import { CacheKeys, type Setlist } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -35,6 +35,7 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
 
   // If there's a search query with at least MIN_SEARCH_CHARS characters, use the search functionality
   if (searchQuery && searchQuery.length >= MIN_SEARCH_CHARS) {
+    console.log(`🔍 Loading search results for query: ${searchQuery}`);
     // Get show IDs from search
     const shows = await services.shows.search(searchQuery);
 
@@ -49,18 +50,29 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
     return { setlists, year: yearInt, searchQuery };
   }
 
-  // Get setlists for the specified year
-  // Current year gets reverse chronological, other years get normal chronological
+  // Cache year-based listings - these are stable and cacheable
   const currentYear = new Date().getFullYear();
   const sortDirection = yearInt === currentYear ? "desc" : "asc";
-
-  setlists = await services.setlists.findMany({
-    filters: {
-      year: yearInt,
-    },
-    sort: [{ field: "date", direction: sortDirection }],
+  
+  const yearCacheKey = CacheKeys.shows.list({ 
+    year: yearInt, 
+    sort: sortDirection 
   });
 
+  setlists = await services.cache.getOrSet(
+    yearCacheKey,
+    async () => {
+      console.log(`📅 Loading shows from DB for year: ${yearInt}`);
+      return await services.setlists.findMany({
+        filters: {
+          year: yearInt,
+        },
+        sort: [{ field: "date", direction: sortDirection }],
+      });
+    }
+  );
+
+  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows`);
   return { setlists, year: yearInt };
 });
 

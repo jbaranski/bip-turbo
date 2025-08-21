@@ -15,6 +15,7 @@ import { SongService } from "../songs/song-service";
 import { TrackService } from "../tracks/track-service";
 import { UserService } from "../users/user-service";
 import { VenueService } from "../venues/venue-service";
+import type { CacheService } from "./cache";
 import type { ServiceContainer } from "./container";
 import type { RedisService } from "./redis";
 
@@ -36,6 +37,7 @@ export interface Services {
   search: SearchIndexService;
   embedding: EmbeddingService;
   redis: RedisService;
+  cache: CacheService;
   logger: Logger;
 }
 
@@ -71,6 +73,7 @@ export function createServices(container: ServiceContainer): Services {
     search: searchIndexService,
     embedding: embeddingService,
     redis: container.redis,
+    cache: container.cache,
     logger: container.logger,
   };
 }

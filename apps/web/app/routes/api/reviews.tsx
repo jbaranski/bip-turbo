@@ -67,6 +67,8 @@ export const action = protectedAction(async ({ request, context }) => {
         createdAt: createdReview.createdAt.toISOString(),
       };
 
+      // Note: Reviews are loaded fresh from DB, no cache invalidation needed
+
       return { review: serializedReview };
     } catch (error) {
       logger.error("Error creating review:", error);
