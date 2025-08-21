@@ -114,6 +114,7 @@ export class TrackRepository {
 
     const dbData = this.mapToDbModel({ ...data, slug });
     const result = await this.db.track.create({
+      // biome-ignore lint/suspicious/noExplicitAny: Prisma type requires any for dynamic data mapping
       data: dbData as any,
     });
     return this.mapToDomainEntity(result);
@@ -147,6 +148,7 @@ export class TrackRepository {
 
     const result = await this.db.track.update({
       where: { id },
+      // biome-ignore lint/suspicious/noExplicitAny: Prisma type requires any for dynamic data mapping
       data: updateData as any,
     });
     return this.mapToDomainEntity(result);
