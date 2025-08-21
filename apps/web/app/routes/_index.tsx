@@ -1,4 +1,4 @@
-import type { Attendance, BlogPostWithUser, Rating, Setlist, TourDate } from "@bip/domain";
+import { CacheKeys, type Attendance, type BlogPostWithUser, type Rating, type Setlist, type TourDate } from "@bip/domain";
 import { Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { BlogCard } from "~/components/blog/blog-card";
@@ -47,10 +47,19 @@ export const loader = publicLoader<LoaderData>(async ({ context }) => {
   const threeDaysAgo = new Date();
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
-  const recentSetlists = await services.setlists.findMany({
-    pagination: { limit: 15 },
-    sort: [{ field: "date", direction: "desc" }],
-  });
+  // Cache the recent setlists (core show data only - user-specific data handled separately)
+  const recentSetlists = await services.cache.getOrSet(
+    CacheKeys.home.recentSetlists(15),
+    async () => {
+      console.log("📅 Loading recent setlists from DB for home page");
+      return await services.setlists.findMany({
+        pagination: { limit: 15 },
+        sort: [{ field: "date", direction: "desc" }],
+      });
+    }
+  );
+
+  console.log(`🎯 Home page setlists loaded: ${recentSetlists.length} shows`);
 
   // Filter to shows from last 3 days
   const recentShows = recentSetlists.filter((setlist) => {
@@ -62,10 +71,8 @@ export const loader = publicLoader<LoaderData>(async ({ context }) => {
   const tourDates = allTourDates.slice(0, 8);
 
   // Get recent shows - different amounts for mobile vs desktop
-  const allRecentShows = await services.setlists.findMany({
-    pagination: { limit: 15 }, // Get more to filter from
-    sort: [{ field: "date", direction: "desc" }],
-  });
+  // We can reuse the cached data from above since it's the same query
+  const allRecentShows = recentSetlists;
 
   // Filter shows: only show past shows or shows within 1 day in the future (for mobile)
   const oneDayFromNow = new Date();

@@ -1,4 +1,5 @@
 import type { Annotation } from "@bip/domain";
+import type { CacheInvalidationService } from "../_shared/cache";
 import type { DbAnnotation, DbClient } from "../_shared/database/models";
 
 export function mapAnnotationToDomainEntity(dbAnnotation: DbAnnotation): Annotation {
@@ -16,7 +17,10 @@ export function mapAnnotationToDbModel(entity: Partial<Annotation>): Partial<DbA
 }
 
 export class AnnotationRepository {
-  constructor(private readonly db: DbClient) {}
+  constructor(
+    private readonly db: DbClient,
+    private readonly cacheInvalidation?: CacheInvalidationService,
+  ) {}
 
   protected mapToDomainEntity(dbAnnotation: DbAnnotation): Annotation {
     return mapAnnotationToDomainEntity(dbAnnotation);
@@ -24,6 +28,20 @@ export class AnnotationRepository {
 
   protected mapToDbModel(entity: Partial<Annotation>): Partial<DbAnnotation> {
     return mapAnnotationToDbModel(entity);
+  }
+
+  private async invalidateShowCachesForTrack(trackId: string): Promise<void> {
+    if (!this.cacheInvalidation) return;
+
+    // Get track's show ID for cache invalidation
+    const track = await this.db.track.findUnique({
+      where: { id: trackId },
+      select: { showId: true, show: { select: { slug: true } } },
+    });
+
+    if (track?.showId && track.show?.slug) {
+      await this.cacheInvalidation.invalidateShowComprehensive(track.showId, track.show.slug);
+    }
   }
 
   async findById(id: string): Promise<Annotation | null> {
@@ -53,10 +71,24 @@ export class AnnotationRepository {
     const result = await this.db.annotation.create({
       data: createData,
     });
-    return this.mapToDomainEntity(result);
+
+    const annotation = this.mapToDomainEntity(result);
+
+    // Invalidate show caches (annotation changes affect setlist data)
+    if (data.trackId) {
+      await this.invalidateShowCachesForTrack(data.trackId);
+    }
+
+    return annotation;
   }
 
   async update(id: string, data: Partial<Annotation>): Promise<Annotation> {
+    // Get current annotation for cache invalidation
+    const current = await this.db.annotation.findUnique({
+      where: { id },
+      select: { trackId: true },
+    });
+
     const result = await this.db.annotation.update({
       where: { id },
       data: {
@@ -64,13 +96,33 @@ export class AnnotationRepository {
         updatedAt: new Date(),
       },
     });
-    return this.mapToDomainEntity(result);
+
+    const annotation = this.mapToDomainEntity(result);
+
+    // Invalidate show caches
+    if (current?.trackId) {
+      await this.invalidateShowCachesForTrack(current.trackId);
+    }
+
+    return annotation;
   }
 
   async delete(id: string): Promise<boolean> {
+    // Get annotation info before deletion for cache invalidation
+    const annotation = await this.db.annotation.findUnique({
+      where: { id },
+      select: { trackId: true },
+    });
+
     await this.db.annotation.delete({
       where: { id },
     });
+
+    // Invalidate show caches
+    if (annotation?.trackId) {
+      await this.invalidateShowCachesForTrack(annotation.trackId);
+    }
+
     return true;
   }
 
@@ -78,6 +130,10 @@ export class AnnotationRepository {
     await this.db.annotation.deleteMany({
       where: { trackId },
     });
+
+    // Invalidate show caches
+    await this.invalidateShowCachesForTrack(trackId);
+
     return true;
   }
 }
