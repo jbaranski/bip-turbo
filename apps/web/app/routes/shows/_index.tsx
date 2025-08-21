@@ -26,18 +26,15 @@ const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "
 const MIN_SEARCH_CHARS = 4;
 
 export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
-
   const url = new URL(request.url);
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const yearInt = Number.parseInt(year as string);
   const searchQuery = url.searchParams.get("q") || undefined;
 
-
   let setlists: Setlist[] = [];
 
   // If there's a search query with at least MIN_SEARCH_CHARS characters, use the search functionality
   if (searchQuery && searchQuery.length >= MIN_SEARCH_CHARS) {
-
     // Get show IDs from search
     const shows = await services.shows.search(searchQuery);
 
@@ -75,7 +72,6 @@ export default function Shows() {
   const { setlists, year, searchQuery } = useSerializedLoaderData<LoaderData>();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const queryClient = useQueryClient();
-
 
   const rateMutation = useMutation({
     mutationFn: async ({ showId, rating }: { showId: string; rating: number }) => {
@@ -128,7 +124,7 @@ export default function Shows() {
   });
 
   // Create a stable reference to the mutation function
-  const stableRateMutation = useCallback(
+  const _stableRateMutation = useCallback(
     (showId: string, rating: number) => rateMutation.mutateAsync({ showId, rating }),
     [rateMutation.mutateAsync],
   );

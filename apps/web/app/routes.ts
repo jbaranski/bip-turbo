@@ -11,9 +11,6 @@ export default [
   route("privacy", "routes/privacy.tsx"),
   route("community", "routes/community.tsx"),
 
-  // add test-styles route
-  route("test-styles", "routes/test-styles.tsx"),
-
   // Venues routes with layout
   layout("routes/venues/_layout.tsx", [
     ...prefix("venues", [
@@ -96,6 +93,7 @@ export default [
     route("attendances", "routes/api/attendances.tsx"),
     route("venues", "routes/api/venues.tsx"),
     route("songs", "routes/api/songs.tsx"),
+    route("songs/:id", "routes/api/songs/$id.tsx"),
     route("tracks", "routes/api/tracks.tsx"),
     route("tracks/reorder", "routes/api/tracks/reorder.tsx"),
     route("tracks/:id", "routes/api/tracks/$id.tsx"),

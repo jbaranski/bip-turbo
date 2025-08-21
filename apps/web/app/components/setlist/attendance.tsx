@@ -1,10 +1,10 @@
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import type { Attendance } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useRevalidator } from "react-router-dom";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 interface AttendanceData {
   attendances: Attendance[];
@@ -94,7 +94,7 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
 
       return { deletedId: attendanceId };
     },
-    onMutate: (attendanceId) => {
+    onMutate: (_attendanceId) => {
       const previousAttendance = currentAttendance;
       // Optimistically update
       setIsAttending(false);
@@ -102,7 +102,7 @@ export function AttendanceToggle({ showId, initialAttendance }: Props) {
       toast.loading("Removing attendance...");
       return { previousAttendance };
     },
-    onError: (error, variables, context) => {
+    onError: (error, _variables, context) => {
       toast.dismiss();
       toast.error(`Failed to remove attendance: ${error.message}`);
       // Revert optimistic update

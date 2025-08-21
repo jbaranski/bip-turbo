@@ -31,7 +31,7 @@ async function migrateUsers() {
     for (const user of users) {
       try {
         // Create user in Supabase Auth with their existing UUID and password hash
-        const { data, error } = await supabase.auth.admin.createUser({
+        const { error } = await supabase.auth.admin.createUser({
           email: user.email.toLowerCase(),
           email_confirm: true,
           user_metadata: {

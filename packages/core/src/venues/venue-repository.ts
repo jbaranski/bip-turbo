@@ -31,6 +31,31 @@ export class VenueRepository {
     return mapVenueToDbModel(entity);
   }
 
+  private async generateVenueSlug(
+    name: string,
+    city?: string | null,
+    state?: string | null,
+    excludeId?: string,
+  ): Promise<string> {
+    let baseSlug = slugify(name);
+
+    // Check if slug already exists (excluding current venue if updating)
+    const existing = await this.db.venue.findFirst({
+      where: {
+        slug: baseSlug,
+        ...(excludeId && { id: { not: excludeId } }),
+      },
+    });
+
+    // If duplicate, add city and state
+    if (existing) {
+      const parts = [name, city, state].filter(Boolean).join("-");
+      baseSlug = slugify(parts);
+    }
+
+    return baseSlug;
+  }
+
   async findById(id: string): Promise<Venue | null> {
     const result = await this.db.venue.findUnique({
       where: { id },
@@ -65,7 +90,7 @@ export class VenueRepository {
   }
 
   async create(data: Omit<Venue, "id" | "slug" | "createdAt" | "updatedAt" | "timesPlayed">): Promise<Venue> {
-    const slug = slugify(data.name);
+    const slug = await this.generateVenueSlug(data.name, data.city, data.state);
     const result = await this.db.venue.create({
       data: {
         ...data,
@@ -78,12 +103,30 @@ export class VenueRepository {
   }
 
   async update(id: string, data: Partial<Venue>): Promise<Venue> {
+    const updateData: Partial<DbVenue> & { updatedAt: Date; slug?: string } = {
+      ...this.mapToDbModel(data),
+      updatedAt: new Date(),
+    };
+
+    // Regenerate slug if name, city, or state changes
+    if (data.name || data.city || data.state) {
+      // Get current venue for fallback values
+      const current = await this.db.venue.findUnique({
+        where: { id },
+        select: { name: true, city: true, state: true },
+      });
+
+      if (current) {
+        const name = data.name || current.name || "";
+        const city = data.city || current.city;
+        const state = data.state || current.state;
+        updateData.slug = await this.generateVenueSlug(name, city, state, id);
+      }
+    }
+
     const result = await this.db.venue.update({
       where: { id },
-      data: {
-        ...this.mapToDbModel(data),
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
     return this.mapToDomainEntity(result);
   }
@@ -94,7 +137,7 @@ export class VenueRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

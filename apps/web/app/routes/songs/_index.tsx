@@ -1,6 +1,6 @@
 import type { Song, TrendingSong } from "@bip/domain";
 import { Plus, Search } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AdminOnly } from "~/components/admin/admin-only";
 import { Button } from "~/components/ui/button";
@@ -21,7 +21,7 @@ interface LoaderData {
   recentShowsCount: number;
 }
 
-export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
+export const loader = publicLoader(async (): Promise<LoaderData> => {
   const recentShowsCount = 10;
   const [songs, trendingSongs, yearlyTrendingSongs] = await Promise.all([
     services.songs.findMany({}),

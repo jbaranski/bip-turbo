@@ -1,4 +1,4 @@
-import { type RedisClientType, createClient } from "redis";
+import { createClient, type RedisClientType } from "redis";
 
 export class RedisService {
   private client!: RedisClientType;

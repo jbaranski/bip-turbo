@@ -77,7 +77,7 @@ export class SearchIndexRepository {
 
     // Build bulk upsert SQL with VALUES clause
     const values = dataArray
-      .map((data, index) => {
+      .map((_data, index) => {
         const paramBase = index * 8; // 8 parameters per record
         return `(
 				$${paramBase + 1}, 
@@ -125,7 +125,7 @@ export class SearchIndexRepository {
    * Update an existing search index entry
    */
   async update(id: string, data: Partial<SearchIndexData>): Promise<void> {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
 
     if (data.displayText !== undefined) updateData.displayText = data.displayText;
     if (data.content !== undefined) updateData.content = data.content;
@@ -178,7 +178,7 @@ export class SearchIndexRepository {
 
     // Build the query dynamically based on filters
     const whereConditions = [];
-    const queryParams: any[] = [queryEmbedding];
+    const queryParams: unknown[] = [queryEmbedding];
     let paramIndex = 1;
 
     if (entityTypes && entityTypes.length > 0) {
@@ -321,7 +321,7 @@ export class SearchIndexRepository {
         ) as exists
       `;
       return result[0]?.exists || false;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

@@ -1,8 +1,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import { useState } from "react";
-import { redirect, useRouteLoaderData } from "react-router-dom";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate, useRouteLoaderData } from "react-router-dom";
 import { RegisterForm } from "~/components/register-form";
 import type { RootData } from "~/root";
 import { getServerClient } from "~/server/supabase";
@@ -57,7 +56,7 @@ export default function Register() {
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <RegisterForm onSubmit={doRegister} />
+        <RegisterForm onSubmit={doRegister} onGoogleClick={() => {}} />
         {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
       </div>
     </div>

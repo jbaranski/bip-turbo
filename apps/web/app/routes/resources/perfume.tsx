@@ -22,7 +22,7 @@ export function meta() {
 }
 
 const Perfume: React.FC = () => {
-  const p = ({ children }: { children: React.ReactNode }) => (
+  const _p = ({ children }: { children: React.ReactNode }) => (
     <p className="mb-6 text-content-text-tertiary leading-relaxed">{children}</p>
   );
 

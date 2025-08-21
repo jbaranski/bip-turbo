@@ -1,19 +1,26 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.2/schema.json",
   "files": {
-    "experimentalScannerIgnores": [
-      ".react-router/**",
-      "**/build/**",
-      "**/dist/**",
-      "**/.turbo/**",
-      "**/node_modules/**",
-      "**/tailwind.config.js"
+    "includes": [
+      "**",
+      "!**/.react-router/**",
+      "!**/build/**",
+      "!**/dist/**",
+      "!**/.turbo/**",
+      "!**/node_modules/**",
+      "!**/tailwind.config.js",
+      "!**/data-migrations/**",
+      "!**/*.css",
+      "!biome.json"
     ]
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
+      }
     }
   },
   "formatter": {

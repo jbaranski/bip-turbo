@@ -1,4 +1,4 @@
-import type { BlogPost, BlogPostState, File } from "@bip/domain";
+import type { BlogPost, BlogPostState } from "@bip/domain";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ActionFunctionArgs } from "react-router";

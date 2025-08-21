@@ -3,25 +3,6 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { publicLoader } from "~/lib/base-loaders";
 
-// Define types for our data
-interface Character {
-  name: string;
-  anchor: string;
-  copy: string;
-}
-
-interface Act {
-  name: string;
-  anchor: string;
-  setting: string;
-}
-
-interface Song {
-  name: string;
-  anchor: string;
-  setting?: string;
-  lyrics?: string;
-}
 
 // Add a loader function
 export const loader = publicLoader<void>(async () => {});
@@ -429,7 +410,7 @@ at his last chance to fly
 
   const acts = [...act1, ...act2];
 
-  const OperaMenuCard = ({ title, items }: { title: string; items: { name: string; anchor: string }[] }) => (
+  const _OperaMenuCard = ({ title, items }: { title: string; items: { name: string; anchor: string }[] }) => (
     <Card className="card-premium rounded-lg mb-6">
       <CardHeader>
         <h3 className="text-2xl font-semibold">{title}</h3>
@@ -449,7 +430,7 @@ at his last chance to fly
     </Card>
   );
 
-  const LyricsBlock = ({ children }: { children: React.ReactNode }) => (
+  const _LyricsBlock = ({ children }: { children: React.ReactNode }) => (
     <blockquote className="border-l-4 border-content-bg-secondary pl-4 italic my-4 text-content-text-secondary">
       {children}
     </blockquote>

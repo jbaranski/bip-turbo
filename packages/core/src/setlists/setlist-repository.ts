@@ -1,7 +1,6 @@
 import type { Setlist, Show } from "@bip/domain";
 import type { DbAnnotation, DbClient, DbShow, DbSong, DbTrack, DbVenue } from "../_shared/database/models";
-import { dbClient } from "../_shared/database/models";
-import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
+import { buildOrderByClause } from "../_shared/database/query-utils";
 import type { PaginationOptions, SortOptions } from "../_shared/database/types";
 import { mapShowToDomainEntity } from "../shows/show-repository";
 import { mapAnnotationToDomainEntity, mapTrackToDomainEntity } from "../tracks/track-repository";

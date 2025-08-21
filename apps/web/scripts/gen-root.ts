@@ -1,5 +1,4 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
 
 const ROOT_DIR = ".react-router/types/app";
 const JS_FILE = `${ROOT_DIR}/root.js`;

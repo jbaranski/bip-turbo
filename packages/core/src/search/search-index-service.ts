@@ -1,6 +1,6 @@
 import type { Logger } from "@bip/domain";
 import type { EmbeddingService } from "./embedding-service";
-import type { SearchIndexRepository, SearchResult, SearchOptions } from "./search-index-repository";
+import type { SearchIndexRepository, SearchResult } from "./search-index-repository";
 
 export interface SearchQuery {
   query: string;
@@ -22,8 +22,8 @@ export interface IndexStats {
 
 export interface ContentFormatter {
   entityType: string;
-  generateDisplayText(entity: any): string;
-  generateContent(entity: any): string;
+  generateDisplayText(entity: Record<string, unknown>): string;
+  generateContent(entity: Record<string, unknown>): string;
 }
 
 export class SearchIndexService {
@@ -84,13 +84,13 @@ export class SearchIndexService {
   /**
    * Index a single entity
    */
-  async indexEntity(entity: any, entityType: string): Promise<void> {
+  async indexEntity(entity: Record<string, unknown>, entityType: string): Promise<void> {
     const formatter = this.contentFormatters.get(entityType);
     if (!formatter) {
       throw new Error(`No content formatter registered for entity type: ${entityType}`);
     }
 
-    const entityId = entity.id;
+    const entityId = entity.id as string;
     if (!entityId) {
       throw new Error(`Entity must have an id field for indexing`);
     }
@@ -107,7 +107,7 @@ export class SearchIndexService {
       await this.repository.upsert({
         entityType,
         entityId,
-        entitySlug: entity.slug || entityId, // Use slug if available, fallback to ID
+        entitySlug: (entity.slug as string) || entityId, // Use slug if available, fallback to ID
         displayText,
         content,
         embeddingSmall: embedding,
@@ -127,7 +127,7 @@ export class SearchIndexService {
   /**
    * Index multiple entities of the same type in batch
    */
-  async indexEntities(entityType: string, entities: any[]): Promise<void> {
+  async indexEntities(entityType: string, entities: Record<string, unknown>[]): Promise<void> {
     const formatter = this.contentFormatters.get(entityType);
     if (!formatter) {
       throw new Error(`No content formatter registered for entity type: ${entityType}`);
@@ -150,8 +150,8 @@ export class SearchIndexService {
       // Prepare data for batch insert
       const indexData = entities.map((entity, index) => ({
         entityType,
-        entityId: entity.id,
-        entitySlug: entity.slug || entity.id, // Use slug if available, fallback to ID
+        entityId: entity.id as string,
+        entitySlug: (entity.slug as string) || (entity.id as string), // Use slug if available, fallback to ID
         displayText: displayTexts[index],
         content: contents[index],
         embeddingSmall: embeddingResults[index].embedding,
@@ -174,7 +174,7 @@ export class SearchIndexService {
   /**
    * Update an existing index entry
    */
-  async updateEntity(entity: any, entityType: string): Promise<void> {
+  async updateEntity(entity: Record<string, unknown>, entityType: string): Promise<void> {
     // For now, we'll just re-index the entity
     // In the future, we could optimize this to only update if content changed
     await this.indexEntity(entity, entityType);
@@ -222,7 +222,7 @@ export class SearchIndexService {
   /**
    * Rebuild the entire search index for a specific entity type
    */
-  async rebuildIndex(entityType: string, entities: any[]): Promise<void> {
+  async rebuildIndex(entityType: string, entities: Record<string, unknown>[]): Promise<void> {
     this.logger.info(`Starting index rebuild for ${entityType}`);
 
     try {

@@ -1,7 +1,7 @@
 import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/postcss";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-import tailwindcss from "@tailwindcss/postcss";
 
 export default defineConfig({
   server: {
@@ -34,7 +34,7 @@ export default defineConfig({
     {
       name: "handle-well-known",
       configureServer(server) {
-        server.middlewares.use("/.well-known", (req, res, next) => {
+        server.middlewares.use("/.well-known", (_req, res, _next) => {
           // Silently return 404 for .well-known requests
           res.statusCode = 404;
           res.end();
@@ -46,9 +46,9 @@ export default defineConfig({
       configureServer(server) {
         // Increase Node.js server header size limit
         const originalListen = server.listen.bind(server);
-        server.listen = function(...args) {
+        server.listen = (...args) => {
           if (server.httpServer) {
-            server.httpServer.maxHeaderSize = 32768;
+            (server.httpServer as { maxHeaderSize?: number }).maxHeaderSize = 32768;
           }
           return originalListen(...args);
         };

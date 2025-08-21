@@ -173,7 +173,7 @@ export class UserRepository {
         data: dbData,
       });
       return mapUserToDomainEntity(result);
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -184,7 +184,7 @@ export class UserRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -277,10 +277,11 @@ export class UserRepository {
           return stats.attendanceCount > 0;
         case "ratings":
           return stats.ratingCount > 0;
-        case "blogPostCount":
+        case "blogPostCount": {
           const hasBlogs = stats.blogPostCount > 0;
           console.log(`DEBUG: ${stats.user.username} - blogPostCount: ${stats.blogPostCount}, hasBlogs: ${hasBlogs}`);
           return hasBlogs;
+        }
         default:
           return true;
       }

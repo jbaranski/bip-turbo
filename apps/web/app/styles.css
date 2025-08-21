@@ -282,7 +282,7 @@
     position: relative;
     z-index: 10;
   }
-  
+
   /* Ensure all cards and content are above background */
   .glass-content,
   .card-premium,

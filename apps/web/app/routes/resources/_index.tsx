@@ -1,5 +1,4 @@
 import type { ReactElement } from "react";
-import { Outlet } from "react-router-dom";
 import ResourceCard from "~/components/resources/resource-card";
 import { publicLoader } from "~/lib/base-loaders";
 

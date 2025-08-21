@@ -1,6 +1,6 @@
 import type { Attendance, BlogPostWithUser, Rating, Setlist, TourDate } from "@bip/domain";
-import { ArrowRight, Calendar, FileText, MapPin, Music, Search } from "lucide-react";
-import { Link, redirect } from "react-router-dom";
+import { Calendar } from "lucide-react";
+import { Link } from "react-router-dom";
 import { BlogCard } from "~/components/blog/blog-card";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Card } from "~/components/ui/card";
@@ -29,11 +29,10 @@ interface LoaderData {
   ratingsByShowId: Record<string, Rating>;
   latestEpisode: AcastEpisode | null;
   nextTourDate: TourDate | null;
-  todaysSetlist: Setlist | null;
-  yesterdaysSetlist: Setlist | null;
+  recentShows: Setlist[];
 }
 
-export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
+export const loader = publicLoader<LoaderData>(async ({ context }) => {
   const { currentUser } = context;
 
   const allTourDates = Array.isArray(await services.tourDatesService.getTourDates())
@@ -44,46 +43,20 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
   const now = new Date();
   const nextTourDate = allTourDates.find((date) => new Date(date.date) >= now) || null;
 
-  // Find today's or yesterday's show
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
+  // Get recent setlists from last 3 days
+  const threeDaysAgo = new Date();
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
-  const todaysShow = allTourDates.find((date) => {
-    const showDate = new Date(date.date);
-    showDate.setHours(0, 0, 0, 0);
-    return showDate.getTime() === today.getTime();
+  const recentSetlists = await services.setlists.findMany({
+    pagination: { limit: 15 },
+    sort: [{ field: "date", direction: "desc" }],
   });
 
-  const yesterdaysShow = allTourDates.find((date) => {
-    const showDate = new Date(date.date);
-    showDate.setHours(0, 0, 0, 0);
-    return showDate.getTime() === yesterday.getTime();
+  // Filter to shows from last 3 days
+  const recentShows = recentSetlists.filter((setlist) => {
+    const showDate = new Date(setlist.show.date);
+    return showDate >= threeDaysAgo;
   });
-
-  // Find setlists for today's or yesterday's show from recent setlists (last 2 days)
-  let todaysSetlist: Setlist | null = null;
-  let yesterdaysSetlist: Setlist | null = null;
-
-  if (todaysShow || yesterdaysShow) {
-    // Get recent setlists from last few days
-    const recentSetlists = await services.setlists.findMany({
-      pagination: { limit: 5 }, // Just get last few shows
-      sort: [{ field: "date", direction: "desc" }],
-    });
-
-    for (const setlist of recentSetlists) {
-      const setlistDate = new Date(setlist.show.date);
-      setlistDate.setHours(0, 0, 0, 0);
-
-      if (todaysShow && setlistDate.getTime() === today.getTime()) {
-        todaysSetlist = setlist;
-      } else if (yesterdaysShow && setlistDate.getTime() === yesterday.getTime()) {
-        yesterdaysSetlist = setlist;
-      }
-    }
-  }
 
   // Limit to next 8 upcoming dates for home page
   const tourDates = allTourDates.slice(0, 8);
@@ -170,8 +143,7 @@ export const loader = publicLoader<LoaderData>(async ({ request, context }) => {
     ratingsByShowId,
     latestEpisode,
     nextTourDate,
-    todaysSetlist,
-    yesterdaysSetlist,
+    recentShows,
   };
 });
 
@@ -189,8 +161,7 @@ export default function Index() {
     ratingsByShowId = {} as Record<string, Rating>,
     latestEpisode,
     nextTourDate,
-    todaysSetlist,
-    yesterdaysSetlist,
+    recentShows = [],
   } = useSerializedLoaderData<LoaderData>();
 
   return (
@@ -202,19 +173,21 @@ export default function Index() {
         </h1>
       </div>
 
-      {/* Today's or Yesterday's Show - Only on mobile */}
+      {/* Recent Shows - Only on mobile */}
       <div className="md:hidden">
-        {(todaysSetlist || yesterdaysSetlist) && (
+        {recentShows.length > 0 && (
           <div className="mb-6">
-            <div className="mb-2">
-              <h2 className="text-xl font-bold">{todaysSetlist ? "Tonight's Show" : "Yesterday's Show"}</h2>
+            <div className="space-y-4">
+              {recentShows.slice(0, 2).map((setlist) => (
+                <SetlistCard
+                  key={setlist.show.id}
+                  setlist={setlist}
+                  userAttendance={attendancesByShowId[setlist.show.id] || null}
+                  userRating={ratingsByShowId[setlist.show.id] || null}
+                  showRating={setlist.show.averageRating}
+                />
+              ))}
             </div>
-            <SetlistCard
-              setlist={todaysSetlist || yesterdaysSetlist!}
-              userAttendance={attendancesByShowId[(todaysSetlist || yesterdaysSetlist)!.show.id] || null}
-              userRating={ratingsByShowId[(todaysSetlist || yesterdaysSetlist)!.show.id] || null}
-              showRating={(todaysSetlist || yesterdaysSetlist)!.show.averageRating}
-            />
           </div>
         )}
 

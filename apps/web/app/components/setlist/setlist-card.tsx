@@ -94,7 +94,7 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
         <div className="flex justify-between items-start">
           <div className="flex flex-col gap-1">
             <div className="text-lg md:text-2xl font-medium text-brand-primary hover:text-brand-secondary transition-colors">
-              <Link to={`/shows/${setlist.show.slug}`}>{formattedDate}</Link>
+              <Link to={setlist.show.slug ? `/shows/${setlist.show.slug}` : `/shows`}>{formattedDate}</Link>
             </div>
             <div className="text-base md:text-xl text-content-text-primary">
               {setlist.venue.name} - {setlist.venue.city}, {setlist.venue.state}

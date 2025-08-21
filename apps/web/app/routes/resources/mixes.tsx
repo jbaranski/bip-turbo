@@ -115,7 +115,7 @@ const Mixes: React.FC = () => {
     </div>
   );
 
-  const p = ({ children }: { children: React.ReactNode }) => (
+  const _p = ({ children }: { children: React.ReactNode }) => (
     <p className="mb-4 text-content-text-secondary leading-relaxed">{children}</p>
   );
 

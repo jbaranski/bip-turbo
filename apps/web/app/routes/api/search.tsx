@@ -17,7 +17,7 @@ interface SearchResponse {
     displayText: string;
     score: number;
     url: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
   }>;
   query: string;
   totalResults: number;

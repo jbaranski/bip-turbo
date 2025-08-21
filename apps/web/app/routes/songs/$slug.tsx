@@ -1,18 +1,27 @@
 import type { SongPagePerformance, SongPageView } from "@bip/domain";
 import {
-  type SortingState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDownIcon, ArrowLeft, ArrowUpIcon, BarChart3, FileTextIcon, GuitarIcon, History, Pencil, StarIcon } from "lucide-react";
+import {
+  ArrowDownIcon,
+  ArrowLeft,
+  ArrowUpIcon,
+  BarChart3,
+  FileTextIcon,
+  GuitarIcon,
+  History,
+  Pencil,
+  StarIcon,
+} from "lucide-react";
 import { useState } from "react";
-import Masonry from "react-masonry-css";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link } from "react-router-dom";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AdminOnly } from "~/components/admin/admin-only";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
@@ -22,7 +31,7 @@ import { getSongMeta, getSongStructuredData } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
 
-export const loader = publicLoader(async ({ request, params }: LoaderFunctionArgs): Promise<SongPageView> => {
+export const loader = publicLoader(async ({ params }: LoaderFunctionArgs): Promise<SongPageView> => {
   const slug = params.slug;
   if (!slug) throw new Response("Not Found", { status: 404 });
 
@@ -177,7 +186,7 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
                           ? "cursor-pointer select-none hover:text-content-text-primary w-full text-left"
                           : "w-full text-left"
                       }
-                      onClick={(e) => {
+                      onClick={(_e) => {
                         header.column.toggleSorting();
                       }}
                     >
@@ -236,6 +245,7 @@ function ReviewNote({ notes }: { notes: string }) {
           <>
             <span>...</span>
             <button
+              type="button"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -249,6 +259,7 @@ function ReviewNote({ notes }: { notes: string }) {
         )}
         {shouldTruncate && isExpanded && (
           <button
+            type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -267,10 +278,7 @@ function ReviewNote({ notes }: { notes: string }) {
 export function meta({ data }: { data: SongPageView }) {
   return getSongMeta({
     ...data.song,
-    name: data.song.title,
-    slug: data.song.slug,
     timesPlayed: data.song.timesPlayed,
-    debutDate: data.song.debutDate,
   });
 }
 
@@ -286,8 +294,6 @@ export default function SongPage() {
         dangerouslySetInnerHTML={{
           __html: getSongStructuredData({
             ...song,
-            name: song.title,
-            slug: song.slug,
             timesPlayed: song.timesPlayed,
           }),
         }}
@@ -457,7 +463,7 @@ export default function SongPage() {
                               {p.venue.city}, {p.venue.state}
                             </div>
                           )}
-                          <ReviewNote key={p.trackId} notes={p.notes!} />
+                          {p.notes && <ReviewNote key={p.trackId} notes={p.notes} />}
                         </div>
                       </a>
                     ))}
@@ -553,31 +559,24 @@ export default function SongPage() {
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-                  <XAxis 
-                    dataKey="year" 
-                    stroke="#9CA3AF"
-                    fontSize={12}
-                  />
-                  <YAxis 
-                    stroke="#9CA3AF"
-                    fontSize={12}
-                  />
+                  <XAxis dataKey="year" stroke="#9CA3AF" fontSize={12} />
+                  <YAxis stroke="#9CA3AF" fontSize={12} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1F2937',
-                      border: '1px solid #374151',
-                      borderRadius: '6px',
-                      color: '#F3F4F6',
+                      backgroundColor: "#1F2937",
+                      border: "1px solid #374151",
+                      borderRadius: "6px",
+                      color: "#F3F4F6",
                     }}
-                    labelStyle={{ color: '#F3F4F6' }}
+                    labelStyle={{ color: "#F3F4F6" }}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="plays" 
-                    stroke="#8B5CF6" 
+                  <Line
+                    type="monotone"
+                    dataKey="plays"
+                    stroke="#8B5CF6"
                     strokeWidth={2}
-                    dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#8B5CF6', strokeWidth: 2 }}
+                    dot={{ fill: "#8B5CF6", strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: "#8B5CF6", strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -588,17 +587,17 @@ export default function SongPage() {
         {song.history && (
           <TabsContent value="history" className="mt-4">
             <div className="glass-content rounded-lg p-6">
-              <div 
+              <div
                 className="text-base text-content-text-tertiary leading-relaxed [&>p]:mb-4 [&>p:last-child]:mb-0"
-                dangerouslySetInnerHTML={{ 
+                dangerouslySetInnerHTML={{
                   __html: song.history
                     // First try to split on sentences that end with periods followed by spaces and capital letters
-                    .replace(/(\. )([A-Z])/g, '$1</p><p>$2')
+                    .replace(/(\. )([A-Z])/g, "$1</p><p>$2")
                     // Also handle line breaks
-                    .replace(/\n/g, '<br>')
+                    .replace(/\n/g, "<br>")
                     // Wrap the whole thing in a paragraph
-                    .replace(/^/, '<p>')
-                    .replace(/$/, '</p>')
+                    .replace(/^/, "<p>")
+                    .replace(/$/, "</p>"),
                 }}
               />
             </div>

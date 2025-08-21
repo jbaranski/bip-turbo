@@ -16,7 +16,7 @@ const logger: Logger = {
   debug: (obj: string | object, msg?: string) => console.debug(`🐛 ${obj} ${msg}`),
   fatal: (obj: string | object, msg?: string) => console.error(`💀 ${obj} ${msg}`),
   trace: (obj: string | object, msg?: string) => console.trace(`🔍 ${obj} ${msg}`),
-  child: (bindings: object) => logger,
+  child: (_bindings: object) => logger,
 };
 
 // Environment setup
