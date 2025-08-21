@@ -15,6 +15,13 @@ export const songSchema = z.object({
   featuredLyric: z.string().nullable(),
   timesPlayed: z.number().default(0),
   dateLastPlayed: z.date().nullable(),
+  actualLastPlayedDate: z.date().nullable(),
+  showsSinceLastPlayed: z.number().nullable(),
+  lastVenue: z.object({
+    name: z.string(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+  }).nullable(),
   yearlyPlayData: z.record(z.string(), z.unknown()).default({}),
   longestGapsData: z.record(z.string(), z.unknown()).default({}),
   mostCommonYear: z.number().nullable(),
