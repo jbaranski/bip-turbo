@@ -1,11 +1,13 @@
-import type { SongPagePerformance, SongPageView } from "@bip/domain";
+import type { Annotation, SongPagePerformance, SongPageView } from "@bip/domain";
 import type { DbClient } from "../_shared/database/models";
+import type { AnnotationRepository } from "../annotations/annotation-repository";
 import type { SongRepository } from "../songs/song-repository";
 
 export class SongPageComposer {
   constructor(
     private db: DbClient,
     private songRepository: SongRepository,
+    private annotationRepository: AnnotationRepository,
   ) {}
 
   async build(songSlug: string): Promise<SongPageView> {
@@ -75,6 +77,8 @@ export class SongPageComposer {
         tracks.id as track_id,
         tracks.song_id,
         tracks.segue,
+        tracks.set,
+        tracks.position,
         tracks.all_timer,
         tracks.average_rating,
         tracks.note,
@@ -103,6 +107,37 @@ export class SongPageComposer {
 
     const performances = result.map((row: PerformanceDto) => this.transformToSongPagePerformanceView(row));
 
+    // Bulk fetch annotations for all tracks
+    const trackIds = performances.map(p => p.trackId);
+    const annotations = await this.db.annotation.findMany({
+      where: {
+        trackId: {
+          in: trackIds
+        }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Group annotations by trackId
+    const annotationsByTrackId = new Map<string, Annotation[]>();
+    for (const annotation of annotations) {
+      const trackAnnotations = annotationsByTrackId.get(annotation.trackId) || [];
+      trackAnnotations.push({
+        ...annotation,
+        createdAt: new Date(annotation.createdAt),
+        updatedAt: new Date(annotation.updatedAt),
+      });
+      annotationsByTrackId.set(annotation.trackId, trackAnnotations);
+    }
+
+    // Map annotations to performances
+    performances.forEach(perf => {
+      perf.annotations = annotationsByTrackId.get(perf.trackId) || [];
+    });
+
+    // Compute tags for each performance
+    await this.computePerformanceTags(performances);
+
     return {
       song: {
         ...song,
@@ -112,6 +147,73 @@ export class SongPageComposer {
       },
       performances,
     };
+  }
+
+  private async computePerformanceTags(performances: SongPagePerformance[]): Promise<void> {
+    // For set opener/closer computation, we need to know the min/max positions for each set in each show
+    const setPositionData = new Map<string, { min: number; max: number }>();
+    
+    // Get all unique show IDs
+    const showIds = [...new Set(performances.map(p => p.show.id))];
+    
+    if (showIds.length > 0) {
+      // Get all set position ranges in a single query
+      const setRanges = await this.db.$queryRaw<Array<{ show_id: string; set: string; min_position: number; max_position: number }>>`
+        SELECT show_id, set, MIN(position) as min_position, MAX(position) as max_position
+        FROM tracks 
+        WHERE show_id = ANY(${showIds}::uuid[])
+        GROUP BY show_id, set
+      `;
+      
+      // Build the lookup map
+      for (const range of setRanges) {
+        const key = `${range.show_id}|||${range.set}`;
+        setPositionData.set(key, {
+          min: range.min_position,
+          max: range.max_position,
+        });
+      }
+    }
+
+    // Compute tags for each performance
+    performances.forEach(perf => {
+      const tags: SongPagePerformance['tags'] = {};
+      
+      // Encore (sets that start with "E") - check this first
+      const isEncore = perf.set?.startsWith('E');
+      if (isEncore) {
+        tags.encore = true;
+      }
+      
+      // Set opener/closer (only for non-encore sets)
+      if (perf.set && perf.position !== undefined && !isEncore) {
+        const showSetKey = `${perf.show.id}|||${perf.set}`;
+        const setRange = setPositionData.get(showSetKey);
+        
+        if (setRange) {
+          tags.setOpener = perf.position === setRange.min;
+          tags.setCloser = perf.position === setRange.max;
+        }
+      }
+      
+      // Segue in/out
+      const hasSegueIn = perf.songBefore?.segue;
+      const hasSegueOut = perf.segue;
+      tags.segueIn = !!hasSegueIn;
+      tags.segueOut = !!hasSegueOut;
+      
+      // Standalone (no segue in or out)
+      tags.standalone = !hasSegueIn && !hasSegueOut;
+      
+      // Inverted/Dyslexic from annotations
+      if (perf.annotations) {
+        const annotationText = perf.annotations.map(a => a.desc?.toLowerCase() || '').join(' ');
+        tags.inverted = annotationText.includes('inverted');
+        tags.dyslexic = annotationText.includes('dyslexic');
+      }
+      
+      perf.tags = tags;
+    });
   }
 
   private transformToSongPagePerformanceView(row: PerformanceDto): SongPagePerformance {
@@ -157,6 +259,9 @@ export class SongPageComposer {
       rating: row.average_rating || undefined,
       notes: row.note || undefined,
       allTimer: row.all_timer,
+      segue: row.segue,
+      set: row.set,
+      position: row.position,
     };
   }
 }
@@ -178,7 +283,9 @@ type PerformanceDto = {
   // Track fields
   track_id: string;
   song_id: string;
-  segue: boolean;
+  segue: string | null;
+  set: string;
+  position: number;
   all_timer: boolean;
   average_rating: number;
   note: string | null;
