@@ -1,3 +1,4 @@
+import type { Annotation } from "../models/annotation";
 import type { ShowMinimal } from "../models/show";
 import type { Song } from "../models/song";
 import type { TrackMinimal } from "../models/track";
@@ -17,4 +18,18 @@ export type SongPagePerformance = {
   rating?: number;
   notes?: string;
   allTimer?: boolean;
+  segue?: string | null;
+  annotations?: Annotation[];
+  set?: string;
+  position?: number;
+  tags?: {
+    setOpener?: boolean;
+    setCloser?: boolean;
+    encore?: boolean;
+    inverted?: boolean;
+    dyslexic?: boolean;
+    standalone?: boolean;
+    segueIn?: boolean;
+    segueOut?: boolean;
+  };
 };

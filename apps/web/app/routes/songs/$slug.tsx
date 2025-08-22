@@ -18,7 +18,7 @@ import {
   Pencil,
   StarIcon,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { Link } from "react-router-dom";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -58,12 +58,44 @@ function StatBox({ label, value, sublabel, sublabel2 }: StatBoxProps) {
   );
 }
 
-function PerformanceTable({ performances: initialPerformances }: { performances: SongPagePerformance[] }) {
+function PerformanceTable({ performances: initialPerformances, songTitle }: { performances: SongPagePerformance[]; songTitle: string }) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "date", desc: true }]);
+  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
 
   const handleSortingChange = (updaterOrValue: SortingState | ((old: SortingState) => SortingState)) => {
     setSorting(updaterOrValue);
   };
+
+  const toggleFilter = (filterKey: string) => {
+    const newFilters = new Set(activeFilters);
+    if (newFilters.has(filterKey)) {
+      newFilters.delete(filterKey);
+    } else {
+      newFilters.add(filterKey);
+    }
+    setActiveFilters(newFilters);
+  };
+
+  // Filter performances based on active filters
+  const filteredPerformances = useMemo(() => {
+    if (activeFilters.size === 0) return initialPerformances;
+    
+    return initialPerformances.filter(perf => {
+      return Array.from(activeFilters).some(filterKey => {
+        switch (filterKey) {
+          case 'setOpener': return perf.tags?.setOpener;
+          case 'setCloser': return perf.tags?.setCloser;
+          case 'encore': return perf.tags?.encore;
+          case 'segueIn': return perf.tags?.segueIn;
+          case 'segueOut': return perf.tags?.segueOut;
+          case 'standalone': return perf.tags?.standalone;
+          case 'inverted': return perf.tags?.inverted;
+          case 'dyslexic': return perf.tags?.dyslexic;
+          default: return false;
+        }
+      });
+    });
+  }, [initialPerformances, activeFilters]);
 
   const columnHelper = createColumnHelper<SongPagePerformance>();
   const columns = [
@@ -102,45 +134,106 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
         },
       },
     ),
+    columnHelper.accessor("set", {
+      header: "Set",
+      size: 64,
+      enableSorting: true,
+      cell: (info) => {
+        const set = info.getValue();
+        return set ? (
+          <span className="text-content-text-secondary">{set}</span>
+        ) : (
+          <span className="text-content-text-tertiary">—</span>
+        );
+      },
+    }),
     columnHelper.accessor(
       (row) => ({
-        title: row.songBefore?.songTitle,
-        slug: row.songBefore?.songSlug,
-        segue: row.songBefore?.segue,
+        before: row.songBefore,
+        after: row.songAfter,
+        currentSong: songTitle,
       }),
       {
-        id: "before",
-        header: "Song before",
-        size: 192,
+        id: "sequence",
+        header: "Sequence",
+        size: 384,
         enableSorting: false,
         cell: (info) => {
-          const song = info.getValue();
-          return song.slug ? (
-            <a href={`/songs/${song.slug}`} className="text-content-text-secondary hover:text-brand-primary">
-              {song.title} {song.segue ? ">" : ""}
-            </a>
-          ) : null;
+          const { before, after, currentSong } = info.getValue();
+          
+          const parts = [];
+          
+          // Add song before
+          if (before?.songTitle) {
+            parts.push(
+              <a key="before" href={`/songs/${before.songSlug}`} className="text-content-text-secondary hover:text-brand-primary">
+                {before.songTitle}
+              </a>
+            );
+            if (before.segue) {
+              parts.push(<span key="segue1" className="text-content-text-tertiary mx-1"> &gt; </span>);
+            } else {
+              parts.push(<span key="sep1" className="text-content-text-tertiary">,&nbsp;</span>);
+            }
+          }
+          
+          // Add current song
+          parts.push(
+            <span key="current" className="font-bold" style={{ color: '#DDD6FE' }}>
+              {currentSong}
+            </span>
+          );
+          
+          // Add song after
+          if (after?.songTitle) {
+            if (info.row.original.segue) {
+              parts.push(<span key="segue2" className="text-content-text-tertiary mx-1"> &gt; </span>);
+            } else {
+              parts.push(<span key="sep2" className="text-content-text-tertiary">,&nbsp;</span>);
+            }
+            parts.push(
+              <a key="after" href={`/songs/${after.songSlug}`} className="text-content-text-secondary hover:text-brand-primary">
+                {after.songTitle}
+              </a>
+            );
+          }
+          
+          return parts.length > 0 ? <div className="flex items-center flex-wrap">{parts}</div> : null;
         },
       },
     ),
     columnHelper.accessor(
       (row) => ({
-        title: row.songAfter?.songTitle,
-        slug: row.songAfter?.songSlug,
-        segue: row.songAfter?.segue,
+        annotations: row.annotations,
+        notes: row.notes,
       }),
       {
-        id: "after",
-        header: "Song after",
-        size: 192,
+        id: "notes",
+        header: "Notes",
+        size: 256,
         enableSorting: false,
         cell: (info) => {
-          const song = info.getValue();
-          return song.slug ? (
-            <a href={`/songs/${song.slug}`} className="text-content-text-secondary hover:text-brand-primary">
-              {song.title} {song.segue ? ">" : ""}
-            </a>
-          ) : null;
+          const { annotations, notes } = info.getValue();
+          
+          const items = [];
+          
+          // Add annotations first
+          if (annotations && annotations.length > 0) {
+            annotations.forEach(annotation => {
+              if (annotation.desc) {
+                items.push(annotation.desc);
+              }
+            });
+          }
+          
+          // Add track notes
+          if (notes) {
+            items.push(notes);
+          }
+          
+          if (items.length === 0) return null;
+          
+          return <CombinedNotes items={items} />;
         },
       },
     ),
@@ -160,7 +253,7 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
   ];
 
   const table = useReactTable({
-    data: initialPerformances,
+    data: filteredPerformances,
     columns,
     state: {
       sorting,
@@ -172,9 +265,52 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
     enableMultiSort: false,
   });
 
+  const filterButtons = [
+    { key: 'setOpener', label: 'Set Opener' },
+    { key: 'setCloser', label: 'Set Closer' },
+    { key: 'encore', label: 'Encore' },
+    { key: 'segueIn', label: 'Segue In' },
+    { key: 'segueOut', label: 'Segue Out' },
+    { key: 'standalone', label: 'Standalone' },
+    { key: 'inverted', label: 'Inverted' },
+    { key: 'dyslexic', label: 'Dyslexic' },
+  ];
+
   return (
-    <div className="relative overflow-x-auto">
-      <table className="w-full text-md">
+    <div className="space-y-4">
+      {/* Filter Controls */}
+      <div className="flex flex-wrap gap-2">
+        <span className="text-sm text-content-text-secondary mr-2 self-center">Filters:</span>
+        {filterButtons.map(filter => (
+          <button
+            key={filter.key}
+            onClick={() => toggleFilter(filter.key)}
+            className={`px-3 py-1 text-sm rounded-md border transition-colors ${
+              activeFilters.has(filter.key)
+                ? 'bg-brand-primary border-brand-primary text-white'
+                : 'bg-transparent border-glass-border text-content-text-secondary hover:border-brand-primary/60'
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
+        {activeFilters.size > 0 && (
+          <button
+            onClick={() => setActiveFilters(new Set())}
+            className="px-3 py-1 text-sm rounded-md bg-transparent border border-glass-border text-content-text-tertiary hover:text-content-text-secondary"
+          >
+            Clear All
+          </button>
+        )}
+      </div>
+
+      {/* Performance count */}
+      <div className="text-sm text-content-text-tertiary">
+        Showing {filteredPerformances.length} of {initialPerformances.length} performances
+      </div>
+
+      <div className="relative overflow-x-auto">
+        <table className="w-full text-md">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="text-left text-sm text-content-text-secondary">
@@ -223,6 +359,79 @@ function PerformanceTable({ performances: initialPerformances }: { performances:
           ))}
         </tbody>
       </table>
+      </div>
+    </div>
+  );
+}
+
+function CombinedNotes({ items }: { items: string[] }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Count total lines across all items
+  const allLines = items.flatMap(item => item.split("\n"));
+  const shouldTruncate = allLines.length > 2;
+
+  const displayItems = shouldTruncate && !isExpanded ? 
+    // Show only first 2 lines total
+    (() => {
+      const result = [];
+      let lineCount = 0;
+      for (const item of items) {
+        const itemLines = item.split("\n");
+        const remainingLines = 2 - lineCount;
+        if (remainingLines <= 0) break;
+        
+        if (itemLines.length <= remainingLines) {
+          result.push(item);
+          lineCount += itemLines.length;
+        } else {
+          result.push(itemLines.slice(0, remainingLines).join("\n"));
+          lineCount = 2;
+          break;
+        }
+      }
+      return result;
+    })()
+    : items;
+
+  const showBullets = items.length > 1;
+
+  return (
+    <div className="text-sm text-content-text-secondary">
+      <div className="leading-relaxed">
+        {displayItems.map((item, index) => (
+          <div key={index} className={showBullets ? "flex" : ""}>
+            {showBullets && <span className="mr-1">•</span>}
+            <span>{item}</span>
+          </div>
+        ))}
+        {shouldTruncate && !isExpanded && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsExpanded(true);
+            }}
+            className="text-brand-primary hover:text-brand-secondary ml-1 underline text-xs"
+          >
+            more
+          </button>
+        )}
+        {shouldTruncate && isExpanded && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsExpanded(false);
+            }}
+            className="text-brand-primary hover:text-brand-secondary ml-1 underline text-xs"
+          >
+            less
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -555,7 +764,7 @@ export default function SongPage() {
         <TabsContent value="performances" className="mt-6">
           <div className="glass-content rounded-lg p-4 md:p-6">
             <h3 className="text-lg font-semibold text-content-text-primary mb-4">All Performances</h3>
-            <PerformanceTable performances={performances} />
+            <PerformanceTable performances={performances} songTitle={song.title} />
           </div>
         </TabsContent>
 
