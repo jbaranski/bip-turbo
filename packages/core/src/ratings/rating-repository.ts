@@ -92,6 +92,10 @@ export class RatingRepository {
         updatedAt: new Date(),
       },
     });
+
+    // Update the related show/track average rating and count
+    await this.updateRateableAverageRating(data.rateableId, data.rateableType);
+
     return mapRatingToDomainEntity(result);
   }
 
@@ -218,5 +222,37 @@ export class RatingRepository {
         };
       })
       .filter((rating): rating is RatingWithTrack => rating !== null);
+  }
+
+  private async updateRateableAverageRating(rateableId: string, rateableType: string): Promise<void> {
+    // Calculate the new average rating and count
+    const stats = await this.db.rating.aggregate({
+      where: { rateableId, rateableType },
+      _avg: { value: true },
+      _count: { id: true },
+    });
+
+    const averageRating = stats._avg.value || 0;
+    const ratingsCount = stats._count.id;
+
+    // Update the appropriate table based on rateable type
+    if (rateableType === 'Show') {
+      await this.db.show.update({
+        where: { id: rateableId },
+        data: {
+          averageRating,
+          ratingsCount,
+          updatedAt: new Date(),
+        },
+      });
+    } else if (rateableType === 'Track') {
+      await this.db.track.update({
+        where: { id: rateableId },
+        data: {
+          averageRating,
+          updatedAt: new Date(),
+        },
+      });
+    }
   }
 }
