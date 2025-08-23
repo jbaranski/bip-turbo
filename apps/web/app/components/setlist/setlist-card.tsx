@@ -143,35 +143,31 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
         )}
 
         <div className="space-y-2 md:space-y-4">
-          {setlist.sets.map((set) => (
-            <div key={setlist.show.id + set.label} className="md:flex md:gap-4">
-              <div className="flex items-center gap-2 mb-1 md:mb-0">
-                <span className="text-sm md:text-base font-medium text-content-text-tertiary">{set.label}</span>
-              </div>
-              <div className="flex-1 md:pt-1">
+          {setlist.sets.map((set, setIndex) => (
+            <span key={setlist.show.id + set.label} className="inline-block w-full md:flex md:gap-4 md:items-baseline">
+              <span className="inline text-sm md:text-base font-medium text-content-text-tertiary">{set.label}</span>
+              <span className="inline ml-2 md:ml-0 md:flex-1">
                 {set.tracks.map((track, i) => (
-                  <span key={track.id} className="inline-flex items-baseline">
-                    <span className="inline-flex items-center gap-1">
-                      <span
-                        className={cn(
-                          "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
-                          track.allTimer && "font-medium",
-                        )}
-                      >
-                        {track.allTimer && (
-                          <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
-                        )}
-                        <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
-                        {trackAnnotationMap.has(track.id) && (
-                          <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
-                            {trackAnnotationMap.get(track.id)?.map((index, i) => (
-                              <span key={index} className={i > 0 ? 'ml-1' : ''}>
-                                {index}
-                              </span>
-                            ))}
-                          </sup>
-                        )}
-                      </span>
+                  <span key={track.id} className="inline">
+                    <span
+                      className={cn(
+                        "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
+                        track.allTimer && "font-medium",
+                      )}
+                    >
+                      {track.allTimer && (
+                        <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
+                      )}
+                      <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
+                      {trackAnnotationMap.has(track.id) && (
+                        <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
+                          {trackAnnotationMap.get(track.id)?.map((index, i) => (
+                            <span key={index} className={i > 0 ? 'ml-1' : ''}>
+                              {index}
+                            </span>
+                          ))}
+                        </sup>
+                      )}
                     </span>
                     {i < set.tracks.length - 1 && (
                       <span className="text-content-text-secondary mx-1 font-medium text-sm md:text-base">
@@ -180,8 +176,9 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
                     )}
                   </span>
                 ))}
-              </div>
-            </div>
+              </span>
+              {setIndex < setlist.sets.length - 1 && <span className="hidden"> </span>}
+            </span>
           ))}
         </div>
 
