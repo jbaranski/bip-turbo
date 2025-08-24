@@ -165,6 +165,31 @@ export class UserRepository {
     return results.map((result: DbUser) => mapUserToDomainEntity(result));
   }
 
+  async create(data: { id?: string; email: string; username: string }): Promise<User> {
+    const result = await this.db.user.create({
+      data: {
+        id: data.id, // Use provided ID (from Supabase) or let Prisma generate one
+        email: data.email,
+        username: data.username,
+        passwordDigest: 'supabase_auth', // Placeholder for Supabase-managed users
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+    return mapUserToDomainEntity(result);
+  }
+
+  async findOrCreate(data: { id?: string; email: string; username: string }): Promise<User> {
+    // First try to find by email
+    const existing = await this.findByEmail(data.email);
+    if (existing) {
+      return existing;
+    }
+    
+    // If not found, create new user
+    return this.create(data);
+  }
+
   async update(id: string, data: Partial<User>): Promise<User | null> {
     try {
       const dbData = mapUserToDbModel(data);

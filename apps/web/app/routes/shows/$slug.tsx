@@ -116,6 +116,9 @@ export default function Show() {
   const { setlist, reviews: initialReviews, selectedRecordingId } = useSerializedLoaderData<ShowLoaderData>();
   const { user } = useSession();
   const queryClient = useQueryClient();
+  
+  // Get the internal user ID from Supabase metadata
+  const internalUserId = user?.user_metadata?.internal_user_id;
 
   // Query for reviews
   const { data: reviews = [] } = useQuery({
@@ -128,6 +131,7 @@ export default function Show() {
     },
     initialData: initialReviews,
   });
+
 
   // Mutation for creating reviews
   const createReviewMutation = useMutation({
@@ -171,9 +175,12 @@ export default function Show() {
 
       return result.json.review;
     },
-    onSuccess: (review) => {
+    onSuccess: async (review) => {
       toast.success("Review submitted successfully");
       queryClient.setQueryData(["reviews", setlist.show.id], (old: ReviewMinimal[] = []) => [...old, review]);
+      
+      // Refresh the average rating for the show
+      queryClient.invalidateQueries({ queryKey: ["ratings", setlist.show.id, "Show"] });
     },
     onError: () => {
       toast.error("Failed to submit review. Please try again.");
@@ -304,7 +311,7 @@ export default function Show() {
                 <p className="text-content-text-secondary">No reviews yet. Be the first to share your thoughts!</p>
               </div>
             )}
-            {user && !reviews.some((review: ReviewMinimal) => review.userId === user.id) && (
+            {user && internalUserId && !reviews.some((review: ReviewMinimal) => review.userId === internalUserId) && (
               <div className="mb-8">
                 <ReviewForm onSubmit={handleReviewSubmit} />
               </div>
@@ -312,7 +319,7 @@ export default function Show() {
             {reviews && reviews.length > 0 && (
               <ReviewsList
                 reviews={reviews}
-                currentUserId={user?.id}
+                currentUserId={internalUserId}
                 onDelete={handleReviewDelete}
                 onUpdate={handleReviewUpdate}
               />

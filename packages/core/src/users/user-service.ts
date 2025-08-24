@@ -23,6 +23,14 @@ export class UserService {
     return this.repository.findByEmail(email);
   }
 
+  async create(data: { id?: string; email: string; username: string }): Promise<User> {
+    return this.repository.create(data);
+  }
+
+  async findOrCreate(data: { id?: string; email: string; username: string }): Promise<User> {
+    return this.repository.findOrCreate(data);
+  }
+
   async update(id: string, data: Partial<User>): Promise<User | null> {
     return this.repository.update(id, data);
   }
