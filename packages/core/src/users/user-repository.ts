@@ -165,12 +165,36 @@ export class UserRepository {
     return results.map((result: DbUser) => mapUserToDomainEntity(result));
   }
 
+  private sanitizeUsername(username: string): string {
+    // Remove special characters, spaces, and ensure lowercase
+    return username
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '')
+      .substring(0, 50); // Limit length
+  }
+
+  async ensureUniqueUsername(baseUsername: string): Promise<string> {
+    const sanitizedBase = this.sanitizeUsername(baseUsername);
+    let username = sanitizedBase;
+    let counter = 1;
+    
+    while (await this.findBySlug(username)) {
+      username = `${sanitizedBase}${counter}`;
+      counter++;
+    }
+    
+    return username;
+  }
+
   async create(data: { id?: string; email: string; username: string }): Promise<User> {
+    // Ensure username is unique before creating
+    const uniqueUsername = await this.ensureUniqueUsername(data.username);
+    
     const result = await this.db.user.create({
       data: {
         id: data.id, // Use provided ID (from Supabase) or let Prisma generate one
         email: data.email,
-        username: data.username,
+        username: uniqueUsername,
         passwordDigest: 'supabase_auth', // Placeholder for Supabase-managed users
         createdAt: new Date(),
         updatedAt: new Date(),
