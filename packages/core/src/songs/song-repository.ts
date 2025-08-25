@@ -6,13 +6,14 @@ import { slugify } from "../_shared/utils/slugify";
 import type { CreateSongInput, UpdateSongInput } from "./song-service";
 
 export function mapSongToDomainEntity(dbSong: DbSong): Song {
-  const { createdAt, updatedAt, dateLastPlayed, yearlyPlayData, longestGapsData, cover, ...rest } = dbSong;
+  const { createdAt, updatedAt, dateLastPlayed, dateFirstPlayed, yearlyPlayData, longestGapsData, cover, ...rest } = dbSong;
 
   return {
     ...rest,
     createdAt: new Date(createdAt),
     updatedAt: new Date(updatedAt),
     dateLastPlayed: dateLastPlayed ? new Date(dateLastPlayed) : null,
+    dateFirstPlayed: dateFirstPlayed ? new Date(dateFirstPlayed) : null,
     actualLastPlayedDate: null,
     showsSinceLastPlayed: null,
     lastVenue: null,
@@ -162,17 +163,15 @@ export class SongRepository {
   }
 
   async findTrendingLastYear(): Promise<TrendingSong[]> {
-    // Calculate date range for the last year
-    const now = new Date();
-    const oneYearAgo = new Date(now);
-    oneYearAgo.setFullYear(now.getFullYear() - 1);
+    // Calculate date range for the current calendar year
+    const currentYear = new Date().getFullYear();
 
-    // Find shows from the last year
+    // Find shows from the current calendar year
     const shows = await this.db.show.findMany({
       where: {
         date: {
-          gte: `${oneYearAgo.getFullYear()}-${String(oneYearAgo.getMonth() + 1).padStart(2, "0")}-${String(oneYearAgo.getDate()).padStart(2, "0")}`,
-          lte: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`,
+          gte: `${currentYear}-01-01`,
+          lte: `${currentYear}-12-31`,
         },
       },
     });
@@ -188,8 +187,8 @@ export class SongRepository {
       include: { song: true },
     });
 
-    // Count occurrences of each song
-    const songCounts = new Map<string, { song: DbSong; count: number }>();
+    // Count unique shows for each song (not individual tracks)
+    const songCounts = new Map<string, { song: DbSong; showIds: Set<string> }>();
 
     for (const track of tracks) {
       if (!track.song) continue;
@@ -198,19 +197,19 @@ export class SongRepository {
       const existing = songCounts.get(songId);
 
       if (existing) {
-        existing.count += 1;
+        existing.showIds.add(track.showId);
       } else {
-        songCounts.set(songId, { song: track.song, count: 1 });
+        songCounts.set(songId, { song: track.song, showIds: new Set([track.showId]) });
       }
     }
 
     // Convert to array, sort by count, and limit to top 10
     const trendingSongs = Array.from(songCounts.values())
-      .sort((a, b) => b.count - a.count)
+      .sort((a, b) => b.showIds.size - a.showIds.size)
       .slice(0, 10)
-      .map(({ song, count }) => ({
+      .map(({ song, showIds }) => ({
         ...this.mapToDomainEntity(song),
-        count,
+        count: showIds.size,
       }));
 
     return trendingSongs;
@@ -221,5 +220,66 @@ export class SongRepository {
       where: { id },
     });
     return true;
+  }
+
+  /**
+   * Recalculate and update statistics for a specific song based on its tracks
+   */
+  async updateSongStatistics(songId: string): Promise<void> {
+    // Get all unique shows for this song (count shows, not individual tracks)
+    const uniqueShows = await this.db.track.findMany({
+      where: { songId },
+      distinct: ['showId'],
+      include: {
+        show: {
+          select: { date: true }
+        }
+      },
+      orderBy: {
+        show: {
+          date: 'asc'
+        }
+      }
+    });
+
+    if (uniqueShows.length === 0) {
+      // No tracks, reset statistics
+      await this.db.song.update({
+        where: { id: songId },
+        data: {
+          timesPlayed: 0,
+          dateFirstPlayed: null,
+          dateLastPlayed: null,
+          yearlyPlayData: {},
+        }
+      });
+      return;
+    }
+
+    // Calculate statistics based on unique shows
+    const timesPlayed = uniqueShows.length;
+    const firstShow = uniqueShows[0];
+    const lastShow = uniqueShows[uniqueShows.length - 1];
+    
+    // Build yearly play data (count unique shows per year)
+    const yearlyPlayData: Record<string, number> = {};
+    uniqueShows.forEach(track => {
+      if (track.show?.date) {
+        const year = new Date(track.show.date).getFullYear().toString();
+        yearlyPlayData[year] = (yearlyPlayData[year] || 0) + 1;
+      }
+    });
+
+    // Update the song
+    await this.db.song.update({
+      where: { id: songId },
+      data: {
+        timesPlayed,
+        dateFirstPlayed: firstShow.show?.date ? new Date(firstShow.show.date) : null,
+        dateLastPlayed: lastShow.show?.date ? new Date(lastShow.show.date) : null,
+        yearlyPlayData: yearlyPlayData as any,
+        updatedAt: new Date(),
+      }
+    });
   }
 }

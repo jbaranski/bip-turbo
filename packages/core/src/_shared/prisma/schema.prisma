@@ -377,6 +377,7 @@ model Song {
   featuredLyric   String?   @map("featured_lyric")
   timesPlayed     Int       @default(0) @map("times_played")
   dateLastPlayed  DateTime? @map("date_last_played") @db.Date
+  dateFirstPlayed DateTime? @map("date_first_played") @db.Date
   yearlyPlayData  Json      @default("{}") @map("yearly_play_data")
   longestGapsData Json      @default("{}") @map("longest_gaps_data")
   mostCommonYear  Int?      @map("most_common_year")
