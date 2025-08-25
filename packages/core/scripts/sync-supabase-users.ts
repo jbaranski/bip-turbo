@@ -88,9 +88,15 @@ async function syncSupabaseUsers() {
 
     for (const authUser of allUsers) {
         try {
+          if (!authUser.email) {
+            console.error(`❌ User ${authUser.id} has no email address - skipping`);
+            stats.errors++;
+            continue;
+          }
+          
           // Check if local user exists
           const existingLocalUser = await db.user.findUnique({
-            where: { email: authUser.email! }
+            where: { email: authUser.email }
           });
           
           if (existingLocalUser) {
@@ -138,8 +144,8 @@ async function syncSupabaseUsers() {
               const localUser = await db.user.create({
                 data: {
                   id: authUser.id, // Use Supabase ID for new users
-                  email: authUser.email!,
-                  username: authUser.user_metadata?.username || authUser.email!.split('@')[0],
+                  email: authUser.email,
+                  username: authUser.user_metadata?.username || authUser.email.split('@')[0],
                   passwordDigest: 'supabase_auth', // Placeholder
                   createdAt: new Date(),
                   updatedAt: new Date(),
@@ -173,7 +179,7 @@ async function syncSupabaseUsers() {
       }
 
     // Print summary
-    console.log("\n" + "=".repeat(50));
+    console.log(`\n${"=".repeat(50)}`);
     console.log(`📊 SYNC SUMMARY ${isDryRun ? '(DRY RUN)' : '(LIVE RUN)'}`);
     console.log("=".repeat(50));
     console.log(`Total Supabase users: ${stats.totalUsers}`);

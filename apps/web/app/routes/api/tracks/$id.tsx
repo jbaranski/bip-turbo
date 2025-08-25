@@ -16,7 +16,7 @@ export const action = adminAction(async ({ request, params }) => {
     console.log(`Updating track ${id}:`, data);
 
     try {
-      const track = await services.tracks.update(id, {
+      await services.tracks.update(id, {
         songId: data.songId,
         set: data.set,
         position: data.position,

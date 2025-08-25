@@ -8,11 +8,10 @@ import { toast } from "sonner";
 import { AdminOnly } from "~/components/admin/admin-only";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
 import { getVenueMeta, getVenueStructuredData } from "~/lib/seo";
-import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
 
 export const routeParam = "slug";
