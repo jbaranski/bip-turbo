@@ -1,6 +1,6 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import { useNavigate, useRouteLoaderData, useSearchParams } from "react-router-dom";
+import { useNavigate, useRouteLoaderData } from "react-router-dom";
 import { toast } from "sonner";
 import { ResetPasswordForm } from "~/components/reset-password-form";
 import type { RootData } from "~/root";
@@ -23,7 +23,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function ResetPassword() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const rootData = useRouteLoaderData("root") as RootData;
   const { SUPABASE_URL, SUPABASE_ANON_KEY } = rootData.env;
 
