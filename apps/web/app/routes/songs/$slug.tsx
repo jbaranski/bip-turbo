@@ -283,6 +283,7 @@ function PerformanceTable({ performances: initialPerformances, songTitle }: { pe
         <span className="text-sm text-content-text-secondary mr-2 self-center">Filters:</span>
         {filterButtons.map(filter => (
           <button
+            type="button"
             key={filter.key}
             onClick={() => toggleFilter(filter.key)}
             className={`px-3 py-1 text-sm rounded-md border transition-colors ${
@@ -296,6 +297,7 @@ function PerformanceTable({ performances: initialPerformances, songTitle }: { pe
         ))}
         {activeFilters.size > 0 && (
           <button
+            type="button"
             onClick={() => setActiveFilters(new Set())}
             className="px-3 py-1 text-sm rounded-md bg-transparent border border-glass-border text-content-text-tertiary hover:text-content-text-secondary"
           >
@@ -399,8 +401,8 @@ function CombinedNotes({ items }: { items: string[] }) {
   return (
     <div className="text-sm text-content-text-secondary">
       <div className="leading-relaxed">
-        {displayItems.map((item, index) => (
-          <div key={index} className={showBullets ? "flex" : ""}>
+        {displayItems.map((item) => (
+          <div key={item} className={showBullets ? "flex" : ""}>
             {showBullets && <span className="mr-1">•</span>}
             <span>{item}</span>
           </div>

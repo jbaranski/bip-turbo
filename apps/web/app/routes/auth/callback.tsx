@@ -25,11 +25,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
     
     if (authUser) {
       try {
+        if (!authUser.email) {
+          throw new Error('User has no email address');
+        }
+        
         // Ensure local user exists (create if new, return existing if not)
         const localUser = await services.users.findOrCreate({
           id: authUser.id, // Use Supabase ID for new users (but existing users keep their ID)
-          email: authUser.email!,
-          username: authUser.user_metadata.username || authUser.email!.split('@')[0]
+          email: authUser.email,
+          username: authUser.user_metadata.username || authUser.email.split('@')[0]
         });
         
         logger.info({ 
