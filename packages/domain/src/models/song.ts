@@ -15,6 +15,7 @@ export const songSchema = z.object({
   featuredLyric: z.string().nullable(),
   timesPlayed: z.number().default(0),
   dateLastPlayed: z.date().nullable(),
+  dateFirstPlayed: z.date().nullable(),
   actualLastPlayedDate: z.date().nullable(),
   showsSinceLastPlayed: z.number().nullable(),
   lastVenue: z.object({

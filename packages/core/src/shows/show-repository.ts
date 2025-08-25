@@ -241,4 +241,31 @@ export class ShowRepository {
 
     return show;
   }
+
+  async findManyByDates(dates: string[]): Promise<Show[]> {
+    // Ensure dates are strings and properly formatted
+    const stringDates = dates.map(date => String(date));
+    
+    const results = await this.db.show.findMany({
+      where: {
+        date: {
+          in: stringDates,
+        },
+      },
+      include: {
+        venue: true,
+      },
+      orderBy: {
+        date: 'asc',
+      },
+    });
+
+    return results.map((result: any) => {
+      const show = mapShowToDomainEntity(result);
+      if (result.venue) {
+        show.venue = result.venue;
+      }
+      return show;
+    });
+  }
 }

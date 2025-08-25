@@ -90,4 +90,8 @@ export class SongService {
   async delete(id: string): Promise<void> {
     await this.repository.delete(id);
   }
+
+  async updateSongStatistics(songId: string): Promise<void> {
+    await this.repository.updateSongStatistics(songId);
+  }
 }

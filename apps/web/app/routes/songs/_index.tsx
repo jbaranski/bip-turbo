@@ -1,18 +1,15 @@
 import type { Song, TrendingSong } from "@bip/domain";
-import { Plus, Search } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AdminOnly } from "~/components/admin/admin-only";
+import { songsColumns } from "~/components/song/songs-columns";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { useInfiniteScroll } from "~/hooks/use-infinite-scroll";
+import { DataTable } from "~/components/ui/data-table";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
 import { getSongsMeta } from "~/lib/seo";
 import { services } from "~/server/services";
-
-const ITEMS_PER_PAGE = 50; // Number of items to show initially and each time "Load More" is clicked
 
 interface LoaderData {
   songs: Song[];
@@ -23,65 +20,58 @@ interface LoaderData {
 
 export const loader = publicLoader(async (): Promise<LoaderData> => {
   const recentShowsCount = 10;
-  const [songs, trendingSongs, yearlyTrendingSongs] = await Promise.all([
+  const [allSongs, trendingSongs, yearlyTrendingSongs] = await Promise.all([
     services.songs.findMany({}),
     services.songs.findTrendingLastXShows(recentShowsCount, 6),
     services.songs.findTrendingLastYear(),
   ]);
 
-  return { songs, trendingSongs, yearlyTrendingSongs, recentShowsCount };
-});
+  // Filter out songs with no plays
+  const songs = allSongs.filter(song => song.timesPlayed > 0);
 
-interface SongCardProps {
-  song: Song;
-}
+  // Get unique show dates for first/last played venue lookup
+  const showDates = new Set<string>();
+  songs.forEach(song => {
+    if (song.dateFirstPlayed) {
+      showDates.add(song.dateFirstPlayed.toISOString().split('T')[0]);
+    }
+    if (song.dateLastPlayed) {
+      showDates.add(song.dateLastPlayed.toISOString().split('T')[0]);
+    }
+  });
 
-function SongCard({ song }: SongCardProps) {
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString("en-US", {
-      timeZone: "UTC",
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
 
-  return (
-    <Card className="card-premium hover:border-brand-primary/60 transition-all duration-300">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl">
-          <Link to={`/songs/${song.slug}`} className="text-brand-primary hover:text-brand-secondary">
-            {song.title}
-          </Link>
-        </CardTitle>
-      </CardHeader>
+  // Fetch shows with venues for those dates
+  const showsWithVenues = showDates.size > 0 
+    ? await services.shows.findManyByDates(Array.from(showDates))
+    : [];
 
-      {song.timesPlayed > 0 ? (
-        <CardContent className="space-y-3">
-          {/* Play count and last played in one clean line */}
-          <div className="flex items-center justify-between">
-            <span className="text-content-text-primary font-semibold text-lg">{song.timesPlayed} plays</span>
-            {song.dateLastPlayed && (
-              <span className="text-content-text-secondary text-sm">Last: {formatDate(song.dateLastPlayed)}</span>
-            )}
-          </div>
-
-          {/* Peak/Rare years - only if available */}
-          {(song.mostCommonYear || song.leastCommonYear) && (
-            <div className="flex gap-3 text-xs text-content-text-tertiary">
-              {song.mostCommonYear && <span>Peak: {song.mostCommonYear}</span>}
-              {song.leastCommonYear && <span>Rare: {song.leastCommonYear}</span>}
-            </div>
-          )}
-        </CardContent>
-      ) : (
-        <CardContent>
-          <span className="text-content-text-tertiary text-sm italic">Never performed</span>
-        </CardContent>
-      )}
-    </Card>
+  // Create lookup maps
+  const showsByDate = new Map(
+    showsWithVenues.map(show => [
+      show.date, 
+      show
+    ])
   );
-}
+
+  // Enhance songs with venue information
+  const enhancedSongs = songs.map(song => ({
+    ...song,
+    firstPlayedShow: song.dateFirstPlayed 
+      ? showsByDate.get(song.dateFirstPlayed.toISOString().split('T')[0])
+      : null,
+    lastPlayedShow: song.dateLastPlayed 
+      ? showsByDate.get(song.dateLastPlayed.toISOString().split('T')[0])
+      : null,
+  }));
+
+  return { 
+    songs: enhancedSongs, 
+    trendingSongs, 
+    yearlyTrendingSongs, 
+    recentShowsCount 
+  };
+});
 
 interface TrendingSongCardProps {
   song: TrendingSong;
@@ -116,31 +106,6 @@ function TrendingSongCard({ song, recentShowsCount }: TrendingSongCardProps) {
   );
 }
 
-function SearchForm({ onSearch }: { onSearch: (query: string) => void }) {
-  const [searchValue, setSearchValue] = useState("");
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setSearchValue(value);
-      onSearch(value);
-    },
-    [onSearch],
-  );
-
-  return (
-    <div className="relative max-w-2xl mx-auto">
-      <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-content-text-secondary" />
-      <Input
-        type="search"
-        value={searchValue}
-        onChange={handleChange}
-        placeholder="Search songs..."
-        className="search-input w-full pl-10"
-      />
-    </div>
-  );
-}
 
 function YearlyTrendingSongs() {
   const { yearlyTrendingSongs } = useSerializedLoaderData<LoaderData>();
@@ -183,33 +148,6 @@ export function meta() {
 export default function Songs() {
   const { songs, trendingSongs, yearlyTrendingSongs, recentShowsCount } = useSerializedLoaderData<LoaderData>();
 
-  const [filteredSongs, setFilteredSongs] = useState(songs);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const { loadMoreRef, isLoading, currentCount, reset } = useInfiniteScroll({
-    totalItems: filteredSongs.length,
-    itemsPerPage: ITEMS_PER_PAGE,
-  });
-
-  const handleSearch = useCallback(
-    (query: string) => {
-      setSearchQuery(query);
-      if (!query) {
-        setFilteredSongs(songs);
-      } else {
-        const lowerQuery = query.toLowerCase();
-        const filtered = songs.filter((song: Song) => song.title.toLowerCase().includes(lowerQuery));
-        setFilteredSongs(filtered);
-      }
-      reset();
-    },
-    [songs, reset],
-  );
-
-  const visibleSongs = useMemo(() => filteredSongs.slice(0, currentCount), [filteredSongs, currentCount]);
-
-  const hasMore = currentCount < filteredSongs.length;
-
   return (
     <div className="">
       <div className="space-y-6 md:space-y-8">
@@ -243,27 +181,7 @@ export default function Songs() {
           <div className="lg:col-span-1">{yearlyTrendingSongs.length > 0 && <YearlyTrendingSongs />}</div>
         </div>
 
-        <SearchForm onSearch={handleSearch} />
-
-        {filteredSongs.length === 0 ? (
-          <p className="text-content-text-secondary">
-            {searchQuery ? `No songs found matching "${searchQuery}"` : "No songs found"}
-          </p>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visibleSongs.map((song: Song) => (
-                <SongCard key={song.id} song={song} />
-              ))}
-            </div>
-
-            {hasMore && (
-              <div ref={loadMoreRef} className="py-8 text-center text-content-text-secondary">
-                {isLoading ? "Loading more songs..." : `${filteredSongs.length - currentCount} more songs`}
-              </div>
-            )}
-          </>
-        )}
+        <DataTable columns={songsColumns} data={songs} searchKey="title" searchPlaceholder="Search songs..." />
       </div>
     </div>
   );

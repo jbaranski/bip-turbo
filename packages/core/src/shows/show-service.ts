@@ -39,6 +39,10 @@ export class ShowService {
     });
   }
 
+  async findManyByDates(dates: string[]): Promise<Show[]> {
+    return this.repository.findManyByDates(dates);
+  }
+
   /**
    * Search for shows using the pg_search_documents table
    * @param query The search query
