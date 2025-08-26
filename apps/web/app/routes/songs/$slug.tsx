@@ -545,36 +545,118 @@ export default function SongPage() {
       {/* Stats Grid */}
       <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatBox label="Times Played" value={song.timesPlayed} sublabel="total plays" />
-        <StatBox
-          label="Last Played"
-          value={
-            song.actualLastPlayedDate
-              ? (() => {
-                  const date = new Date(song.actualLastPlayedDate);
-                  const month = date.getUTCMonth() + 1;
-                  const day = date.getUTCDate();
-                  const year = date.getUTCFullYear();
-                  return `${month}/${day}/${year}`;
-                })()
-              : "Never"
-          }
-          sublabel={
-            song.actualLastPlayedDate && song.showsSinceLastPlayed !== null && song.showsSinceLastPlayed !== undefined
-              ? song.showsSinceLastPlayed <= 1
-                ? "last show"
-                : `${song.showsSinceLastPlayed} shows ago`
-              : undefined
-          }
-          sublabel2={
-            song.lastVenue
-              ? song.lastVenue.city && song.lastVenue.state
-                ? `${song.lastVenue.name}, ${song.lastVenue.city}, ${song.lastVenue.state}`
-                : song.lastVenue.name
-              : undefined
-          }
+        {song.firstShowSlug ? (
+          <Link to={`/shows/${song.firstShowSlug}`} className="block">
+            <StatBox
+              label="First Played"
+              value={
+                song.dateFirstPlayed
+                  ? (() => {
+                      const date = new Date(song.dateFirstPlayed);
+                      const month = date.getUTCMonth() + 1;
+                      const day = date.getUTCDate();
+                      const year = date.getUTCFullYear();
+                      return `${month}/${day}/${year}`;
+                    })()
+                  : "Never"
+              }
+              sublabel2={
+                song.firstVenue
+                  ? song.firstVenue.city && song.firstVenue.state
+                    ? `${song.firstVenue.name}, ${song.firstVenue.city}, ${song.firstVenue.state}`
+                    : song.firstVenue.name
+                  : undefined
+              }
+            />
+          </Link>
+        ) : (
+          <StatBox
+            label="First Played"
+            value={
+              song.dateFirstPlayed
+                ? (() => {
+                    const date = new Date(song.dateFirstPlayed);
+                    const month = date.getUTCMonth() + 1;
+                    const day = date.getUTCDate();
+                    const year = date.getUTCFullYear();
+                    return `${month}/${day}/${year}`;
+                  })()
+                : "Never"
+            }
+            sublabel2={
+              song.firstVenue
+                ? song.firstVenue.city && song.firstVenue.state
+                  ? `${song.firstVenue.name}, ${song.firstVenue.city}, ${song.firstVenue.state}`
+                  : song.firstVenue.name
+                : undefined
+            }
+          />
+        )}
+        {song.lastShowSlug ? (
+          <Link to={`/shows/${song.lastShowSlug}`} className="block">
+            <StatBox
+              label="Last Played"
+              value={
+                song.actualLastPlayedDate
+                  ? (() => {
+                      const date = new Date(song.actualLastPlayedDate);
+                      const month = date.getUTCMonth() + 1;
+                      const day = date.getUTCDate();
+                      const year = date.getUTCFullYear();
+                      return `${month}/${day}/${year}`;
+                    })()
+                  : "Never"
+              }
+              sublabel={
+                song.actualLastPlayedDate && song.showsSinceLastPlayed !== null && song.showsSinceLastPlayed !== undefined
+                  ? song.showsSinceLastPlayed <= 1
+                    ? "last show"
+                    : `${song.showsSinceLastPlayed} shows ago`
+                  : undefined
+              }
+              sublabel2={
+                song.lastVenue
+                  ? song.lastVenue.city && song.lastVenue.state
+                    ? `${song.lastVenue.name}, ${song.lastVenue.city}, ${song.lastVenue.state}`
+                    : song.lastVenue.name
+                  : undefined
+              }
+            />
+          </Link>
+        ) : (
+          <StatBox
+            label="Last Played"
+            value={
+              song.actualLastPlayedDate
+                ? (() => {
+                    const date = new Date(song.actualLastPlayedDate);
+                    const month = date.getUTCMonth() + 1;
+                    const day = date.getUTCDate();
+                    const year = date.getUTCFullYear();
+                    return `${month}/${day}/${year}`;
+                  })()
+                : "Never"
+            }
+            sublabel={
+              song.actualLastPlayedDate && song.showsSinceLastPlayed !== null && song.showsSinceLastPlayed !== undefined
+                ? song.showsSinceLastPlayed <= 1
+                  ? "last show"
+                  : `${song.showsSinceLastPlayed} shows ago`
+                : undefined
+            }
+            sublabel2={
+              song.lastVenue
+                ? song.lastVenue.city && song.lastVenue.state
+                  ? `${song.lastVenue.name}, ${song.lastVenue.city}, ${song.lastVenue.state}`
+                  : song.lastVenue.name
+                : undefined
+            }
+          />
+        )}
+        <StatBox 
+          label="Most Common Year" 
+          value={song.mostCommonYear || "—"} 
         />
-        <StatBox label="Most Common Year" value={song.mostCommonYear || "—"} />
-        <StatBox label="Least Common Year" value={song.leastCommonYear || "—"} />
       </dl>
 
       {song.notes && (
@@ -586,8 +668,19 @@ export default function SongPage() {
         </div>
       )}
 
-      <Tabs defaultValue={allTimers.length > 0 ? "all-timers" : "performances"} className="w-full">
+      <Tabs defaultValue="performances" className="w-full">
         <TabsList className="w-full flex justify-start border-b border-glass-border/30 rounded-none bg-transparent p-0">
+          <TabsTrigger
+            value="performances"
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
+              "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
+              "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
+            )}
+          >
+            <FileTextIcon className="h-4 w-4" />
+            All Performances
+          </TabsTrigger>
           {allTimers.length > 0 && (
             <TabsTrigger
               value="all-timers"
@@ -601,17 +694,6 @@ export default function SongPage() {
               All-Timers
             </TabsTrigger>
           )}
-          <TabsTrigger
-            value="performances"
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-none data-[state=active]:shadow-none",
-              "data-[state=active]:border-b-2 data-[state=active]:border-brand-primary data-[state=active]:bg-transparent",
-              "data-[state=inactive]:bg-transparent data-[state=inactive]:text-content-text-tertiary",
-            )}
-          >
-            <FileTextIcon className="h-4 w-4" />
-            All Performances
-          </TabsTrigger>
           <TabsTrigger
             value="stats"
             className={cn(

@@ -26,11 +26,12 @@ export class SongPageComposer {
       showsSinceLastPlayed = parseInt(showsAfterLastPlayed[0].count);
     }
 
-    // Get actual last performance date and venue
+    // Get actual last performance date, venue, and show slug
     let actualLastPlayedDate: Date | null = null;
     let lastVenue: { name: string; city?: string; state?: string } | null = null;
-    const lastPerformance = await this.db.$queryRaw<[{ show_date: string | null; venue_name: string | null; venue_city: string | null; venue_state: string | null }]>`
-      SELECT shows.date as show_date, venues.name as venue_name, venues.city as venue_city, venues.state as venue_state
+    let lastShowSlug: string | null = null;
+    const lastPerformance = await this.db.$queryRaw<[{ show_date: string | null; show_slug: string | null; venue_name: string | null; venue_city: string | null; venue_state: string | null }]>`
+      SELECT shows.date as show_date, shows.slug as show_slug, venues.name as venue_name, venues.city as venue_city, venues.state as venue_state
       FROM tracks
       JOIN shows ON tracks.show_id = shows.id
       LEFT JOIN venues ON shows.venue_id = venues.id
@@ -43,11 +44,40 @@ export class SongPageComposer {
       if (lastPerformance[0].show_date) {
         actualLastPlayedDate = new Date(lastPerformance[0].show_date);
       }
+      if (lastPerformance[0].show_slug) {
+        lastShowSlug = lastPerformance[0].show_slug;
+      }
       if (lastPerformance[0].venue_name) {
         lastVenue = {
           name: lastPerformance[0].venue_name,
           city: lastPerformance[0].venue_city || undefined,
           state: lastPerformance[0].venue_state || undefined,
+        };
+      }
+    }
+
+    // Get first performance venue and show slug
+    let firstVenue: { name: string; city?: string; state?: string } | null = null;
+    let firstShowSlug: string | null = null;
+    const firstPerformance = await this.db.$queryRaw<[{ show_slug: string | null; venue_name: string | null; venue_city: string | null; venue_state: string | null }]>`
+      SELECT shows.slug as show_slug, venues.name as venue_name, venues.city as venue_city, venues.state as venue_state
+      FROM tracks
+      JOIN shows ON tracks.show_id = shows.id
+      LEFT JOIN venues ON shows.venue_id = venues.id
+      WHERE tracks.song_id = ${song.id}::uuid
+      ORDER BY shows.date ASC
+      LIMIT 1
+    `;
+    
+    if (firstPerformance[0]) {
+      if (firstPerformance[0].show_slug) {
+        firstShowSlug = firstPerformance[0].show_slug;
+      }
+      if (firstPerformance[0].venue_name) {
+        firstVenue = {
+          name: firstPerformance[0].venue_name,
+          city: firstPerformance[0].venue_city || undefined,
+          state: firstPerformance[0].venue_state || undefined,
         };
       }
     }
@@ -144,6 +174,9 @@ export class SongPageComposer {
         actualLastPlayedDate,
         showsSinceLastPlayed,
         lastVenue,
+        lastShowSlug,
+        firstVenue,
+        firstShowSlug,
       },
       performances,
     };
