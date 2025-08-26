@@ -22,6 +22,8 @@ interface DataTableProps<TData, TValue> {
   searchKey?: string;
   searchPlaceholder?: string;
   pageSize?: number;
+  hideSearch?: boolean;
+  hidePaginationText?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -30,6 +32,8 @@ export function DataTable<TData, TValue>({
   searchKey,
   searchPlaceholder = "Search...",
   pageSize = 50,
+  hideSearch = false,
+  hidePaginationText = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -59,7 +63,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-6">
-      {searchKey && (
+      {searchKey && !hideSearch && (
         <div className="flex items-center justify-between">
           <Input
             placeholder={searchPlaceholder}
@@ -68,7 +72,7 @@ export function DataTable<TData, TValue>({
             className="max-w-sm search-input"
           />
           <div className="text-sm text-content-text-secondary">
-            {table.getFilteredRowModel().rows.length} of {data.length} songs
+            {table.getFilteredRowModel().rows.length} of {data.length} results
           </div>
         </div>
       )}
@@ -112,12 +116,12 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-32 text-center text-content-text-tertiary py-12 px-8">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="text-lg">No songs found</div>
-                    {table.getColumn(searchKey || "")?.getFilterValue() && (
+                    <div className="text-lg">No results found</div>
+                    {searchKey && table.getColumn(searchKey)?.getFilterValue() ? (
                       <div className="text-sm">
                         Try adjusting your search terms
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 </TableCell>
               </TableRow>
@@ -127,11 +131,15 @@ export function DataTable<TData, TValue>({
       </div>
       
       <div className="flex items-center justify-between px-2">
-        <div className="text-sm text-content-text-secondary font-medium">
-          Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
-          {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of{" "}
-          {table.getFilteredRowModel().rows.length} songs
-        </div>
+        {!hidePaginationText ? (
+          <div className="text-sm text-content-text-secondary font-medium">
+            Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
+            {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of{" "}
+            {table.getFilteredRowModel().rows.length} results
+          </div>
+        ) : (
+          <div></div>
+        )}
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-2 text-sm text-content-text-secondary">
             <span>Page</span>
