@@ -23,6 +23,13 @@ export const songSchema = z.object({
     city: z.string().optional(),
     state: z.string().optional(),
   }).nullable(),
+  firstVenue: z.object({
+    name: z.string(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+  }).nullable(),
+  firstShowSlug: z.string().nullable(),
+  lastShowSlug: z.string().nullable(),
   yearlyPlayData: z.record(z.string(), z.unknown()).default({}),
   longestGapsData: z.record(z.string(), z.unknown()).default({}),
   mostCommonYear: z.number().nullable(),

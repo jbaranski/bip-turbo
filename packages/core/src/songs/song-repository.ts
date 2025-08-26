@@ -17,6 +17,9 @@ export function mapSongToDomainEntity(dbSong: DbSong): Song {
     actualLastPlayedDate: null,
     showsSinceLastPlayed: null,
     lastVenue: null,
+    firstVenue: null,
+    firstShowSlug: null,
+    lastShowSlug: null,
     yearlyPlayData: yearlyPlayData as Record<string, unknown>,
     longestGapsData: longestGapsData as Record<string, unknown>,
     cover: cover ?? false,
@@ -269,6 +272,7 @@ export class SongRepository {
         yearlyPlayData[year] = (yearlyPlayData[year] || 0) + 1;
       }
     });
+
 
     // Update the song
     await this.db.song.update({

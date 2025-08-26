@@ -45,7 +45,7 @@
   /* Content Text Colors */
   --color-content-text-primary: hsl(0 0% 98%);
   --color-content-text-secondary: hsl(240 5% 75%);
-  --color-content-text-tertiary: hsl(240 5% 55%);
+  --color-content-text-tertiary: hsl(240 5% 65%);
 
   /* Rating Colors */
   --color-rating-gold: hsl(38 95% 62%);
@@ -130,8 +130,8 @@
     --content-glass: hsla(263, 20%, 15%, 0.6); /* Purple-tinted glass background with transparency */
     --content-glass-border: hsla(263, 40%, 65%, 0.2); /* Glass border - lighter and more subtle purple */
     --content-text-primary: 0 0% 98%; /* High contrast primary text */
-    --content-text-secondary: 240 5% 75%; /* Secondary text */
-    --content-text-tertiary: 240 5% 55%; /* Tertiary/muted text */
+    --content-text-secondary: 240 5% 82%; /* Secondary text - brightened */
+    --content-text-tertiary: 240 5% 65%; /* Tertiary/muted text - brightened */
 
     /* Interactive States - Purple Primary, Green Accents */
     --hover-accent: 263 85% 60%; /* Purple hover state (darker) */
