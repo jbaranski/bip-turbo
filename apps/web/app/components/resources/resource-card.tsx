@@ -15,7 +15,7 @@ export default function ResourceCard({ title, content, image, url }: ResourceCar
         <div className="relative h-[400px] overflow-hidden">
           <img
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-            src={`/public/${image}`}
+            src={`/${image}`}
             alt={title}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
