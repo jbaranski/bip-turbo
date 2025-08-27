@@ -84,11 +84,24 @@ export const songsColumns: ColumnDef<Song>[] = [
       const date = row.original.dateLastPlayed;
       const show = (row.original as any).lastPlayedShow;
       return date ? (
-        <div className="text-sm">
-          <div className="text-content-text-secondary">{formatDate(date)}</div>
-          {show?.venue && (
-            <div className="text-content-text-tertiary text-xs">
-              {show.venue.name}, {show.venue.city} {show.venue.state}
+        <div className="text-base">
+          {show?.slug ? (
+            <Link to={`/shows/${show.slug}`} className="text-brand-primary hover:text-brand-secondary transition-colors">
+              <div>{formatDate(date)}</div>
+              {show?.venue && (
+                <div className="text-content-text-tertiary text-sm hover:text-content-text-secondary">
+                  {show.venue.name}, {show.venue.city} {show.venue.state}
+                </div>
+              )}
+            </Link>
+          ) : (
+            <div>
+              <div className="text-content-text-secondary">{formatDate(date)}</div>
+              {show?.venue && (
+                <div className="text-content-text-tertiary text-sm">
+                  {show.venue.name}, {show.venue.city} {show.venue.state}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -115,11 +128,24 @@ export const songsColumns: ColumnDef<Song>[] = [
       const date = row.original.dateFirstPlayed;
       const show = (row.original as any).firstPlayedShow;
       return date ? (
-        <div className="text-sm">
-          <div className="text-content-text-secondary">{formatDate(date)}</div>
-          {show?.venue && (
-            <div className="text-content-text-tertiary text-xs">
-              {show.venue.name}, {show.venue.city} {show.venue.state}
+        <div className="text-base">
+          {show?.slug ? (
+            <Link to={`/shows/${show.slug}`} className="text-brand-primary hover:text-brand-secondary transition-colors">
+              <div>{formatDate(date)}</div>
+              {show?.venue && (
+                <div className="text-content-text-tertiary text-sm hover:text-content-text-secondary">
+                  {show.venue.name}, {show.venue.city} {show.venue.state}
+                </div>
+              )}
+            </Link>
+          ) : (
+            <div>
+              <div className="text-content-text-secondary">{formatDate(date)}</div>
+              {show?.venue && (
+                <div className="text-content-text-tertiary text-sm">
+                  {show.venue.name}, {show.venue.city} {show.venue.state}
+                </div>
+              )}
             </div>
           )}
         </div>

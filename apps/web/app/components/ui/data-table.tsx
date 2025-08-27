@@ -24,6 +24,7 @@ interface DataTableProps<TData, TValue> {
   pageSize?: number;
   hideSearch?: boolean;
   hidePaginationText?: boolean;
+  hidePagination?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -34,6 +35,7 @@ export function DataTable<TData, TValue>({
   pageSize = 50,
   hideSearch = false,
   hidePaginationText = false,
+  hidePagination = false,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -45,7 +47,7 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(hidePagination ? {} : { getPaginationRowModel: getPaginationRowModel() }),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -56,7 +58,7 @@ export function DataTable<TData, TValue>({
     },
     initialState: {
       pagination: {
-        pageSize,
+        pageSize: hidePagination ? data.length : pageSize,
       },
     },
   });
@@ -130,45 +132,47 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       
-      <div className="flex items-center justify-between px-2">
-        {!hidePaginationText ? (
-          <div className="text-sm text-content-text-secondary font-medium">
-            Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
-            {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of{" "}
-            {table.getFilteredRowModel().rows.length} results
-          </div>
-        ) : (
-          <div></div>
-        )}
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 text-sm text-content-text-secondary">
-            <span>Page</span>
-            <span className="font-semibold text-content-text-primary">
-              {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="hover:bg-brand-primary/20 hover:border-brand-primary/40"
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="hover:bg-brand-primary/20 hover:border-brand-primary/40"
-            >
-              Next
-            </Button>
+      {!hidePagination && (
+        <div className="flex items-center justify-between px-2">
+          {!hidePaginationText ? (
+            <div className="text-sm text-content-text-secondary font-medium">
+              Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
+              {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)} of{" "}
+              {table.getFilteredRowModel().rows.length} results
+            </div>
+          ) : (
+            <div></div>
+          )}
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 text-sm text-content-text-secondary">
+              <span>Page</span>
+              <span className="font-semibold text-content-text-primary">
+                {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              </span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="hover:bg-brand-primary/20 hover:border-brand-primary/40"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="hover:bg-brand-primary/20 hover:border-brand-primary/40"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
