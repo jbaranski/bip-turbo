@@ -7,7 +7,7 @@ export function meta() {
   return [
     { title: "Think Tank Dubs | Biscuits Internet Project" },
     { name: "description", content: "Learn about Think Tank Dubs and The Basement Sessions" },
-    { property: "og:image", content: "/public/thinktank.jpg" },
+    { property: "og:image", content: "/think-tank.jpg" },
   ];
 }
 

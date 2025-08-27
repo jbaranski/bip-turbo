@@ -14,7 +14,7 @@ export function meta() {
     },
     {
       property: "og:image",
-      content: "/public/music.jpg",
+      content: "/music.jpg",
     },
   ];
 }

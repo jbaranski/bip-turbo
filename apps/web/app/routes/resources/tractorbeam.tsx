@@ -11,7 +11,7 @@ export function meta() {
       content:
         "All things serve the Beam. Debuted in 2007, this Disco Biscuits alter-ego played instrumental versions of tdb originals and covers until reinventing themselves in 2019.",
     },
-    { property: "og:image", content: "/public/tractorbeam.jpg" },
+    { property: "og:image", content: "/tractorbeam.jpg" },
   ];
 }
 
