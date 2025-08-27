@@ -8,6 +8,11 @@ on:
       - 'bun.lockb'
       - '.github/**'
       - '!README.md'
+
+concurrency:
+  group: deploy-web-app
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy Web App
