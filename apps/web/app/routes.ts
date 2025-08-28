@@ -99,7 +99,6 @@ export default [
     route("songs/:id", "routes/api/songs/$id.tsx"),
     route("tracks", "routes/api/tracks.tsx"),
     route("tracks/reorder", "routes/api/tracks/reorder.tsx"),
-    route("tracks/:id", "routes/api/tracks/$id.tsx"),
     route("search", "routes/api/search.tsx"),
     route("users", "routes/api/users.tsx"),
     route("contact", "routes/api/contact.tsx"),

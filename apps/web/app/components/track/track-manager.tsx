@@ -15,7 +15,19 @@ import { Check, Plus, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { SongSearch } from "~/components/song/song-search";
-import { Button } from "~/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
+import { Button, buttonVariants } from "~/components/ui/button";
+import { cn } from "~/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
 import { SortableTrackItem } from "./sortable-track-item";
@@ -54,6 +66,7 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
+  const [deleteTrackId, setDeleteTrackId] = useState<string | null>(null);
   const [formData, setFormData] = useState<TrackFormData>({
     songId: "none",
     set: "S1",
@@ -276,8 +289,13 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this track?")) {
-      deleteTrackMutation.mutate(id);
+    setDeleteTrackId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTrackId) {
+      deleteTrackMutation.mutate(deleteTrackId);
+      setDeleteTrackId(null);
     }
   };
 
@@ -504,6 +522,23 @@ export function TrackManager({ showId, initialTracks = [] }: TrackManagerProps) 
           </DndContext>
         )}
       </CardContent>
+
+      <AlertDialog open={deleteTrackId !== null} onOpenChange={(open) => !open && setDeleteTrackId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Track</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this track? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 text-white hover:bg-red-700 border-red-600">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
