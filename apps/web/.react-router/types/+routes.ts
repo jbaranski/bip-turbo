@@ -166,6 +166,11 @@ type Pages = {
   "/api/ratings": {
     params: {};
   };
+  "/api/tracks/:trackId": {
+    params: {
+      "trackId": string;
+    };
+  };
   "/api/attendances": {
     params: {};
   };
@@ -218,7 +223,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/about" | "/terms" | "/privacy" | "/community" | "/venues" | "/venues/:slug" | "/venues/new" | "/venues/:slug/edit" | "/resources" | "/resources/band-history" | "/resources/chemical-warfare-brigade" | "/resources/hot-air-balloon" | "/resources/media" | "/resources/mixes" | "/resources/movie-scores" | "/resources/music" | "/resources/perfume" | "/resources/side-projects" | "/resources/think-tank" | "/resources/tractorbeam" | "/resources/touchdowns" | "/auth/login" | "/auth/register" | "/auth/callback" | "/auth/logout" | "/auth/forgot-password" | "/auth/reset-password" | "/profile/edit" | "/users/:username" | "/blog" | "/blog/new" | "/blog/:slug" | "/blog/:slug/edit" | "/shows" | "/shows/:slug" | "/shows/top-rated" | "/shows/tour-dates" | "/shows/new" | "/shows/:slug/edit" | "/songs" | "/songs/:slug" | "/songs/new" | "/songs/:slug/edit" | "/api/reviews" | "/api/ratings" | "/api/attendances" | "/api/venues" | "/api/venues/:id" | "/api/songs" | "/api/songs/:id" | "/api/tracks" | "/api/tracks/reorder" | "/api/tracks/:id" | "/api/search" | "/api/users" | "/api/contact" | "/api/cron/:action" | "/healthcheck";
+    page: "/" | "/about" | "/terms" | "/privacy" | "/community" | "/venues" | "/venues/:slug" | "/venues/new" | "/venues/:slug/edit" | "/resources" | "/resources/band-history" | "/resources/chemical-warfare-brigade" | "/resources/hot-air-balloon" | "/resources/media" | "/resources/mixes" | "/resources/movie-scores" | "/resources/music" | "/resources/perfume" | "/resources/side-projects" | "/resources/think-tank" | "/resources/tractorbeam" | "/resources/touchdowns" | "/auth/login" | "/auth/register" | "/auth/callback" | "/auth/logout" | "/auth/forgot-password" | "/auth/reset-password" | "/profile/edit" | "/users/:username" | "/blog" | "/blog/new" | "/blog/:slug" | "/blog/:slug/edit" | "/shows" | "/shows/:slug" | "/shows/top-rated" | "/shows/tour-dates" | "/shows/new" | "/shows/:slug/edit" | "/songs" | "/songs/:slug" | "/songs/new" | "/songs/:slug/edit" | "/api/reviews" | "/api/ratings" | "/api/tracks/:trackId" | "/api/attendances" | "/api/venues" | "/api/venues/:id" | "/api/songs" | "/api/songs/:id" | "/api/tracks" | "/api/tracks/reorder" | "/api/tracks/:id" | "/api/search" | "/api/users" | "/api/contact" | "/api/cron/:action" | "/healthcheck";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -423,6 +428,10 @@ type RouteFiles = {
   "routes/api/ratings.tsx": {
     id: "routes/api/ratings";
     page: "/api/ratings";
+  };
+  "routes/api/tracks/$trackId.tsx": {
+    id: "routes/api/tracks/$trackId";
+    page: "/api/tracks/:trackId";
   };
   "routes/api/attendances.tsx": {
     id: "routes/api/attendances";

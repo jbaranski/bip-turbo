@@ -7,6 +7,7 @@ import { StarRating } from "~/components/ui/star-rating";
 import { useSession } from "~/hooks/use-session";
 import { cn, formatDateShort } from "~/lib/utils";
 import { AttendanceToggle } from "./attendance";
+import { TrackRatingOverlay } from "./track-rating-overlay";
 
 interface SetlistCardProps {
   setlist: Setlist;
@@ -149,26 +150,28 @@ function SetlistCardComponent({ setlist, className, userAttendance, userRating, 
               <span className="inline ml-2 md:ml-0 md:flex-1">
                 {set.tracks.map((track, i) => (
                   <span key={track.id} className="inline">
-                    <span
-                      className={cn(
-                        "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
-                        track.allTimer && "font-medium",
-                      )}
-                    >
-                      {track.allTimer && (
-                        <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
-                      )}
-                      <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
-                      {trackAnnotationMap.has(track.id) && (
-                        <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
-                          {trackAnnotationMap.get(track.id)?.map((index, i) => (
-                            <span key={index} className={i > 0 ? 'ml-1' : ''}>
-                              {index}
-                            </span>
-                          ))}
-                        </sup>
-                      )}
-                    </span>
+                    <TrackRatingOverlay track={track}>
+                      <span
+                        className={cn(
+                          "relative text-brand-primary hover:text-brand-secondary hover:underline transition-colors text-sm md:text-base",
+                          track.allTimer && "font-medium",
+                        )}
+                      >
+                        {track.allTimer && (
+                          <Flame className="h-3 w-3 md:h-4 md:w-4 inline-block mr-1 transform -translate-y-0.5 text-orange-500" />
+                        )}
+                        <Link to={`/songs/${track.song?.slug}`}>{track.song?.title}</Link>
+                        {trackAnnotationMap.has(track.id) && (
+                          <sup className="text-brand-secondary ml-0.5 font-medium text-xs">
+                            {trackAnnotationMap.get(track.id)?.map((index, i) => (
+                              <span key={index} className={i > 0 ? 'ml-1' : ''}>
+                                {index}
+                              </span>
+                            ))}
+                          </sup>
+                        )}
+                      </span>
+                    </TrackRatingOverlay>
                     {i < set.tracks.length - 1 && (
                       <span className="text-content-text-secondary mx-1 font-medium text-sm md:text-base">
                         {track.segue ? " > " : ", "}

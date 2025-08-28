@@ -18,6 +18,7 @@ export const trackSchema = z.object({
   previousTrackId: z.string().uuid().nullable(),
   nextTrackId: z.string().uuid().nullable(),
   averageRating: z.number().default(0.0).nullable(),
+  ratingsCount: z.number().default(0),
   song: songSchema.optional(),
   annotations: z.array(annotationSchema).optional(),
 });

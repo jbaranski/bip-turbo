@@ -57,16 +57,6 @@ export const action = protectedAction(async ({ request, context }) => {
       // Get the updated average rating for the show
       const averageRating = await services.ratings.getAverageForRateable(rateableId, rateableType);
 
-      // Invalidate show caches since rating affects averageRating display
-      if (rateableType === "Show") {
-        const show = await services.shows.findById(rateableId);
-        if (show?.slug) {
-          await services.cache.del(`show:${show.slug}:data`);
-          await services.cache.delPattern("shows:list:*");
-          await services.cache.delPattern("home:*");
-        }
-      }
-
       return { userRating: updatedRating.value, averageRating };
     } catch (error) {
       console.error("Error rating rateable:", error);
