@@ -1,5 +1,6 @@
-import { publicLoader } from "~/lib/base-loaders";
-import { badRequest } from "~/lib/errors";
+import { trackUpdateSchema } from "@bip/domain";
+import { protectedAction, publicLoader } from "~/lib/base-loaders";
+import { badRequest, methodNotAllowed } from "~/lib/errors";
 import { services } from "~/server/services";
 
 export const loader = publicLoader(async ({ params, context }) => {
@@ -42,4 +43,47 @@ export const loader = publicLoader(async ({ params, context }) => {
     },
     userRating: userRating?.value || null,
   };
+});
+
+export const action = protectedAction(async ({ request, params }) => {
+  const { trackId } = params;
+  
+  if (!trackId) return badRequest();
+
+  if (request.method === "PUT") {
+    try {
+      const body = await request.json();
+      
+      // Parse and validate only allowed update fields
+      const { annotationDesc, ...updateData } = trackUpdateSchema.parse(body);
+      
+      // Update track with the validated data
+      await services.tracks.update(trackId, updateData);
+      
+      // Handle multiple annotations if provided
+      if (annotationDesc !== undefined) {
+        await services.annotations.upsertMultipleForTrack(trackId, annotationDesc);
+      }
+      
+      // Fetch the complete track with song relation
+      const completeTrack = await services.tracks.findById(trackId);
+      
+      if (!completeTrack) {
+        return new Response(JSON.stringify({ error: "Track not found" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+      
+      return completeTrack;
+    } catch (error) {
+      console.error("Error updating track:", error);
+      return new Response(JSON.stringify({ error: "Failed to update track" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
+  return methodNotAllowed();
 });

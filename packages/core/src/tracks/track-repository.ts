@@ -168,30 +168,9 @@ export class TrackRepository {
   }
 
   async update(id: string, data: Partial<Track>): Promise<Track> {
-    let updateData = this.mapToDbModel(data);
-
-    // If song or show changes, regenerate slug
-    if (data.songId || data.showId) {
-      const current = await this.db.track.findUnique({
-        where: { id },
-        select: { showId: true, songId: true },
-      });
-
-      if (current) {
-        const showId = data.showId || current.showId;
-        const songId = data.songId || current.songId;
-
-        const [show, song] = await Promise.all([
-          this.db.show.findUnique({ where: { id: showId }, select: { date: true } }),
-          this.db.song.findUnique({ where: { id: songId }, select: { title: true } }),
-        ]);
-
-        if (show && song) {
-          const slug = await this.generateTrackSlug(showId, songId, show.date, song.title);
-          updateData = { ...updateData, slug };
-        }
-      }
-    }
+    // Remove relation fields and computed fields that shouldn't be updated directly
+    const { song, annotations, songId, showId, ...updateableData } = data;
+    const updateData = this.mapToDbModel(updateableData);
 
     // Get current track info for cache invalidation
     const currentTrack = await this.db.track.findUnique({
