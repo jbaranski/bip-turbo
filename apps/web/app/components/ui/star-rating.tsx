@@ -12,6 +12,7 @@ interface StarRatingProps {
   rateableId: string;
   rateableType: string;
   initialRating?: number | null;
+  onRatingChange?: (rating: number) => void;
 }
 
 interface RatingResponse {
@@ -39,7 +40,7 @@ interface SetlistData {
   [key: string]: unknown;
 }
 
-export function StarRating({ className, disabled, rateableId, rateableType, initialRating }: StarRatingProps) {
+export function StarRating({ className, disabled, rateableId, rateableType, initialRating, onRatingChange }: StarRatingProps) {
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const queryClient = useQueryClient();
@@ -92,6 +93,11 @@ export function StarRating({ className, disabled, rateableId, rateableType, init
     },
     onSuccess: (data) => {
       toast.success("Rating submitted successfully");
+
+      // Call the optional callback
+      if (onRatingChange) {
+        onRatingChange(data.userRating ?? 0);
+      }
 
       // Update the individual rating query
       queryClient.setQueryData(["ratings", rateableId, rateableType], data);

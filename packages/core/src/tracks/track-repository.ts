@@ -97,7 +97,11 @@ export class TrackRepository {
     
     if (!result) return null;
     
+    console.log('Raw DB result has ratingsCount:', 'ratingsCount' in result, result.ratingsCount);
+    
     const track = this.mapToDomainEntity(result);
+    
+    console.log('Mapped domain entity has ratingsCount:', 'ratingsCount' in track, track.ratingsCount);
     if (result.annotations) {
       track.annotations = result.annotations.map(mapAnnotationToDomainEntity);
     }

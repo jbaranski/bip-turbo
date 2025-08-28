@@ -250,6 +250,7 @@ export class RatingRepository {
         where: { id: rateableId },
         data: {
           averageRating,
+          ratingsCount,
           updatedAt: new Date(),
         },
       });

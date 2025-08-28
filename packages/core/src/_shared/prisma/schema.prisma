@@ -443,6 +443,7 @@ model Track {
   previousTrackId String?      @map("previous_track_id") @db.Uuid
   nextTrackId     String?      @map("next_track_id") @db.Uuid
   averageRating   Float?       @default(0) @map("average_rating")
+  ratingsCount    Int          @default(0) @map("ratings_count")
   annotations     Annotation[]
   show            Show         @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_shows_show_id")
   song            Song         @relation(fields: [songId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_songs_song_id")
