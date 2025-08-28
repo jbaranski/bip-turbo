@@ -28,4 +28,8 @@ export class RatingService {
   async findTrackRatingsByUserId(userId: string): Promise<RatingWithTrack[]> {
     return this.repository.findTrackRatingsByUserId(userId);
   }
+
+  async deleteByRateableId(rateableId: string, rateableType: string): Promise<void> {
+    return this.repository.deleteByRateableId(rateableId, rateableType);
+  }
 }

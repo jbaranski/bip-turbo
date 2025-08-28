@@ -224,6 +224,15 @@ export class RatingRepository {
       .filter((rating): rating is RatingWithTrack => rating !== null);
   }
 
+  async deleteByRateableId(rateableId: string, rateableType: string): Promise<void> {
+    await this.db.rating.deleteMany({
+      where: {
+        rateableId,
+        rateableType,
+      },
+    });
+  }
+
   private async updateRateableAverageRating(rateableId: string, rateableType: string): Promise<void> {
     // Calculate the new average rating and count
     const stats = await this.db.rating.aggregate({

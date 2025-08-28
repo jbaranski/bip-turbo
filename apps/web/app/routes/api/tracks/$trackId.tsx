@@ -85,5 +85,22 @@ export const action = protectedAction(async ({ request, params }) => {
     }
   }
 
+  if (request.method === "DELETE") {
+    try {
+      // Delete all related data first
+      await services.annotations.deleteByTrackId(trackId);
+      await services.ratings.deleteByRateableId(trackId, "Track");
+      
+      await services.tracks.delete(trackId);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting track:", error);
+      return new Response(JSON.stringify({ error: "Failed to delete track" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+  }
+
   return methodNotAllowed();
 });
