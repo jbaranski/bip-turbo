@@ -155,25 +155,13 @@ export default function Show() {
         throw new Error("Failed to create review");
       }
 
-      const text = await response.text();
-      if (!text) {
-        throw new Error("Empty response from server");
-      }
-
-      let result: { json: { review?: ReviewMinimal } };
-      try {
-        result = JSON.parse(text);
-      } catch (e) {
-        console.error("Failed to parse response:", e);
-        console.error("Response text was:", text);
-        throw new Error("Invalid JSON response from server");
-      }
-
-      if (!result.json.review) {
+      const result = await response.json();
+      
+      if (!result.review) {
         throw new Error("Invalid response format from server: missing review");
       }
 
-      return result.json.review;
+      return result.review;
     },
     onSuccess: async (review) => {
       toast.success("Review submitted successfully");
