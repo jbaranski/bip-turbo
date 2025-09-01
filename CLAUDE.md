@@ -55,7 +55,7 @@ make format                          # Same as bun run format
 ```bash
 make migrate                         # Run Prisma migrations in dev
 make migrate-create                  # Create new migration
-make db-reset                        # Reset database and restore prod data
+make db-restore                      # Reset database and restore prod data via pg_restore
 make db-studio                       # Open Prisma Studio
 make db-introspect                   # Introspect database schema
 ```
