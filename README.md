@@ -66,6 +66,11 @@ make db-load-data-dump
 make db-scrub
 ```
 
+4. Run the app
+```
+make web
+```
+
 ### Type Checking
 
 Run type checking across all packages:
