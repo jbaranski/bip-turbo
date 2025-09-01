@@ -57,7 +57,7 @@ db-restore:
 	@echo "Production data restored successfully."
 
 db-load-data-dump:
-	psql "$$(doppler secrets get DATABASE_URL --plain)" -f $(PROD_DATA_PATH)
+	psql "$$(doppler secrets get DATABASE_URL --plain | sed 's|postgresql://postgres:|postgresql://supabase_admin:|')" -f $(PROD_DATA_PATH)
 
 db-scrub:
 	psql "$$(doppler secrets get DATABASE_URL --plain)" -f scripts/scrub.sql
