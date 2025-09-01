@@ -59,7 +59,6 @@ make build
 make db-generate
 make db-start
 make migrate
-make migrate-create // enter something like 'local development' when prompted for name
 make migrate-baseline // the result should be something like "The migration `xxx` is already recorded as applied in the database."
 export PROD_DATA_PATH=<the path to your db dump>
 make db-load-data-dump
