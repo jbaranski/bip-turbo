@@ -32,46 +32,42 @@ This monorepo is structured using pnpm workspaces and Turborepo for efficient bu
 ### Prerequisites
 
 - Node.js 22 or later
-- pnpm 10.5.2 or later
+- Bun 22 or later
 - Docker (for local development with PostgreSQL and Redis)
+- Supabase
 
-### Installation
+### Installation and local setup
 
 1. Clone the repository
-2. Install dependencies:
+2. Prepare environment variables
 
-```sh
-pnpm install
+```
+doppler login
+make doppler
 ```
 
-3. Set up environment variables using Doppler:
+2. Install dependencies and build source code:
 
 ```sh
-doppler setup
+make install
+make build
 ```
 
-4. Generate Prisma client:
+3. Setup database
 
-```sh
-pnpm --filter @bip/core prisma:generate
+```
+make db-generate
+make db-start
+make migrate
+make migrate-baseline // the result should be something like "The migration `xxx` is already recorded as applied in the database."
+export PROD_DATA_PATH=<the path to your db dump>
+make db-load-data-dump
+make db-scrub
 ```
 
-### Development
-
-Start the development server:
-
-```sh
-pnpm dev
+4. Run the app
 ```
-
-This will start all applications and packages in development mode.
-
-### Building
-
-Build all applications and packages:
-
-```sh
-pnpm build
+make web
 ```
 
 ### Type Checking
@@ -79,7 +75,7 @@ pnpm build
 Run type checking across all packages:
 
 ```sh
-pnpm typecheck
+make tc
 ```
 
 ### Linting
@@ -87,7 +83,7 @@ pnpm typecheck
 Run linting across all packages:
 
 ```sh
-pnpm lint
+make lint
 ```
 
 ### Formatting
@@ -95,7 +91,7 @@ pnpm lint
 Format code across all packages:
 
 ```sh
-pnpm format
+make format
 ```
 
 ## Project Structure
