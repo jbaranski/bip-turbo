@@ -43,7 +43,10 @@ migrate-create:
 migrate-baseline:
 	cd packages/core && bun prisma:migrate:baseline
 
-db-reset:
+db-start:
+	supabase start
+
+db-restore:
 	cd packages/core && bun prisma:reset
 	@echo "Restoring production data from $(PROD_DATA_PATH)..."
 	@if [ ! -f $(PROD_DATA_PATH) ]; then \
@@ -52,6 +55,12 @@ db-reset:
 	fi
 	pg_restore --no-owner --no-acl --data-only -d "$$(doppler secrets get DATABASE_URL --plain)" $(PROD_DATA_PATH) || true
 	@echo "Production data restored successfully."
+
+db-load-data-dump:
+	psql "$$(doppler secrets get DATABASE_URL --plain | sed 's|postgresql://postgres:|postgresql://supabase_admin:|')" -f $(PROD_DATA_PATH)
+
+db-scrub:
+	psql "$$(doppler secrets get DATABASE_URL --plain)" -f scripts/scrub.sql
 
 db-generate:
 	cd packages/core && bun prisma:generate
