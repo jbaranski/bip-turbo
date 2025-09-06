@@ -13,7 +13,7 @@ export function meta() {
       content:
         "Step inside the mind of Jon Barber as he breaks down jams, interviews guests, and discusses all things Disco Biscuits on Touchdowns All Day w/ Jon Barber.",
     },
-    { property: "og:image", content: "/tdad.jpg" },
+    { property: "og:image", content: "https://pub-6aa5e67069a14fc286677addbdd10c65.r2.dev/public/tdad.jpg" },
   ];
 }
 

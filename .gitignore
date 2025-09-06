@@ -9,3 +9,4 @@ build
 .next
 data-migrations
 *.bak
+.DS_Store

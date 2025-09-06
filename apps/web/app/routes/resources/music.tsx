@@ -14,7 +14,7 @@ export function meta() {
     },
     {
       property: "og:image",
-      content: "/music.jpg",
+      content: "https://pub-6aa5e67069a14fc286677addbdd10c65.r2.dev/public//music.jpg",
     },
   ];
 }

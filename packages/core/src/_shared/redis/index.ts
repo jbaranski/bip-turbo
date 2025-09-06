@@ -1,20 +1,58 @@
 import { createClient, type RedisClientType } from "redis";
 
+// Global singleton instance
+let globalRedisClient: RedisClientType | null = null;
+let globalIsConnected = false;
+
 export class RedisService {
-  private client!: RedisClientType;
-  private isConnected = false;
+  private client: RedisClientType;
 
   constructor(private readonly url: string) {
     if (!url) {
       throw new Error("Redis URL is required");
     }
-    this.client = createClient({ url: this.url });
+    
+    // Use existing global client if available
+    if (globalRedisClient) {
+      this.client = globalRedisClient;
+      return;
+    }
+    
+    // Create new client and store globally
+    this.client = createClient({ 
+      url: this.url,
+      // Add reconnection strategy to handle disconnections gracefully
+      socket: {
+        reconnectStrategy: (retries: number) => {
+          if (retries > 10) {
+            return new Error("Max reconnection attempts reached");
+          }
+          return Math.min(retries * 100, 3000);
+        }
+      }
+    });
+    
+    // Handle connection errors to prevent unhandled rejections
+    this.client.on('error', (err) => {
+      console.error('Redis Client Error:', err);
+      globalIsConnected = false;
+    });
+    
+    // Store as global singleton
+    globalRedisClient = this.client;
   }
 
   async connect(): Promise<void> {
-    if (!this.isConnected) {
+    if (!globalIsConnected && !this.client.isOpen) {
       await this.client.connect();
-      this.isConnected = true;
+      globalIsConnected = true;
+    }
+  }
+
+  async disconnect(): Promise<void> {
+    if (globalIsConnected && this.client.isOpen) {
+      await this.client.disconnect();
+      globalIsConnected = false;
     }
   }
 
@@ -48,7 +86,7 @@ export class RedisService {
   }
 
   getClient(): RedisClientType {
-    if (!this.isConnected) {
+    if (!globalIsConnected) {
       throw new Error("Redis client not connected. Call connect() first");
     }
     return this.client;
