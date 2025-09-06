@@ -55,6 +55,7 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
   const searchQuery = url.searchParams.get("q") || undefined;
 
   let setlists: Setlist[] = [];
+  let userAttendances: Attendance[] = [];
 
   // If there's a search query with at least MIN_SEARCH_CHARS characters, use the search functionality
   if (searchQuery && searchQuery.length >= MIN_SEARCH_CHARS) {
@@ -70,21 +71,14 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
       setlists = await services.setlists.findManyByShowIds(showIds);
 
       // If user is authenticated, fetch their attendance data for search results
-      const userAttendances = await fetchUserAttendances(context.currentUser, showIds);
-
-      return {
-        setlists,
-        year: yearInt,
-        searchQuery,
-        userAttendances
-      };
+      userAttendances = await fetchUserAttendances(context.currentUser, showIds);
     }
 
     return {
       setlists,
       year: yearInt,
       searchQuery,
-      userAttendances: []
+      userAttendances
     };
   }
 
@@ -110,11 +104,10 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
     }
   );
 
-  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows`);
+  userAttendances = await fetchUserAttendances(context.currentUser, setlists.map(setlist => setlist.show.id));
 
-  // If user is authenticated, fetch their attendance data
-  const showIds = setlists.map(setlist => setlist.show.id);
-  const userAttendances = await fetchUserAttendances(context.currentUser, showIds);
+  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows, user attended ${userAttendances.length}`);
+
 
   return {
     setlists,
