@@ -1,4 +1,4 @@
-import { CacheKeys, type Attendance, type Setlist } from "@bip/domain";
+import { CacheKeys, User, type Attendance, type Setlist } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -27,7 +27,7 @@ const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "
 const MIN_SEARCH_CHARS = 4;
 
 // Fetch user attendance data for a list of show IDs
-async function fetchUserAttendances(currentUser: any, showIds: string[]): Promise<Attendance[]> {
+async function fetchUserAttendances(currentUser: User, showIds: string[]): Promise<Attendance[]> {
   if (!currentUser || showIds.length === 0) {
     return [];
   }
@@ -107,7 +107,6 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
   userAttendances = await fetchUserAttendances(context.currentUser, setlists.map(setlist => setlist.show.id));
 
   console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows, user attended ${userAttendances.length}`);
-
 
   return {
     setlists,
