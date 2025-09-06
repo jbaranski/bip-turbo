@@ -7,7 +7,7 @@ type ContextUser = NonNullable<PublicContext["currentUser"]>;
 /**
  * Helper function to get the internal user record from a Supabase user
  */
-export async function getInternalUser(currentUser: ContextUser) {
+async function getInternalUser(currentUser: ContextUser) {
   const user = await services.users.findByEmail(currentUser.email);
   if (!user) {
     throw new Error("User not found in local database");
