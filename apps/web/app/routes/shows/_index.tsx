@@ -1,4 +1,4 @@
-import { CacheKeys, type Setlist } from "@bip/domain";
+import { CacheKeys, type Attendance, type Setlist } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -8,7 +8,7 @@ import { AdminOnly } from "~/components/admin/admin-only";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
-import { publicLoader } from "~/lib/base-loaders";
+import { protectedLoader, publicLoader } from "~/lib/base-loaders";
 import { getShowsMeta } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
@@ -17,6 +17,7 @@ interface LoaderData {
   setlists: Setlist[];
   year: number;
   searchQuery?: string;
+  userAttendances?: Attendance[];
 }
 
 const years = Array.from({ length: 30 }, (_, i) => 2025 - i).reverse();
@@ -25,7 +26,7 @@ const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "
 // Minimum characters required to trigger search
 const MIN_SEARCH_CHARS = 4;
 
-export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
+export const loader = publicLoader(async ({ request, context }): Promise<LoaderData> => {
   const url = new URL(request.url);
   const year = url.searchParams.get("year") || new Date().getFullYear();
   const yearInt = Number.parseInt(year as string);
@@ -46,34 +47,55 @@ export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
       // Fetch setlists for these shows
       setlists = await services.setlists.findManyByShowIds(showIds);
     }
+  } else {
+    // Cache year-based listings - these are stable and cacheable
+    const currentYear = new Date().getFullYear();
+    const sortDirection = yearInt === currentYear ? "desc" : "asc";
+    
+    const yearCacheKey = CacheKeys.shows.list({ 
+      year: yearInt, 
+      sort: sortDirection 
+    });
 
-    return { setlists, year: yearInt, searchQuery };
+    setlists = await services.cache.getOrSet(
+      yearCacheKey,
+      async () => {
+        console.log(`📅 Loading shows from DB for year: ${yearInt}`);
+        return await services.setlists.findMany({
+          filters: {
+            year: yearInt,
+          },
+          sort: [{ field: "date", direction: sortDirection }],
+        });
+      }
+    );
   }
 
-  // Cache year-based listings - these are stable and cacheable
-  const currentYear = new Date().getFullYear();
-  const sortDirection = yearInt === currentYear ? "desc" : "asc";
-  
-  const yearCacheKey = CacheKeys.shows.list({ 
-    year: yearInt, 
-    sort: sortDirection 
-  });
+  console.log(`🎯 ${searchQuery ? 'Search' : `Year ${yearInt}`} shows loaded: ${setlists.length} shows`);
 
-  setlists = await services.cache.getOrSet(
-    yearCacheKey,
-    async () => {
-      console.log(`📅 Loading shows from DB for year: ${yearInt}`);
-      return await services.setlists.findMany({
-        filters: {
-          year: yearInt,
-        },
-        sort: [{ field: "date", direction: sortDirection }],
-      });
+  // If user is authenticated, fetch their attendance data
+  let userAttendances: Attendance[] = [];
+  if (context.currentUser && setlists.length > 0) {
+    try {
+      // Get the actual user from the database by email
+      const user = await services.users.findByEmail(context.currentUser.email);
+      if (user) {
+        const showIds = setlists.map(setlist => setlist.show.id);
+        userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
+        console.log(`👤 Loaded ${userAttendances.length} user attendances for ${showIds.length} shows`);
+      }
+    } catch (error) {
+      console.warn('Failed to load user attendances:', error);
+      // Continue without user attendance data if there's an error
     }
-  );
+  }
 
-  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows`);
-  return { setlists, year: yearInt };
+  return { 
+    setlists, 
+    year: yearInt, 
+    searchQuery,
+    userAttendances: userAttendances.length > 0 ? userAttendances : undefined
+  };
 });
 
 export function meta({ data }: { data: LoaderData }) {
@@ -81,9 +103,19 @@ export function meta({ data }: { data: LoaderData }) {
 }
 
 export default function Shows() {
-  const { setlists, year, searchQuery } = useSerializedLoaderData<LoaderData>();
+  const { setlists, year, searchQuery, userAttendances } = useSerializedLoaderData<LoaderData>();
   const [showBackToTop, setShowBackToTop] = useState(false);
   const queryClient = useQueryClient();
+
+  // Create a map for quick attendance lookup by showId
+  const attendanceMap = useMemo(() => {
+    if (!userAttendances) return new Map();
+    const map = new Map<string, Attendance>();
+    for (const attendance of userAttendances) {
+      map.set(attendance.showId, attendance);
+    }
+    return map;
+  }, [userAttendances]);
 
   const rateMutation = useMutation({
     mutationFn: async ({ showId, rating }: { showId: string; rating: number }) => {
@@ -286,7 +318,7 @@ export default function Shows() {
                     <SetlistCard
                       key={setlist.show.id}
                       setlist={setlist}
-                      userAttendance={null}
+                      userAttendance={attendanceMap.get(setlist.show.id) || null}
                       userRating={null}
                       showRating={setlist.show.averageRating}
                       className="transition-all duration-300 transform hover:scale-[1.01]"
@@ -310,7 +342,7 @@ export default function Shows() {
                               {index === 0 && <div id={`month-${month}`} className="scroll-mt-20" />}
                               <SetlistCard
                                 setlist={setlist}
-                                userAttendance={null}
+                                userAttendance={attendanceMap.get(setlist.show.id) || null}
                                 userRating={null}
                                 showRating={setlist.show.averageRating}
                                 className="transition-all duration-300 transform hover:scale-[1.01]"
