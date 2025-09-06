@@ -16,7 +16,7 @@ export function meta() {
     },
     {
       property: "og:image",
-      content: "https://discobiscuits.net/akira.jpg",
+      content: "https://pub-6aa5e67069a14fc286677addbdd10c65.r2.dev/public/akira.jpg",
     },
   ];
 }
