@@ -52,7 +52,11 @@ export function Header() {
               className="flex items-center justify-center h-10 w-10 rounded-lg hover:opacity-80 transition-opacity"
               title="Home"
             >
-              <img src="/bip.png" alt="Biscuits Internet Project" className="h-8 w-8 object-contain" />
+              <img
+                src="https://pub-6aa5e67069a14fc286677addbdd10c65.r2.dev/public/bip.png"
+                alt="Biscuits Internet Project"
+                className="h-8 w-8 object-contain"
+              />
             </Link>
           </div>
 

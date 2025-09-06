@@ -6,7 +6,7 @@ export const SEO_CONFIG = {
   bandName: "The Disco Biscuits",
   description: "The ultimate resource for Disco Biscuits fans - shows, setlists, songs, venues, and more.",
   url: "https://discobiscuits.net",
-  image: "/images/og-default.jpg", // Default Open Graph image
+  image: "https://pub-6aa5e67069a14fc286677addbdd10c65.r2.dev/public/images/bip.png", // Default Open Graph image
   twitter: "", // No Twitter handle
   keywords: [
     "Disco Biscuits",
