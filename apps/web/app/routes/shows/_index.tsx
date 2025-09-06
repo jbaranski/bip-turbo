@@ -1,4 +1,4 @@
-import { CacheKeys, User, type Attendance, type Setlist } from "@bip/domain";
+import { CacheKeys, type Attendance, type Setlist } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowUp, Plus } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -8,6 +8,7 @@ import { AdminOnly } from "~/components/admin/admin-only";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
+import { fetchUserAttendances } from "~/lib/fetch-utils";
 import { publicLoader } from "~/lib/base-loaders";
 import { getShowsMeta } from "~/lib/seo";
 import { cn } from "~/lib/utils";
@@ -25,28 +26,6 @@ const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "
 
 // Minimum characters required to trigger search
 const MIN_SEARCH_CHARS = 4;
-
-// Fetch user attendance data for a list of show IDs
-async function fetchUserAttendances(currentUser: User, showIds: string[]): Promise<Attendance[]> {
-  if (!currentUser || showIds.length === 0) {
-    return [];
-  }
-
-  try {
-    // Get the actual user from the database by email
-    const user = await services.users.findByEmail(currentUser.email);
-    if (!user) {
-      return [];
-    }
-
-    const userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
-    console.log(`👤 Fetch ${userAttendances.length} user attendances from ${showIds.length} total shows`);
-    return userAttendances;
-  } catch (error) {
-    console.warn('Failed to load user attendances:', error);
-    return [];
-  }
-}
 
 export const loader = publicLoader(async ({ request, context }): Promise<LoaderData> => {
   const url = new URL(request.url);

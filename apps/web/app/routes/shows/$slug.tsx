@@ -12,6 +12,7 @@ import { SetlistHighlights } from "~/components/setlist/setlist-highlights";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { useSession } from "~/hooks/use-session";
+import { fetchUserAttendance } from "~/lib/fetch-utils";
 import { publicLoader } from "~/lib/base-loaders";
 import { notFound } from "~/lib/errors";
 import { getShowMeta, getShowStructuredData } from "~/lib/seo";
@@ -56,20 +57,7 @@ export const loader = publicLoader(async ({ params, context }): Promise<ShowLoad
   const reviews = await services.reviews.findByShowId(setlist.show.id);
 
   // If user is authenticated, fetch their attendance for this show
-  let userAttendance: Attendance | null = null;
-  if (context.currentUser) {
-    try {
-      // Get the actual user from the database by email
-      const user = await services.users.findByEmail(context.currentUser.email);
-      if (user) {
-        userAttendance = await services.attendances.findByUserIdAndShowId(user.id, setlist.show.id);
-        console.log(`👤 Loaded user attendance for show: ${userAttendance ? 'attended' : 'not attended'}`);
-      }
-    } catch (error) {
-      console.warn('Failed to load user attendance:', error);
-      // Continue without user attendance data if there's an error
-    }
-  }
+  const userAttendance = await fetchUserAttendance(context.currentUser, setlist.show.id);
 
   console.log(`🎯 Show data loaded for ${slug} - setlist cached, reviews fresh`);
 
