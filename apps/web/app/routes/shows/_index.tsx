@@ -17,7 +17,7 @@ interface LoaderData {
   setlists: Setlist[];
   year: number;
   searchQuery?: string;
-  userAttendances?: Attendance[];
+  userAttendances: Attendance[];
 }
 
 const years = Array.from({ length: 30 }, (_, i) => 2025 - i).reverse();
@@ -25,6 +25,28 @@ const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "
 
 // Minimum characters required to trigger search
 const MIN_SEARCH_CHARS = 4;
+
+// Fetch user attendance data for a list of show IDs
+async function fetchUserAttendances(currentUser: any, showIds: string[]): Promise<Attendance[]> {
+  if (!currentUser || showIds.length === 0) {
+    return [];
+  }
+
+  try {
+    // Get the actual user from the database by email
+    const user = await services.users.findByEmail(currentUser.email);
+    if (!user) {
+      return [];
+    }
+
+    const userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
+    console.log(`👤 Fetch ${userAttendances.length} user attendances from ${showIds.length} total shows`);
+    return userAttendances;
+  } catch (error) {
+    console.warn('Failed to load user attendances:', error);
+    return [];
+  }
+}
 
 export const loader = publicLoader(async ({ request, context }): Promise<LoaderData> => {
   const url = new URL(request.url);
@@ -46,40 +68,33 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
 
       // Fetch setlists for these shows
       setlists = await services.setlists.findManyByShowIds(showIds);
+
+      // If user is authenticated, fetch their attendance data for search results
+      const userAttendances = await fetchUserAttendances(context.currentUser, showIds);
+
+      return {
+        setlists,
+        year: yearInt,
+        searchQuery,
+        userAttendances
+      };
     }
 
-    // If user is authenticated, fetch their attendance data for search results
-    let userAttendances: Attendance[] = [];
-    if (context.currentUser && setlists.length > 0) {
-      try {
-        // Get the actual user from the database by email
-        const user = await services.users.findByEmail(context.currentUser.email);
-        if (user) {
-          const showIds = setlists.map(setlist => setlist.show.id);
-          userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
-          console.log(`👤 Loaded ${userAttendances.length} user attendances for ${showIds.length} shows`);
-        }
-      } catch (error) {
-        console.warn('Failed to load user attendances:', error);
-        // Continue without user attendance data if there's an error
-      }
-    }
-
-    return { 
-      setlists, 
-      year: yearInt, 
+    return {
+      setlists,
+      year: yearInt,
       searchQuery,
-      userAttendances: userAttendances.length > 0 ? userAttendances : undefined
+      userAttendances: []
     };
   }
 
   // Cache year-based listings - these are stable and cacheable
   const currentYear = new Date().getFullYear();
   const sortDirection = yearInt === currentYear ? "desc" : "asc";
-  
-  const yearCacheKey = CacheKeys.shows.list({ 
-    year: yearInt, 
-    sort: sortDirection 
+
+  const yearCacheKey = CacheKeys.shows.list({
+    year: yearInt,
+    sort: sortDirection
   });
 
   setlists = await services.cache.getOrSet(
@@ -98,26 +113,13 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
   console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows`);
 
   // If user is authenticated, fetch their attendance data
-  let userAttendances: Attendance[] = [];
-  if (context.currentUser && setlists.length > 0) {
-    try {
-      // Get the actual user from the database by email
-      const user = await services.users.findByEmail(context.currentUser.email);
-      if (user) {
-        const showIds = setlists.map(setlist => setlist.show.id);
-        userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
-        console.log(`👤 Loaded ${userAttendances.length} user attendances for ${showIds.length} shows`);
-      }
-    } catch (error) {
-      console.warn('Failed to load user attendances:', error);
-      // Continue without user attendance data if there's an error
-    }
-  }
+  const showIds = setlists.map(setlist => setlist.show.id);
+  const userAttendances = await fetchUserAttendances(context.currentUser, showIds);
 
-  return { 
-    setlists, 
-    year: yearInt, 
-    userAttendances: userAttendances.length > 0 ? userAttendances : undefined
+  return {
+    setlists,
+    year: yearInt,
+    userAttendances
   };
 });
 
@@ -132,7 +134,6 @@ export default function Shows() {
 
   // Create a map for quick attendance lookup by showId
   const attendanceMap = useMemo(() => {
-    if (!userAttendances) return new Map();
     const map = new Map<string, Attendance>();
     for (const attendance of userAttendances) {
       map.set(attendance.showId, attendance);
