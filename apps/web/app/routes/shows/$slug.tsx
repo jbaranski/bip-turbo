@@ -41,7 +41,7 @@ async function fetchUserAttendance(context: Context, showId: string): Promise<At
   try {
     const user = await services.users.findByEmail(context.currentUser.email);
     if (!user) {
-      console.warn('User not found', { email: context.currentUser.email });
+      console.warn(`User not found with email ${context.currentUser.email}`);
       return null;
     }
 

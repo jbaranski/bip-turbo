@@ -34,7 +34,7 @@ async function fetchUserAttendances(context: Context, showIds: string[]): Promis
   try {
     const user = await services.users.findByEmail(context.currentUser.email);
     if (!user) {
-      console.warn('User not found', { email: context.currentUser.email });
+      console.warn(`User not found with email ${context.currentUser.email}`);
       return [];
     }
 
@@ -105,7 +105,7 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
 
   userAttendances = await fetchUserAttendances(context, setlists.map(setlist => setlist.show.id));
 
-  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows, user attended ${userAttendances.length}`);
+  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows`);
 
   return {
     setlists,
