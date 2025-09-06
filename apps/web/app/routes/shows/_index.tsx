@@ -104,13 +104,10 @@ export default function Shows() {
   const queryClient = useQueryClient();
 
   // Create a map for quick attendance lookup by showId
-  const attendanceMap = useMemo(() => {
-    const map = new Map<string, Attendance>();
-    for (const attendance of userAttendances) {
-      map.set(attendance.showId, attendance);
-    }
-    return map;
-  }, [userAttendances]);
+  const attendanceMap = useMemo(() => 
+    new Map(userAttendances.map(attendance => [attendance.showId, attendance])),
+    [userAttendances]
+  );
 
   const rateMutation = useMutation({
     mutationFn: async ({ showId, rating }: { showId: string; rating: number }) => {
