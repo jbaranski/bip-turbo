@@ -8,7 +8,7 @@ import { AdminOnly } from "~/components/admin/admin-only";
 import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
-import { protectedLoader, publicLoader } from "~/lib/base-loaders";
+import { publicLoader } from "~/lib/base-loaders";
 import { getShowsMeta } from "~/lib/seo";
 import { cn } from "~/lib/utils";
 import { services } from "~/server/services";
@@ -47,31 +47,55 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
       // Fetch setlists for these shows
       setlists = await services.setlists.findManyByShowIds(showIds);
     }
-  } else {
-    // Cache year-based listings - these are stable and cacheable
-    const currentYear = new Date().getFullYear();
-    const sortDirection = yearInt === currentYear ? "desc" : "asc";
-    
-    const yearCacheKey = CacheKeys.shows.list({ 
-      year: yearInt, 
-      sort: sortDirection 
-    });
 
-    setlists = await services.cache.getOrSet(
-      yearCacheKey,
-      async () => {
-        console.log(`📅 Loading shows from DB for year: ${yearInt}`);
-        return await services.setlists.findMany({
-          filters: {
-            year: yearInt,
-          },
-          sort: [{ field: "date", direction: sortDirection }],
-        });
+    // If user is authenticated, fetch their attendance data for search results
+    let userAttendances: Attendance[] = [];
+    if (context.currentUser && setlists.length > 0) {
+      try {
+        // Get the actual user from the database by email
+        const user = await services.users.findByEmail(context.currentUser.email);
+        if (user) {
+          const showIds = setlists.map(setlist => setlist.show.id);
+          userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
+          console.log(`👤 Loaded ${userAttendances.length} user attendances for ${showIds.length} shows`);
+        }
+      } catch (error) {
+        console.warn('Failed to load user attendances:', error);
+        // Continue without user attendance data if there's an error
       }
-    );
+    }
+
+    return { 
+      setlists, 
+      year: yearInt, 
+      searchQuery,
+      userAttendances: userAttendances.length > 0 ? userAttendances : undefined
+    };
   }
 
-  console.log(`🎯 ${searchQuery ? 'Search' : `Year ${yearInt}`} shows loaded: ${setlists.length} shows`);
+  // Cache year-based listings - these are stable and cacheable
+  const currentYear = new Date().getFullYear();
+  const sortDirection = yearInt === currentYear ? "desc" : "asc";
+  
+  const yearCacheKey = CacheKeys.shows.list({ 
+    year: yearInt, 
+    sort: sortDirection 
+  });
+
+  setlists = await services.cache.getOrSet(
+    yearCacheKey,
+    async () => {
+      console.log(`📅 Loading shows from DB for year: ${yearInt}`);
+      return await services.setlists.findMany({
+        filters: {
+          year: yearInt,
+        },
+        sort: [{ field: "date", direction: sortDirection }],
+      });
+    }
+  );
+
+  console.log(`🎯 Year ${yearInt} shows loaded: ${setlists.length} shows`);
 
   // If user is authenticated, fetch their attendance data
   let userAttendances: Attendance[] = [];
@@ -93,7 +117,6 @@ export const loader = publicLoader(async ({ request, context }): Promise<LoaderD
   return { 
     setlists, 
     year: yearInt, 
-    searchQuery,
     userAttendances: userAttendances.length > 0 ? userAttendances : undefined
   };
 });
