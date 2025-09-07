@@ -1,5 +1,6 @@
-import type { Setlist, Venue } from "@bip/domain";
+import type { Attendance, Setlist, Venue } from "@bip/domain";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { format } from "date-fns";
 import { ArrowLeft, CalendarDays, Edit, MapPin, Ticket } from "lucide-react";
 import type { LoaderFunctionArgs } from "react-router";
@@ -10,7 +11,7 @@ import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
-import { publicLoader } from "~/lib/base-loaders";
+import { Context, publicLoader } from "~/lib/base-loaders";
 import { getVenueMeta, getVenueStructuredData } from "~/lib/seo";
 import { services } from "~/server/services";
 
@@ -25,6 +26,7 @@ interface LoaderData {
     lastShow: Date | null;
     yearsPlayed: number[];
   };
+  userAttendances: Attendance[];
 }
 
 interface VenueStats {
@@ -34,7 +36,28 @@ interface VenueStats {
   yearsPlayed: number[];
 }
 
-export const loader = publicLoader(async ({ params }: LoaderFunctionArgs): Promise<LoaderData> => {
+async function fetchUserAttendances(context: Context, showIds: string[]): Promise<Attendance[]> {
+  if (!context.currentUser || showIds.length === 0) {
+    return [];
+  }
+
+  try {
+    const user = await services.users.findByEmail(context.currentUser.email);
+    if (!user) {
+      console.warn(`User not found with email ${context.currentUser.email}`);
+      return [];
+    }
+
+    const userAttendances = await services.attendances.findManyByUserIdAndShowIds(user.id, showIds);
+    console.log(`👤 Fetch ${userAttendances.length} user attendances from ${showIds.length} venue shows`);
+    return userAttendances;
+  } catch (error) {
+    console.warn('Failed to load user attendances:', error);
+    return [];
+  }
+}
+
+export const loader = publicLoader(async ({ params, context }: LoaderFunctionArgs): Promise<LoaderData> => {
   const slug = params.slug;
   if (!slug) throw new Error("Slug is required");
 
@@ -58,7 +81,10 @@ export const loader = publicLoader(async ({ params }: LoaderFunctionArgs): Promi
     yearsPlayed,
   };
 
-  return { venue, setlists, stats };
+  // Get user attendances for all shows at this venue
+  const userAttendances = await fetchUserAttendances(context, setlists.map((setlist) => setlist.show.id));
+
+  return { venue, setlists, stats, userAttendances };
 });
 
 interface StatBoxProps {
@@ -94,8 +120,14 @@ export function meta({ data }: { data: LoaderData }) {
 }
 
 export default function VenuePage() {
-  const { venue, setlists, stats } = useSerializedLoaderData<LoaderData>();
+  const { venue, setlists, stats, userAttendances } = useSerializedLoaderData<LoaderData>();
   const queryClient = useQueryClient();
+
+  // Create a map for quick attendance lookup by showId
+  const attendanceMap = useMemo(() =>
+    new Map(userAttendances.map(attendance => [attendance.showId, attendance])),
+    [userAttendances]
+  );
 
   // Mutation for rating
   const _rateMutation = useMutation({
@@ -224,10 +256,10 @@ export default function VenuePage() {
           <h2 className="text-xl font-semibold text-content-text-primary mb-4">Shows at this Venue</h2>
           {setlists.length > 0 ? (
             setlists.map((setlist) => (
-              <SetlistCard 
-                key={setlist.show.id} 
-                setlist={setlist} 
-                userAttendance={null}
+              <SetlistCard
+                key={setlist.show.id}
+                setlist={setlist}
+                userAttendance={attendanceMap.get(setlist.show.id) || null}
                 userRating={null}
                 showRating={setlist.show.averageRating}
               />
