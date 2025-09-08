@@ -6,7 +6,7 @@ import { slugify } from "../_shared/utils/slugify";
 import { VALID_COUNTRIES, VALID_US_STATES, VALID_CANADIAN_PROVINCES } from "./venue-constants";
 
 export function mapVenueToDomainEntity(dbVenue: DbVenue): Venue {
-  const { slug, createdAt, updatedAt, name, ...rest } = dbVenue;
+  const { slug, createdAt, updatedAt, name, city, country, ...rest } = dbVenue;
 
   return {
     ...rest,
@@ -14,6 +14,8 @@ export function mapVenueToDomainEntity(dbVenue: DbVenue): Venue {
     createdAt: new Date(createdAt),
     updatedAt: new Date(updatedAt),
     name: name || "",
+    city: city || "",
+    country: country || "",
   };
 }
 
