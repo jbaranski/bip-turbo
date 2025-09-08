@@ -58,6 +58,8 @@ make migrate-create                  # Create new migration
 make db-restore                      # Reset database and restore prod data via pg_restore
 make db-studio                       # Open Prisma Studio
 make db-introspect                   # Introspect database schema
+make db-execute FILE=file.sql        # Execute SQL file against local database
+make db-query SQL="SELECT * FROM t"  # Execute SQL query against local database
 ```
 
 **Package-specific commands:**

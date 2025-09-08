@@ -1,5 +1,5 @@
 import { useGlobalSearch } from "~/hooks/use-global-search";
-import { GlobalSearchDialog } from "./global-search-dialog";
+import { GlobalSearchDrawer } from "./global-search-drawer";
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
   const { isOpen, open, close } = useGlobalSearch();
@@ -7,7 +7,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
-      <GlobalSearchDialog open={isOpen} onOpenChange={(newOpen) => (newOpen ? open() : close())} />
+      <GlobalSearchDrawer open={isOpen} onOpenChange={(newOpen) => (newOpen ? open() : close())} />
     </>
   );
 }

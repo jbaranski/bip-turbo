@@ -4,9 +4,7 @@ import { services } from "~/server/services";
 
 interface SearchRequest {
   query: string;
-  entityTypes?: string[];
   limit?: number;
-  threshold?: number;
 }
 
 interface SearchResponse {
@@ -34,7 +32,7 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
 
   try {
     const body = (await request.json()) as SearchRequest;
-    const { query, entityTypes, limit = 20, threshold = 0.3 } = body;
+    const { query, limit = 30 } = body;
 
     if (!query || query.trim().length === 0) {
       throw new Response(JSON.stringify({ error: "Query is required" }), {
@@ -50,57 +48,17 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
       });
     }
 
-    // Perform the search
-    const searchResults = await services.search.search({
-      query: query.trim(),
-      entityTypes,
-      limit: Math.min(limit, 100), // Cap at 100 results
-      threshold: Math.max(0, Math.min(1, threshold)), // Ensure threshold is between 0-1
-    });
-
-    // Format results for frontend consumption
-    const formattedResults = searchResults.map((result) => {
-      let url = "/";
-
-      // Generate URLs based on entity type
-      switch (result.entityType) {
-        case "show":
-          url = `/shows/${result.entitySlug}`;
-          break;
-        case "song":
-          url = `/songs/${result.entitySlug}`;
-          break;
-        case "venue":
-          url = `/venues/${result.entitySlug}`;
-          break;
-        case "track":
-          url = `/tracks/${result.entityId}`;
-          break;
-        default:
-          url = `/${result.entityType}s/${result.entityId}`;
-      }
-
-      return {
-        id: result.id,
-        entityType: result.entityType,
-        entityId: result.entityId,
-        displayText: result.displayText,
-        score: result.score,
-        url,
-        metadata: {
-          similarity: result.similarity,
-          createdAt: result.createdAt,
-          updatedAt: result.updatedAt,
-        },
-      };
+    // Perform the search using PostgreSQL search
+    const searchResults = await services.postgresSearch.search(query.trim(), {
+      limit,
     });
 
     const executionTimeMs = Date.now() - startTime;
 
     const response: SearchResponse = {
-      results: formattedResults,
+      results: searchResults,
       query,
-      totalResults: formattedResults.length,
+      totalResults: searchResults.length,
       executionTimeMs,
     };
 
@@ -141,7 +99,7 @@ export const loader = publicLoader(async () => {
         vectorExtensionAvailable: stats.isVectorExtensionAvailable,
         totalIndexedItems: stats.totalCount,
         itemsByType: stats.countsByType,
-        registeredFormatters: services.search.getRegisteredEntityTypes(),
+        registeredFormatters: [],
       }),
       {
         status: 200,

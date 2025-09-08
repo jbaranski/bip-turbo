@@ -6,6 +6,7 @@ import { FileService } from "../files/file-service";
 import { SongPageComposer } from "../page-composers/song-page-composer";
 import { RatingService } from "../ratings/rating-service";
 import { ReviewService } from "../reviews/review-service";
+import { PostgresSearchService } from "../search/postgres-search-service";
 import { EmbeddingService } from "../search/embedding-service";
 import { SearchIndexService } from "../search/search-index-service";
 import { SetlistService } from "../setlists/setlist-service";
@@ -35,6 +36,7 @@ export interface Services {
   tourDatesService: TourDatesService;
   files: FileService;
   search: SearchIndexService;
+  postgresSearch: PostgresSearchService;
   embedding: EmbeddingService;
   redis: RedisService;
   cache: CacheService;
@@ -55,6 +57,9 @@ export function createServices(container: ServiceContainer): Services {
   // Initialize the SearchIndexer with the SearchIndexService
   container.searchIndexer.searchIndexService = searchIndexService;
 
+  // Create PostgreSQL search service
+  const postgresSearchService = new PostgresSearchService(container.db, container.logger);
+
   return {
     annotations: new AnnotationService(container.repositories.annotations, container.logger),
     blogPosts: new BlogPostService(container.repositories.blogPosts, container.redis, container.logger),
@@ -71,6 +76,7 @@ export function createServices(container: ServiceContainer): Services {
     tourDatesService: new TourDatesService(container.redis),
     files: new FileService(container.repositories.files, container.logger),
     search: searchIndexService,
+    postgresSearch: postgresSearchService,
     embedding: embeddingService,
     redis: container.redis,
     cache: container.cache,

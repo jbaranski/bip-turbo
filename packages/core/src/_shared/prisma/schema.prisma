@@ -328,6 +328,8 @@ model Show {
   showPhotosCount   Int           @default(0) @map("show_photos_count")
   showYoutubesCount Int           @default(0) @map("show_youtubes_count")
   reviewsCount      Int           @default(0) @map("reviews_count")
+  searchText        String?       @map("search_text") @db.Text
+  searchVector      Unsupported("tsvector")? @map("search_vector")
   attendances       Attendance[]
   favorites         Favorite[]
   reviews           Review[]
@@ -338,6 +340,7 @@ model Show {
   tracks            Track[]
 
   @@index([likesCount])
+  @@index([date])
   @@map("shows")
 }
 
@@ -383,6 +386,8 @@ model Song {
   mostCommonYear  Int?      @map("most_common_year")
   leastCommonYear Int?      @map("least_common_year")
   guitarTabsUrl   String?   @map("guitar_tabs_url")
+  searchText      String?   @map("search_text") @db.Text
+  searchVector    Unsupported("tsvector")? @map("search_vector")
   author          Author?   @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_songs_authors_author_id")
   tracks          Track[]
 
@@ -444,6 +449,8 @@ model Track {
   nextTrackId     String?      @map("next_track_id") @db.Uuid
   averageRating   Float?       @default(0) @map("average_rating")
   ratingsCount    Int          @default(0) @map("ratings_count")
+  searchText      String?      @map("search_text") @db.Text
+  searchVector    Unsupported("tsvector")? @map("search_vector")
   annotations     Annotation[]
   show            Show         @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_shows_show_id")
   song            Song         @relation(fields: [songId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_songs_song_id")
@@ -494,23 +501,25 @@ model UserRole {
 }
 
 model Venue {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String?  @db.VarChar
-  slug        String   @db.VarChar
-  street      String?  @db.VarChar
-  city        String?  @db.VarChar
-  state       String?  @db.VarChar
-  country     String?  @db.VarChar
-  postalCode  String?  @map("postal_code") @db.VarChar
-  latitude    Float?
-  longitude   Float?
-  phone       String?  @db.VarChar
-  website     String?  @db.VarChar
-  legacyId    Int?     @map("legacy_id")
-  createdAt   DateTime @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime @map("updated_at") @db.Timestamp(6)
-  timesPlayed Int      @default(0) @map("times_played")
-  shows       Show[]
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String?   @db.VarChar
+  slug         String    @db.VarChar
+  street       String?   @db.VarChar
+  city         String?   @db.VarChar
+  state        String?   @db.VarChar
+  country      String?   @db.VarChar
+  postalCode   String?   @map("postal_code") @db.VarChar
+  latitude     Float?
+  longitude    Float?
+  phone        String?   @db.VarChar
+  website      String?   @db.VarChar
+  legacyId     Int?      @map("legacy_id")
+  createdAt    DateTime  @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime  @map("updated_at") @db.Timestamp(6)
+  timesPlayed  Int       @default(0) @map("times_played")
+  searchText   String?   @map("search_text") @db.Text
+  searchVector Unsupported("tsvector")? @map("search_vector")
+  shows        Show[]
 
   @@index([slug])
   @@map("venues")
