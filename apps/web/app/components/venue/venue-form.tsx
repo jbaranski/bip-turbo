@@ -72,7 +72,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
   // Clear state field when country changes to prevent invalid combinations
   // But skip this on initial load to preserve existing venue state
   const [previousCountry, setPreviousCountry] = useState(selectedCountry);
-  
+
   useEffect(() => {
     if (!isInitialLoad && previousCountry !== selectedCountry) {
       form.setValue("state", null);
@@ -89,7 +89,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
           render={({ field }: { field: ControllerRenderProps<VenueFormValues, "name"> }) => (
             <FormItem>
               <FormLabel className="text-content-text-primary">
-                Venue Name <span className="text-red-500">*</span>
+                Venue Name <span className="text-error">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -98,7 +98,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                   className="bg-content-bg-secondary border-content-bg-secondary text-white"
                 />
               </FormControl>
-              <FormMessage className="text-red-500" />
+              <FormMessage className="text-error" />
             </FormItem>
           )}
         />
@@ -109,7 +109,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
           render={({ field }: { field: ControllerRenderProps<VenueFormValues, "city"> }) => (
             <FormItem>
               <FormLabel className="text-content-text-primary">
-                City <span className="text-red-500">*</span>
+                City <span className="text-error">*</span>
               </FormLabel>
               <FormControl>
                 <Input
@@ -118,7 +118,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                   className="bg-content-bg-secondary border-content-bg-secondary text-white"
                 />
               </FormControl>
-              <FormMessage className="text-red-500" />
+              <FormMessage className="text-error" />
             </FormItem>
           )}
         />
@@ -136,21 +136,21 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                 <FormLabel className="text-content-text-primary">
                   {selectedCountry === "United States" ? "State" :
                    selectedCountry === "Canada" ? "Province" : "State/Province"}
-                  {isUSOrCanada && <span className="text-red-500">*</span>}
+                  {isUSOrCanada && <span className="text-error">*</span>}
                 </FormLabel>
                 <FormControl>
                   {isUSOrCanada ? (
-                    <Select 
-                      onValueChange={field.onChange} 
-                      value={field.value && stateOptions.includes(field.value) ? field.value : ""} 
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value && stateOptions.includes(field.value) ? field.value : ""}
                       key={selectedCountry}
                     >
                       <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-white">
                         <SelectValue placeholder={`Select ${selectedCountry === "United States" ? "state" : "province"}`} />
                       </SelectTrigger>
-                      <SelectContent className="max-h-[200px] overflow-y-auto bg-white border border-gray-300">
+                      <SelectContent className="max-h-[200px] overflow-y-auto bg-dropdown border border-border">
                         {stateOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-gray-900 hover:bg-gray-100">
+                          <SelectItem key={option} value={option} className="text-dropdown hover:bg-dropdown-hover">
                             {option}
                           </SelectItem>
                         ))}
@@ -165,7 +165,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                     />
                   )}
                 </FormControl>
-                <FormMessage className="text-red-500" />
+                <FormMessage className="text-error" />
               </FormItem>
             );
           }}
@@ -177,7 +177,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
           render={({ field }: { field: ControllerRenderProps<VenueFormValues, "country"> }) => (
             <FormItem>
               <FormLabel className="text-content-text-primary">
-                Country <span className="text-red-500">*</span>
+                Country <span className="text-error">*</span>
               </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -185,15 +185,15 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                     <SelectValue placeholder="Select a country" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent className="max-h-[200px] overflow-y-auto bg-white border border-gray-300">
+                <SelectContent className="max-h-[200px] overflow-y-auto bg-dropdown border border-border">
                   {COUNTRIES.map((country) => (
-                    <SelectItem key={country} value={country} className="text-gray-900 hover:bg-gray-100">
+                    <SelectItem key={country} value={country} className="text-dropdown hover:bg-dropdown-hover">
                       {country}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <FormMessage className="text-red-500" />
+              <FormMessage className="text-error" />
             </FormItem>
           )}
         />
@@ -206,7 +206,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
             type="button"
             variant="outline"
             onClick={() => navigate(cancelHref)}
-            className="border-gray-600 text-content-text-primary hover:bg-content-bg-secondary hover:text-white"
+            className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
           >
             Cancel
           </Button>
