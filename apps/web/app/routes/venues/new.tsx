@@ -13,9 +13,9 @@ export const loader = adminLoader(async () => {
 export const action = adminAction(async ({ request }) => {
   const formData = await request.formData();
   const name = formData.get("name") as string;
-  const city = (formData.get("city") as string) || null;
-  const state = (formData.get("state") as string) || null;
-  const country = (formData.get("country") as string) || null;
+  const city = formData.get("city") as string;
+  const state = formData.get("state") as string || null;
+  const country = formData.get("country") as string;
 
   // Create the venue
   const venue = await services.venues.create({
@@ -34,9 +34,9 @@ export default function NewVenue() {
   const handleSubmit = async (data: VenueFormValues) => {
     const formData = new FormData();
     formData.append("name", data.name);
-    if (data.city) formData.append("city", data.city);
+    formData.append("city", data.city);
     if (data.state) formData.append("state", data.state);
-    if (data.country) formData.append("country", data.country);
+    formData.append("country", data.country);
 
     submit(formData, { method: "post" });
   };

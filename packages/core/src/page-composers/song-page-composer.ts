@@ -264,9 +264,9 @@ export class SongPageComposer {
               id: row.venue_id,
               slug: row.venue_slug,
               name: row.venue_name,
-              city: row.venue_city,
+              city: row.venue_city || "",
               state: row.venue_state,
-              country: row.venue_country,
+              country: row.venue_country || "",
             }
           : undefined,
       songBefore:

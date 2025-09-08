@@ -310,8 +310,8 @@ export default function VenuesPage() {
           matchesState = Boolean(
             (!venue.state && venue.country) ||
               (venue.country &&
-                venue.country.toLowerCase() !== "usa" &&
-                venue.country.toLowerCase() !== "united states"),
+                venue.country.toLowerCase().trim() !== "usa" &&
+                venue.country.toLowerCase().trim() !== "united states"),
           );
         } else {
           matchesState = venue.state === stateFilter;
@@ -400,7 +400,7 @@ export default function VenuesPage() {
       <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatBox icon={<MapPin className="h-4 w-4" />} label="Total Venues" value={stats.totalVenues} />
         <StatBox icon={<Ticket className="h-4 w-4" />} label="Total Shows" value={stats.totalShows} />
-        <StatBox icon={<MapPin className="h-4 w-4" />} label="States/Regions" value={stats.totalStates} />
+        <StatBox icon={<MapPin className="h-4 w-4" />} label="US States" value={stats.totalStates} />
         <StatBox icon={<Globe className="h-4 w-4" />} label="International Venues" value={nonUSACount} />
       </dl>
 
