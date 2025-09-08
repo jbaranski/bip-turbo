@@ -12,7 +12,7 @@ import { SetlistHighlights } from "~/components/setlist/setlist-highlights";
 import { Button } from "~/components/ui/button";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { useSession } from "~/hooks/use-session";
-import { Context, publicLoader } from "~/lib/base-loaders";
+import { type Context, publicLoader } from "~/lib/base-loaders";
 import { notFound } from "~/lib/errors";
 import { getShowMeta, getShowStructuredData } from "~/lib/seo";
 import { formatDateLong } from "~/lib/utils";

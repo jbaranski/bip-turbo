@@ -67,7 +67,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
     if (isInitialLoad) {
       setIsInitialLoad(false);
     }
-  }, [defaultValues, isInitialLoad]);
+  }, [isInitialLoad]);
 
   // Clear state field when country changes to prevent invalid combinations
   // But skip this on initial load to preserve existing venue state

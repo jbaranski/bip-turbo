@@ -167,7 +167,7 @@ export class VenueRepository {
     if (data.city !== undefined && !data.city?.trim()) {
       throw new Error("City is required");
     }
-    if (data.city !== undefined && data.city?.includes(",")) {
+    if (data.city?.includes(",")) {
       throw new Error("City name should not contain commas");
     }
     if (data.country !== undefined && !data.country?.trim()) {

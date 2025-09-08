@@ -11,7 +11,7 @@ import { SetlistCard } from "~/components/setlist/setlist-card";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
-import { Context, publicLoader } from "~/lib/base-loaders";
+import { type Context, publicLoader } from "~/lib/base-loaders";
 import { getVenueMeta, getVenueStructuredData } from "~/lib/seo";
 import { services } from "~/server/services";
 
