@@ -95,7 +95,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                 <Input
                   placeholder="Enter venue name"
                   {...field}
-                  className="bg-content-bg-secondary border-content-bg-secondary text-white"
+                  className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
                 />
               </FormControl>
               <FormMessage className="text-error" />
@@ -115,7 +115,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                 <Input
                   placeholder="Enter city"
                   {...field}
-                  className="bg-content-bg-secondary border-content-bg-secondary text-white"
+                  className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
                 />
               </FormControl>
               <FormMessage className="text-error" />
@@ -145,7 +145,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                       value={field.value && stateOptions.includes(field.value) ? field.value : ""}
                       key={selectedCountry}
                     >
-                      <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-white">
+                      <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary">
                         <SelectValue placeholder={`Select ${selectedCountry === "United States" ? "state" : "province"}`} />
                       </SelectTrigger>
                       <SelectContent className="max-h-[200px] overflow-y-auto bg-dropdown border border-border">
@@ -161,7 +161,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
                       placeholder="Enter state or province (optional)"
                       {...field}
                       value={field.value || ""}
-                      className="bg-content-bg-secondary border-content-bg-secondary text-white"
+                      className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary"
                     />
                   )}
                 </FormControl>
@@ -181,7 +181,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
               </FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
-                  <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-white">
+                  <SelectTrigger className="bg-content-bg-secondary border-content-bg-secondary text-content-text-primary">
                     <SelectValue placeholder="Select a country" />
                   </SelectTrigger>
                 </FormControl>
@@ -199,7 +199,7 @@ export function VenueForm({ defaultValues, onSubmit, submitLabel, cancelHref }: 
         />
 
         <div className="flex gap-4 pt-2">
-          <Button type="submit" className="bg-purple-800 hover:bg-purple-700 text-white">
+          <Button type="submit" className="bg-brand-primary hover:bg-hover-accent text-content-text-primary">
             {submitLabel}
           </Button>
           <Button
