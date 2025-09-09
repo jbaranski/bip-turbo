@@ -48,33 +48,74 @@ export class PostgresSearchService {
     this.logger.info(`Performing PostgreSQL search for: "${query}"`);
 
     try {
-      // Check for date search
-      if (this.looksLikeDate(query)) {
-        return this.searchByDate(normalizedQuery, options);
-      }
-
       // Check for segue search (contains ">")
       if (query.includes(">")) {
         return this.searchWithSegues(query, options);
       }
 
-      // Search for songs
-      const songResults = await this.performSongSearch(normalizedQuery);
-      const songIds = songResults.filter((s) => s.match_score >= 30).map((s) => s.song_id);
-
-      // Search for venues
-      const venueResults = await this.performVenueSearch(normalizedQuery);
-      const venueIds = venueResults.filter((v) => v.match_score >= 1).map((v) => v.venue_id);
-
-      // Return no results if we have no date, song, or venue results
-      if (songIds.length === 0 && venueIds.length === 0) {
-        return [];
+      // Check for full date search (complete dates only)
+      if (this.looksLikeFullDate(query)) {
+        return this.searchByDate(normalizedQuery, options);
       }
 
-      // Perform unified search with songs and/or venues
-      const showResults = await this.performShowSearch(normalizedQuery, songIds, venueIds, options.limit);
+      // Extract date filters and remaining query
+      const dateFilter = this.extractDateFilter(query);
+      const searchQuery = dateFilter.remainingQuery || normalizedQuery;
+      
+      // If we extracted date info and have no remaining query, do a pure date search
+      if ((dateFilter.year || dateFilter.month || dateFilter.day) && !dateFilter.remainingQuery.trim()) {
+        return this.searchByDate(normalizedQuery, options);
+      }
+      
+      // Try to parse combined venue+song queries intelligently
+      const combinedSearch = await this.tryParseCombinedQuery(searchQuery);
+      
+      // Search for songs 
+      const songQuery = combinedSearch.songQuery || searchQuery;
+      const songResults = await this.performSongSearch(songQuery);
+      const strongSongIds = songResults.filter((s) => s.match_score >= 50).map((s) => s.song_id);
+      const mediumSongIds = songResults.filter((s) => s.match_score >= 30).map((s) => s.song_id);
+      const weakSongIds = songResults.filter((s) => s.match_score >= 15).map((s) => s.song_id);
 
-      return this.formatShowResults(showResults);
+      // Search for venues 
+      const venueQuery = combinedSearch.venueQuery || searchQuery;
+      const venueResults = await this.performVenueSearch(venueQuery);
+      const strongVenueIds = venueResults.filter((v) => v.match_score >= 50).map((v) => v.venue_id);
+      const mediumVenueIds = venueResults.filter((v) => v.match_score >= 10).map((v) => v.venue_id);
+      const weakVenueIds = venueResults.filter((v) => v.match_score >= 1).map((v) => v.venue_id);
+
+      // Try strong matches first
+      if (strongSongIds.length > 0 || strongVenueIds.length > 0) {
+        const showResults = await this.performShowSearch(searchQuery, strongSongIds, strongVenueIds, options.limit, dateFilter);
+        if (showResults.length > 0) {
+          return this.convertShowResultsToSearchResults(showResults);
+        }
+      }
+
+      // Try medium matches
+      if (mediumSongIds.length > 0 || mediumVenueIds.length > 0) {
+        const showResults = await this.performShowSearch(searchQuery, mediumSongIds, mediumVenueIds, options.limit, dateFilter);
+        if (showResults.length > 0) {
+          return this.convertShowResultsToSearchResults(showResults);
+        }
+      }
+
+      // Try weak matches
+      if (weakSongIds.length > 0 || weakVenueIds.length > 0) {
+        const showResults = await this.performShowSearch(searchQuery, weakSongIds, weakVenueIds, options.limit, dateFilter);
+        if (showResults.length > 0) {
+          return this.convertShowResultsToSearchResults(showResults);
+        }
+      }
+
+      // Only do general search if no songs or venues found at all
+      if (songResults.length === 0 && venueResults.length === 0) {
+        const generalResults = await this.performShowSearch(searchQuery, [], [], Math.min(options.limit, 10), dateFilter);
+        return this.convertShowResultsToSearchResults(generalResults);
+      }
+
+      // If we found songs/venues but no shows, return empty
+      return [];
     } catch (error) {
       this.logger.error(`Search failed: ${error}`);
       throw error;
@@ -167,7 +208,7 @@ export class PostgresSearchService {
           s.id as song_id,
           s.title as song_title,
           s.slug as song_slug,
-          ts_rank(s.search_vector, plainto_tsquery('english', $1)) as fts_rank,
+          ts_rank(s.search_vector, websearch_to_tsquery('english', $1)) as fts_rank,
           similarity(s.search_text, $1) as trgm_sim,
           CASE 
             WHEN LOWER(s.title) = LOWER($1) THEN 1.0
@@ -178,9 +219,12 @@ export class PostgresSearchService {
           s.times_played
         FROM songs s
         WHERE 
-          s.search_vector @@ plainto_tsquery('english', $1)
-          OR similarity(s.search_text, $1) > 0.2
-          OR LOWER(s.title) LIKE '%' || LOWER($1) || '%'
+          -- Use websearch_to_tsquery for better multi-word handling
+          s.search_vector @@ websearch_to_tsquery('english', $1)
+          -- Lower similarity threshold for multi-word matches
+          OR similarity(s.search_text, $1) > 0.15
+          -- Also check if all words appear in the title
+          OR LOWER(s.title) LIKE '%' || REPLACE(LOWER($1), ' ', '%') || '%'
       )
       SELECT 
         song_id,
@@ -205,6 +249,7 @@ export class PostgresSearchService {
     songIds: string[],
     venueIds: string[],
     limit: number,
+    dateFilter?: { year?: number; month?: number; day?: number }
   ): Promise<ShowResult[]> {
     this.logger.info(`Show search: ${songIds.length} songs, ${venueIds.length} venues from query: "${query}"`);
 
@@ -240,9 +285,9 @@ export class PostgresSearchService {
     }
 
     // Inline the complex show search SQL for better debugging and flexibility
-    const sql = this.buildShowSearchSQL(query, songIds, venueIds, limit);
+    const sql = this.buildShowSearchSQL(query, songIds, venueIds, limit, dateFilter);
 
-    this.logger.debug(`Show search SQL - songs: ${songIds.length}, venues: ${venueIds.length}`);
+    this.logger.debug(`Show search SQL - songs: ${songIds.length}, venues: ${venueIds.length}, date filter: ${JSON.stringify(dateFilter)}`);
 
     return this.db.$queryRawUnsafe<ShowResult[]>(sql);
   }
@@ -384,7 +429,8 @@ export class PostgresSearchService {
     searchTerm: string,
     songIds: string[], 
     venueIds: string[], 
-    limit: number
+    limit: number,
+    dateFilter?: { year?: number; month?: number; day?: number }
   ): string {
     // Properly escape and format arrays for SQL
     const searchTermSQL = `'${searchTerm.replace(/'/g, "''")}'`;
@@ -395,11 +441,29 @@ export class PostgresSearchService {
       ? `ARRAY[${venueIds.map(id => `'${id}'::UUID`).join(',')}]`
       : 'NULL::UUID[]';
     
+    // Build date filter condition
+    let dateCondition = '';
+    if (dateFilter) {
+      const conditions: string[] = [];
+      if (dateFilter.year) {
+        conditions.push(`EXTRACT(YEAR FROM s.date::timestamp) = ${dateFilter.year}`);
+      }
+      if (dateFilter.month) {
+        conditions.push(`EXTRACT(MONTH FROM s.date::timestamp) = ${dateFilter.month}`);
+      }
+      if (dateFilter.day) {
+        conditions.push(`EXTRACT(DAY FROM s.date::timestamp) = ${dateFilter.day}`);
+      }
+      if (conditions.length > 0) {
+        dateCondition = ' AND ' + conditions.join(' AND ');
+      }
+    }
+
     return `
       WITH filtered_shows AS (
         SELECT s.id, s.slug, s.date, s.venue_id
         FROM shows s
-        WHERE ${venueIdsSQL} IS NULL OR s.venue_id = ANY(${venueIdsSQL})
+        WHERE (${venueIdsSQL} IS NULL OR s.venue_id = ANY(${venueIdsSQL}))${dateCondition}
       ),
       filtered_tracks AS (
         SELECT 
@@ -520,7 +584,11 @@ export class PostgresSearchService {
     // Get the segue run IDs
     const segueRunIds = filteredRuns.map(r => r.segueRunId);
 
-    // Get show details with the SPECIFIC segue run info
+    // Get the original query for venue matching
+    const queryWords = query.toLowerCase().split(/\s+/);
+    const nonSegueWords = queryWords.filter(w => w !== '>' && !w.includes('>'));
+    
+    // Get show details with the SPECIFIC segue run info and proper scoring
     const results = await this.db.$queryRaw<ShowResult[]>`
       SELECT 
         sh.id as show_id,
@@ -530,7 +598,18 @@ export class PostgresSearchService {
         v.city as venue_city,
         v.state as venue_state,
         v.country as venue_country,
-        100 as match_score,
+        CASE
+          -- If venue was explicitly filtered, give higher score
+          WHEN ${parsed.venues.length > 0} THEN 100
+          -- Otherwise calculate score based on venue/location match
+          ELSE 
+            70 + -- Base score for segue match
+            CASE 
+              WHEN v.name IS NOT NULL AND LOWER(v.name) LIKE '%' || LOWER(${nonSegueWords[0] || ''}) || '%' THEN 30
+              WHEN v.city IS NOT NULL AND LOWER(v.city) LIKE '%' || LOWER(${nonSegueWords[0] || ''}) || '%' THEN 30
+              ELSE 0
+            END
+        END as match_score,
         json_build_object(
           'type', 'segueMatch',
           'segueRun', json_build_object(
@@ -543,22 +622,140 @@ export class PostgresSearchService {
       JOIN shows sh ON sr.show_id = sh.id
       LEFT JOIN venues v ON sh.venue_id = v.id
       WHERE sr.id = ANY(${segueRunIds}::uuid[])
-      ORDER BY sh.date DESC
+      ORDER BY match_score DESC, sh.date DESC
       LIMIT ${options.limit}
     `;
 
     return this.convertShowResultsToSearchResults(results);
   }
 
-  private looksLikeDate(query: string): boolean {
-    const datePatterns = [
+  private looksLikeFullDate(query: string): boolean {
+    const fullDatePatterns = [
       /^\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4}$/, // 12/30/99, 12-30-1999
       /^\d{4}[/\-.]\d{1,2}[/\-.]\d{1,2}$/, // 1999-12-30
-      /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i, // December 30
-      /^\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i, // 30 Dec
+      /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{1,2},?\s+\d{2,4}$/i, // December 30, 1999
+      /^\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{2,4}$/i, // 30 Dec 1999
     ];
 
-    return datePatterns.some((pattern) => pattern.test(query.trim()));
+    return fullDatePatterns.some((pattern) => pattern.test(query.trim()));
+  }
+
+  private extractDateFilter(query: string): { year?: number; month?: number; day?: number; remainingQuery: string } {
+    const words = query.toLowerCase().split(/\s+/);
+    let year: number | undefined;
+    let month: number | undefined;
+    let day: number | undefined;
+    const remainingWords: string[] = [];
+
+    for (const word of words) {
+      // Check for 4-digit year
+      if (/^(19|20)\d{2}$/.test(word)) {
+        year = parseInt(word);
+      }
+      // Check for month names
+      else if (/^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(word)) {
+        const monthNames = ['jan', 'feb', 'mar', 'apr', 'may', 'jun',
+                           'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+        month = monthNames.findIndex(m => word.startsWith(m)) + 1;
+      }
+      // Check for day (1-31)
+      else if (/^\d{1,2}$/.test(word) && parseInt(word) >= 1 && parseInt(word) <= 31) {
+        day = parseInt(word);
+      }
+      else {
+        remainingWords.push(word);
+      }
+    }
+
+    return {
+      year,
+      month,
+      day,
+      remainingQuery: remainingWords.join(' ')
+    };
+  }
+
+  private async tryParseCombinedQuery(query: string): Promise<{ venueQuery?: string; songQuery?: string }> {
+    // For multi-word queries, try to identify if we can split them intelligently
+    const words = query.toLowerCase().split(/\s+/);
+    if (words.length < 2) {
+      return {}; // Single word queries don't need parsing
+    }
+
+    // First check if the entire query matches an exact song title - if so, don't split
+    const exactSongMatch = await this.db.$queryRawUnsafe<Array<{ id: string; title: string }>>(
+      `SELECT id, title FROM songs WHERE LOWER(title) = LOWER($1) LIMIT 1`,
+      query
+    );
+
+    if (exactSongMatch.length > 0) {
+      // This is an exact song match, don't split it
+      return {};
+    }
+
+    // Try different combinations to see if we can identify venue and song parts
+    const potentialSplits: Array<{ venueWords: string[]; songWords: string[]; confidence: number }> = [];
+    
+    // Try splitting at each word boundary
+    for (let i = 1; i < words.length; i++) {
+      const venueWords = words.slice(0, i);
+      const songWords = words.slice(i);
+      
+      const venueQuery = venueWords.join(' ');
+      const songQuery = songWords.join(' ');
+
+      // Quick check: does the venue part match known venues?
+      const venueMatches = await this.db.$queryRawUnsafe<Array<{ id: string; name: string }>>(
+        `SELECT id, name FROM venues WHERE LOWER(name) LIKE '%' || LOWER($1) || '%' OR LOWER(city) LIKE '%' || LOWER($1) || '%' LIMIT 5`,
+        venueQuery
+      );
+
+      // Quick check: does the song part match known songs?
+      const songMatches = await this.db.$queryRawUnsafe<Array<{ id: string; title: string }>>(
+        `SELECT id, title FROM songs WHERE LOWER(title) LIKE '%' || LOWER($1) || '%' LIMIT 5`,
+        songQuery
+      );
+
+      // Calculate confidence based on match quality
+      let confidence = 0;
+      if (venueMatches.length > 0 && songMatches.length > 0) {
+        // Prefer splits where venue part is a substantial portion and has good matches
+        const venueWordsRatio = venueWords.length / words.length;
+        const hasExactVenueMatch = venueMatches.some(v => v.name.toLowerCase().includes(venueQuery));
+        const hasExactSongMatch = songMatches.some(s => s.title.toLowerCase().includes(songQuery));
+        const hasVenueCityMatch = venueMatches.some(v => v.city && v.city.toLowerCase().includes(venueQuery));
+        
+        // Base confidence from matches
+        confidence = (hasExactVenueMatch ? 50 : (hasVenueCityMatch ? 40 : 20)) + (hasExactSongMatch ? 50 : 25);
+        
+        // Penalize splits where venue part is too short (likely not a real venue)
+        if (venueWords.length === 1 && venueWords[0].length < 5) {
+          confidence -= 30;
+        }
+        
+        // Bonus for venue matches with city matches (indicates likely venue+song split)
+        if (hasVenueCityMatch && venueWords.length >= 2) {
+          confidence += 15;
+        }
+        
+        potentialSplits.push({ venueWords, songWords, confidence });
+      }
+    }
+
+    // Use the split with highest confidence, but only if confidence > 60
+    const bestSplit = potentialSplits.sort((a, b) => b.confidence - a.confidence)[0];
+    if (bestSplit) {
+      this.logger.debug(`Best split for "${query}": venue="${bestSplit.venueWords.join(' ')}" song="${bestSplit.songWords.join(' ')}" confidence=${bestSplit.confidence}`);
+    }
+    if (bestSplit && bestSplit.confidence > 60) {
+      const venueQuery = bestSplit.venueWords.join(' ');
+      const songQuery = bestSplit.songWords.join(' ');
+      this.logger.debug(`Split query "${query}" into venue: "${venueQuery}" and song: "${songQuery}" (confidence: ${bestSplit.confidence})`);
+      return { venueQuery, songQuery };
+    }
+
+    // If no high-confidence split found, return empty (will use original query for both)
+    return {};
   }
 
   private convertShowResultsToSearchResults(showResults: ShowResult[]): SearchResult[] {
