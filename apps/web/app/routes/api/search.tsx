@@ -88,39 +88,20 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
   }
 });
 
-// GET /api/search/status - Get search index status
+// GET /api/search/status - Get search status
 export const loader = publicLoader(async () => {
-  try {
-    const stats = await services.search.getStats();
-
-    return new Response(
-      JSON.stringify({
-        status: "healthy",
-        vectorExtensionAvailable: stats.isVectorExtensionAvailable,
-        totalIndexedItems: stats.totalCount,
-        itemsByType: stats.countsByType,
-        registeredFormatters: [],
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "public, max-age=60", // Cache for 1 minute
-        },
+  return new Response(
+    JSON.stringify({
+      status: "healthy",
+      searchProvider: "postgresql",
+      features: ["full-text", "trigram-similarity", "segue-search"],
+    }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=60", // Cache for 1 minute
       },
-    );
-  } catch (error) {
-    console.error("Search status error:", error);
-
-    return new Response(
-      JSON.stringify({
-        status: "error",
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
+    },
+  );
 });

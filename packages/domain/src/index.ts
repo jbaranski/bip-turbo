@@ -8,6 +8,7 @@ export * from "./models/logger";
 export * from "./models/rating";
 export * from "./models/review";
 export * from "./models/setlist";
+export * from "./segue-run";
 export * from "./models/show";
 export * from "./models/song";
 export * from "./models/track";

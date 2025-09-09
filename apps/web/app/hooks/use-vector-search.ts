@@ -1,14 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-
-export interface SearchResult {
-  id: string;
-  entityType: string;
-  entityId: string;
-  displayText: string;
-  score: number;
-  url: string;
-  metadata?: Record<string, unknown>;
-}
+import type { SearchResult } from "@bip/domain";
 
 export interface SearchResponse {
   results: SearchResult[];

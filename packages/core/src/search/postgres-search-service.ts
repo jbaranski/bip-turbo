@@ -1,5 +1,6 @@
 import type { Logger, SearchResult } from "@bip/domain";
 import type { DbClient } from "../_shared/database/models";
+import { SegueQueryParser } from "./segue-query-parser";
 
 type VenueResult = {
   venue_id: string;
@@ -32,10 +33,14 @@ export interface SearchOptions {
 }
 
 export class PostgresSearchService {
+  private segueQueryParser: SegueQueryParser;
+
   constructor(
     private readonly db: DbClient,
     private readonly logger: Logger,
-  ) {}
+  ) {
+    this.segueQueryParser = new SegueQueryParser(db, logger);
+  }
 
   async search(query: string, options: SearchOptions = { limit: 30 }): Promise<SearchResult[]> {
     const normalizedQuery = this.normalizeQuery(query);
@@ -46,6 +51,11 @@ export class PostgresSearchService {
       // Check for date search
       if (this.looksLikeDate(query)) {
         return this.searchByDate(normalizedQuery, options);
+      }
+
+      // Check for segue search (contains ">")
+      if (query.includes(">")) {
+        return this.searchWithSegues(query, options);
       }
 
       // Search for songs
@@ -473,6 +483,73 @@ export class PostgresSearchService {
     `;
   }
 
+  private async searchWithSegues(query: string, options: SearchOptions): Promise<SearchResult[]> {
+    this.logger.info(`Performing segue search for: "${query}"`);
+
+    // Parse the query to extract venue and segue sequence
+    const parsed = await this.segueQueryParser.parse(query);
+    
+    if (parsed.segueSequence.length < 2) {
+      // Not a valid segue search, fall back to regular search
+      const showResults = await this.performShowSearch(this.normalizeQuery(query), [], [], options.limit);
+      return this.convertShowResultsToSearchResults(showResults);
+    }
+
+    // Find matching segue runs with their IDs
+    const matchingRuns = await this.segueQueryParser.findMatchingSegueRuns(parsed.segueSequence);
+    
+    if (matchingRuns.length === 0) {
+      return [];
+    }
+
+    // Apply venue filter if present
+    let filteredRuns = matchingRuns;
+    if (parsed.venues.length > 0) {
+      const showIds = matchingRuns.map(r => r.showId);
+      const showsAtVenues = await this.db.show.findMany({
+        where: {
+          id: { in: showIds },
+          venueId: { in: parsed.venues }
+        },
+        select: { id: true }
+      });
+      const validShowIds = new Set(showsAtVenues.map(s => s.id));
+      filteredRuns = matchingRuns.filter(r => validShowIds.has(r.showId));
+    }
+
+    // Get the segue run IDs
+    const segueRunIds = filteredRuns.map(r => r.segueRunId);
+
+    // Get show details with the SPECIFIC segue run info
+    const results = await this.db.$queryRaw<ShowResult[]>`
+      SELECT 
+        sh.id as show_id,
+        sh.slug as show_slug,
+        sh.date as show_date,
+        v.name as venue_name,
+        v.city as venue_city,
+        v.state as venue_state,
+        v.country as venue_country,
+        100 as match_score,
+        json_build_object(
+          'type', 'segueMatch',
+          'segueRun', json_build_object(
+            'sequence', sr.sequence,
+            'set', sr.set,
+            'length', sr.length
+          )
+        )::text as match_details
+      FROM segue_runs sr
+      JOIN shows sh ON sr.show_id = sh.id
+      LEFT JOIN venues v ON sh.venue_id = v.id
+      WHERE sr.id = ANY(${segueRunIds}::uuid[])
+      ORDER BY sh.date DESC
+      LIMIT ${options.limit}
+    `;
+
+    return this.convertShowResultsToSearchResults(results);
+  }
+
   private looksLikeDate(query: string): boolean {
     const datePatterns = [
       /^\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4}$/, // 12/30/99, 12-30-1999
@@ -482,6 +559,22 @@ export class PostgresSearchService {
     ];
 
     return datePatterns.some((pattern) => pattern.test(query.trim()));
+  }
+
+  private convertShowResultsToSearchResults(showResults: ShowResult[]): SearchResult[] {
+    return showResults.map(show => ({
+      id: show.show_id,
+      entityType: 'show' as const,
+      entityId: show.show_id,
+      entitySlug: show.show_slug,
+      displayText: `${show.show_date} • ${show.venue_name || 'Unknown Venue'}${show.venue_city ? ` • ${show.venue_city}` : ''}${show.venue_state ? `, ${show.venue_state}` : ''}`,
+      score: Math.min(100, Math.round(show.match_score)),
+      url: `/shows/${show.show_slug}`,
+      date: show.show_date,
+      venueName: show.venue_name || undefined,
+      venueLocation: show.venue_city && show.venue_state ? `${show.venue_city}, ${show.venue_state}` : show.venue_city || show.venue_state || undefined,
+      metadata: show.match_details ? { matchDetails: show.match_details } : undefined,
+    }));
   }
 
   async rebuildSearchData(): Promise<void> {

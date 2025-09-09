@@ -338,6 +338,7 @@ model Show {
   band              Band?         @relation(fields: [bandId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_bands_band_id")
   venue             Venue?        @relation(fields: [venueId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_venues_venue_id")
   tracks            Track[]
+  segueRuns         SegueRun[]
 
   @@index([likesCount])
   @@index([date])
@@ -360,6 +361,26 @@ model SideProject {
   updatedAt DateTime? @map("updated_at") @db.Timestamp(6)
 
   @@map("side_projects")
+}
+
+model SegueRun {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  showId       String   @map("show_id") @db.Uuid
+  set          String   @db.VarChar
+  trackIds     String[] @map("track_ids") @db.Uuid
+  sequence     String   @db.Text
+  length       Int
+  searchText   String?  @map("search_text") @db.Text
+  searchVector Unsupported("tsvector")? @map("search_vector")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(6)
+  
+  show Show @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_segue_runs_shows_show_id")
+  
+  @@unique([showId, trackIds])
+  @@index([showId])
+  @@index([set])
+  @@map("segue_runs")
 }
 
 model Song {

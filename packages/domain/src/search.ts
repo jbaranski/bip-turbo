@@ -33,16 +33,28 @@ export const SegueMatchDetailsSchema = z.object({
   exactMatches: z.array(z.boolean()),
 });
 
+// SegueRun match details schema
+export const SegueRunMatchDetailsSchema = z.object({
+  type: z.literal('segueMatch'),
+  segueRun: z.object({
+    set: z.string(),
+    sequence: z.string(),
+    length: z.number(),
+  }),
+});
+
 // Union of all match detail types
 export const MatchDetailsSchema = z.discriminatedUnion('type', [
   TrackMatchDetailsSchema,
   SegueMatchDetailsSchema,
+  SegueRunMatchDetailsSchema,
 ]);
 
 // Type exports
 export type TrackMatch = z.infer<typeof TrackMatchSchema>;
 export type TrackMatchDetails = z.infer<typeof TrackMatchDetailsSchema>;
 export type SegueMatchDetails = z.infer<typeof SegueMatchDetailsSchema>;
+export type SegueRunMatchDetails = z.infer<typeof SegueRunMatchDetailsSchema>;
 export type MatchDetails = z.infer<typeof MatchDetailsSchema>;
 
 // Search result schema
