@@ -10,6 +10,7 @@ build
 data-migrations
 *.bak
 tmp/
-.DS_Store
+*.DS_Store
 .vscode/chrome-debug-profile
 apps/web/.react-router/*
+

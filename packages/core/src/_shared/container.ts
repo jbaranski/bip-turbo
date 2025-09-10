@@ -6,6 +6,7 @@ import { BlogPostRepository } from "../blog-posts/blog-post-repository";
 import { FileRepository } from "../files/file-repository";
 import { RatingRepository } from "../ratings/rating-repository";
 import { ReviewRepository } from "../reviews/review-repository";
+import { SearchHistoryRepository } from "../search/search-history-repository";
 import { SetlistRepository } from "../setlists/setlist-repository";
 import { ShowRepository } from "../shows/show-repository";
 import { SongRepository } from "../songs/song-repository";
@@ -36,6 +37,7 @@ export interface ServiceContainer {
     ratings: RatingRepository;
     attendances: AttendanceRepository;
     files: FileRepository;
+    searchHistories: SearchHistoryRepository;
   };
 }
 
@@ -72,6 +74,7 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
     ratings: new RatingRepository(db),
     attendances: new AttendanceRepository(db),
     files: new FileRepository(db),
+    searchHistories: new SearchHistoryRepository(db),
   };
 
   return {

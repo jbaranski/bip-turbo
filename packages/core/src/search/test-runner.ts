@@ -128,7 +128,8 @@ export class SearchTestRunner {
     try {
       // Execute search
       const searchStart = Date.now();
-      const searchResults = await this.searchService.search(testCase.query, { limit: 50 });
+      const searchResponse = await this.searchService.search(testCase.query, { limit: 50 });
+      const searchResults = searchResponse.results;
       const searchTimeMs = Date.now() - searchStart;
 
       // Get expected results from database

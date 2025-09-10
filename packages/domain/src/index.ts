@@ -7,6 +7,7 @@ export * from "./models/file";
 export * from "./models/logger";
 export * from "./models/rating";
 export * from "./models/review";
+export * from "./models/search-history";
 export * from "./models/setlist";
 export * from "./segue-run";
 export * from "./models/show";

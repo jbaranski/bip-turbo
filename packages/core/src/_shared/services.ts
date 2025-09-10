@@ -7,6 +7,7 @@ import { SongPageComposer } from "../page-composers/song-page-composer";
 import { RatingService } from "../ratings/rating-service";
 import { ReviewService } from "../reviews/review-service";
 import { PostgresSearchService } from "../search/postgres-search-service";
+import { SearchHistoryService } from "../search/search-history-service";
 import { SetlistService } from "../setlists/setlist-service";
 import { ShowService } from "../shows/show-service";
 import { TourDatesService } from "../shows/tour-dates-service";
@@ -40,8 +41,9 @@ export interface Services {
 }
 
 export function createServices(container: ServiceContainer): Services {
-  // Create PostgreSQL search service
-  const postgresSearchService = new PostgresSearchService(container.db, container.logger);
+  // Create search services
+  const searchHistoryService = new SearchHistoryService(container.repositories.searchHistories);
+  const postgresSearchService = new PostgresSearchService(container.db, container.logger, searchHistoryService);
 
   return {
     annotations: new AnnotationService(container.repositories.annotations, container.logger),

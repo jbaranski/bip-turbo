@@ -5,7 +5,7 @@ export const SegueRunSchema = z.object({
   showId: z.string().uuid(),
   set: z.string(), // "S1", "S2", "E1", "E2" etc
   trackIds: z.array(z.string().uuid()),
-  sequence: z.string(), // "Terrapin Station > Playing in the Band > Uncle Johns Band"
+  sequence: z.string(), // "Shimmy > Basis"
   length: z.number().int().positive(),
   searchText: z.string().nullable(),
   searchVector: z.any().nullable(), // tsvector type
@@ -34,13 +34,15 @@ export const SegueRunWithShowSchema = SegueRunSchema.extend({
     id: z.string().uuid(),
     date: z.string(),
     slug: z.string().nullable(),
-    venue: z.object({
-      id: z.string().uuid(),
-      name: z.string().nullable(),
-      city: z.string().nullable(),
-      state: z.string().nullable(),
-      country: z.string().nullable(),
-    }).nullable(),
+    venue: z
+      .object({
+        id: z.string().uuid(),
+        name: z.string().nullable(),
+        city: z.string().nullable(),
+        state: z.string().nullable(),
+        country: z.string().nullable(),
+      })
+      .nullable(),
   }),
 });
 

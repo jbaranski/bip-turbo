@@ -1,4 +1,10 @@
-import type { MatchDetails, SearchResult, SegueRunMatchDetails, SegueMatchDetails, TrackMatchDetails } from "@bip/domain";
+import type {
+  MatchDetails,
+  SearchResult,
+  SegueMatchDetails,
+  SegueRunMatchDetails,
+  TrackMatchDetails,
+} from "@bip/domain";
 import { Loader2, Search, X } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router";
@@ -6,6 +12,7 @@ import { Input } from "~/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "~/components/ui/sheet";
 import { useGlobalSearch } from "~/hooks/use-global-search";
 import { useVectorSearch } from "~/hooks/use-vector-search";
+import { SearchFeedback } from "./search-feedback";
 
 interface GlobalSearchDrawerProps {
   open: boolean;
@@ -123,7 +130,7 @@ function SearchResultItem({ result }: SearchResultItemProps) {
 
 export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerProps) {
   const { query, setQuery } = useGlobalSearch();
-  const { results, isLoading, error, search, clear } = useVectorSearch();
+  const { results, isLoading, error, searchHistoryId, search, clear } = useVectorSearch();
   const navigate = useNavigate();
 
   // Debounced search
@@ -148,6 +155,32 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
     [navigate],
   );
 
+  const handleFeedback = useCallback(
+    async (searchId: string, sentiment: "positive" | "negative", feedback?: string) => {
+      try {
+        const response = await fetch("/api/search/feedback", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            searchHistoryId: searchId,
+            sentiment,
+            feedbackMessage: feedback,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to submit feedback");
+        }
+      } catch (error) {
+        console.error("Failed to submit search feedback:", error);
+        throw error;
+      }
+    },
+    [],
+  );
+
   // Group results by entity type
   const _groupedResults = results.reduce(
     (groups, result) => {
@@ -165,7 +198,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-y-auto bg-gradient-to-br from-gray-900 via-purple-900/40 to-gray-900 border-l border-purple-500/30 backdrop-blur-md"
+        className="w-full sm:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-y-auto bg-gradient-to-br from-gray-900 via-purple-900/60 to-gray-900 border-l border-purple-500/30 backdrop-blur-md"
       >
         <SheetHeader className="mb-6 pb-4 border-b border-purple-500/20">
           <SheetTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -193,6 +226,16 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
             </button>
           )}
         </div>
+
+        {searchHistoryId && results.length > 0 && (
+          <div className="mb-6">
+            <SearchFeedback
+              searchId={searchHistoryId}
+              onFeedback={handleFeedback}
+              className="flex justify-center"
+            />
+          </div>
+        )}
 
         <div className="space-y-6">
           {isLoading && (
@@ -237,7 +280,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
             <div className="py-8 text-center">
               <p className="text-base text-gray-300">Search across all shows, songs, venues, and segues</p>
               <p className="text-sm text-gray-500 mt-2">
-                Try searching for a date, venue, song name, or segue sequence like "terrapin {'>'} playing"
+                Try searching for a date, venue, song name, or segue sequence like: shimmy {">"} basis"
               </p>
             </div>
           )}

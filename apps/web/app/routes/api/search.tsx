@@ -20,6 +20,7 @@ interface SearchResponse {
   query: string;
   totalResults: number;
   executionTimeMs: number;
+  searchHistoryId?: string;
 }
 
 // POST /api/search - Perform vector search
@@ -49,17 +50,18 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
     }
 
     // Perform the search using PostgreSQL search
-    const searchResults = await services.postgresSearch.search(query.trim(), {
+    const searchResponse = await services.postgresSearch.search(query.trim(), {
       limit,
     });
 
     const executionTimeMs = Date.now() - startTime;
 
     const response: SearchResponse = {
-      results: searchResults,
+      results: searchResponse.results,
       query,
-      totalResults: searchResults.length,
+      totalResults: searchResponse.results.length,
       executionTimeMs,
+      searchHistoryId: searchResponse.searchHistoryId,
     };
 
     return new Response(JSON.stringify(response), {

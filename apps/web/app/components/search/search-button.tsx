@@ -74,7 +74,7 @@ export function SearchButton({
           "pl-9",
           localQuery ? "pr-8" : "pr-16",
           "bg-muted/50 border-muted",
-          size === "default" && "h-9",
+          "h-9",
           "focus:bg-background"
         )}
       />

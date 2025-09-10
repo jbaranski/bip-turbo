@@ -20,7 +20,8 @@ async function main() {
     console.log("=" .repeat(50));
     
     try {
-      const results = await searchService.search(query, { limit: 5 });
+      const searchResponse = await searchService.search(query, { limit: 5 });
+      const results = searchResponse.results;
       
       if (results.length === 0) {
         console.log("No results found");

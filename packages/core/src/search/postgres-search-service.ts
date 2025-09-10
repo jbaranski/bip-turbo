@@ -1,6 +1,7 @@
 import type { Logger, SearchResult } from "@bip/domain";
 import type { DbClient } from "../_shared/database/models";
 import { SegueQueryParser } from "./segue-query-parser";
+import type { SearchHistoryService } from "./search-history-service";
 
 type VenueResult = {
   venue_id: string;
@@ -32,20 +33,49 @@ export interface SearchOptions {
   limit: number;
 }
 
+export interface SearchResponse {
+  results: SearchResult[];
+  searchHistoryId?: string;
+}
+
 export class PostgresSearchService {
   private segueQueryParser: SegueQueryParser;
 
   constructor(
     private readonly db: DbClient,
     private readonly logger: Logger,
+    private readonly searchHistoryService?: SearchHistoryService,
   ) {
     this.segueQueryParser = new SegueQueryParser(db, logger);
   }
 
-  async search(query: string, options: SearchOptions = { limit: 30 }): Promise<SearchResult[]> {
+  async search(query: string, options: SearchOptions = { limit: 30 }): Promise<SearchResponse> {
     const normalizedQuery = this.normalizeQuery(query);
 
     this.logger.info(`Performing PostgreSQL search for: "${query}"`);
+
+    try {
+      const results = await this.performSearch(query, options);
+      
+      // Log the search to analytics
+      const searchHistoryId = await this.logSearch(query, results);
+      
+      return {
+        results,
+        searchHistoryId,
+      };
+    } catch (error) {
+      this.logger.error(`Search failed for query "${query}":`, error instanceof Error ? error.message : String(error));
+      
+      // Log the failed search
+      const searchHistoryId = await this.logSearch(query, []);
+      
+      throw error;
+    }
+  }
+
+  private async performSearch(query: string, options: SearchOptions): Promise<SearchResult[]> {
+    const normalizedQuery = this.normalizeQuery(query);
 
     try {
       // Check for segue search (contains ">")
@@ -118,6 +148,48 @@ export class PostgresSearchService {
       return [];
     } catch (error) {
       this.logger.error(`Search failed: ${error}`);
+      throw error;
+    }
+  }
+
+  private async logSearch(query: string, results: SearchResult[]): Promise<string | undefined> {
+    if (!this.searchHistoryService) {
+      return undefined;
+    }
+
+    try {
+      // Determine the search type based on the results or query patterns
+      let searchType: "songs" | "venues" | "shows" | "setlists" = "shows";
+      
+      // For now, we'll default to 'shows' as that's what most searches return
+      // This could be enhanced to detect actual search intent
+      
+      const searchHistory = await this.searchHistoryService.create({
+        searchQuery: query.trim(),
+        resultCount: results.length,
+        searchType,
+      });
+      
+      return searchHistory.id;
+    } catch (error) {
+      this.logger.error(`Failed to log search analytics: ${error}`);
+      // Don't throw here - search logging shouldn't break the actual search
+      return undefined;
+    }
+  }
+
+  async updateSearchFeedback(searchHistoryId: string, sentiment: "positive" | "negative", feedbackMessage?: string): Promise<void> {
+    if (!this.searchHistoryService) {
+      throw new Error("Search history service not available");
+    }
+
+    try {
+      await this.searchHistoryService.update(searchHistoryId, {
+        sentiment,
+        feedbackMessage,
+      });
+    } catch (error) {
+      this.logger.error(`Failed to update search feedback: ${error}`);
       throw error;
     }
   }
