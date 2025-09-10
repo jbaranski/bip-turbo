@@ -5,15 +5,11 @@ import { useGlobalSearch } from "~/hooks/use-global-search";
 import { cn } from "~/lib/utils";
 
 interface SearchButtonProps {
-  variant?: "default" | "ghost" | "outline";
-  size?: "default" | "sm" | "lg" | "icon";
   className?: string;
   showShortcut?: boolean;
 }
 
 export function SearchButton({
-  variant = "outline",
-  size = "default",
   className,
   showShortcut = true,
 }: SearchButtonProps) {
@@ -84,13 +80,14 @@ export function SearchButton({
       />
       {localQuery ? (
         <button
+          type="button"
           onClick={handleClear}
           className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded"
         >
           <X className="h-3 w-3 text-muted-foreground" />
         </button>
       ) : (
-        showShortcut && size !== "icon" && (
+        showShortcut && (
           <kbd className="absolute right-2 top-1/2 -translate-y-1/2 hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-sm font-medium text-muted-foreground pointer-events-none">
             <span className="text-sm">⌘</span>K
           </kbd>

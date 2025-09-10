@@ -18,7 +18,7 @@ interface EntityMatch {
 export class SegueQueryParser {
   constructor(
     private readonly db: PrismaClient,
-    private readonly logger: Logger
+    private readonly _logger: Logger
   ) {}
 
   /**
@@ -158,7 +158,7 @@ export class SegueQueryParser {
     const firstMatches = segmentMatches[0];
     
     let venues: string[] = [];
-    let segueStart = 0;
+    const segueStart = 0;
 
     // Check if first segment has a high-scoring venue match
     const topVenue = firstMatches.find(m => m.type === "venue" && m.score > 60);
