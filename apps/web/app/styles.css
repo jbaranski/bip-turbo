@@ -874,6 +874,19 @@
       background-position: 100% 50%;
     }
   }
+
+  /* Dropdowns white background black text */
+  .bg-dropdown {
+    background-color: #ffffff;
+  }
+
+  .text-dropdown {
+    color: #000000;
+  }
+
+  .hover\:bg-dropdown-hover:hover {
+    background-color: #f3f4f6;
+  }
 }
 
 @layer base {

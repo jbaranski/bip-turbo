@@ -34,7 +34,7 @@ This monorepo is structured using pnpm workspaces and Turborepo for efficient bu
 - Node.js 22 or later
 - Bun 22 or later
 - Docker (for local development with PostgreSQL and Redis)
-- Supabase
+- [Supabase](https://supabase.com/docs/guides/local-development/cli/getting-started?queryGroups=platform&platform=macos#installing-the-supabase-cli)
 
 ### Installation and local setup
 
@@ -66,7 +66,9 @@ make db-scrub
 ```
 
 4. Run the app
+In two different shells:
 ```
+docker compose up
 make web
 ```
 

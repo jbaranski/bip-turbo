@@ -29,9 +29,9 @@ export const action = adminAction(async ({ request, params }) => {
   const { slug } = params;
   const formData = await request.formData();
   const name = formData.get("name") as string;
-  const city = (formData.get("city") as string) || null;
-  const state = (formData.get("state") as string) || null;
-  const country = (formData.get("country") as string) || null;
+  const city = formData.get("city") as string;
+  const state = formData.get("state") as string || null;
+  const country = formData.get("country") as string;
 
   // Update the venue
   const venue = await services.venues.update(slug as string, {
@@ -55,9 +55,9 @@ export default function EditVenue() {
     if (venue) {
       setDefaultValues({
         name: venue.name,
-        city: venue.city,
+        city: venue.city || "",
         state: venue.state,
-        country: venue.country,
+        country: venue.country || "",
       });
       setIsLoading(false);
     }

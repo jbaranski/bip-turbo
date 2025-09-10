@@ -9,4 +9,7 @@ build
 .next
 data-migrations
 *.bak
-.DS_Storetmp/
+tmp/
+.DS_Store
+.vscode/chrome-debug-profile
+apps/web/.react-router/*
