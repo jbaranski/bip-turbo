@@ -10,7 +10,7 @@ interface SearchFeedbackProps {
 }
 
 export function SearchFeedback({ searchId, onFeedback, className }: SearchFeedbackProps) {
-  const [sentiment, setSentiment] = useState<"positive" | "negative" | null>(null);
+  const [_sentiment, setSentiment] = useState<"positive" | "negative" | null>(null);
   const [feedback, setFeedback] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFeedbackText, setShowFeedbackText] = useState(false);
