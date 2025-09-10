@@ -161,12 +161,12 @@ export class SegueQueryParser {
 
     // First, check for venues across the entire query (handles "shimmy > basis state college")
     if (allQueryMatches) {
-      const topGlobalVenue = allQueryMatches
-        .filter(m => m.type === "venue")
-        .sort((a, b) => b.score - a.score)[0];
+      const globalVenues = allQueryMatches
+        .filter(m => m.type === "venue" && m.score > 30)
+        .sort((a, b) => b.score - a.score);
       
-      if (topGlobalVenue && topGlobalVenue.score > 40) {
-        venues = [topGlobalVenue.id];
+      if (globalVenues.length > 0) {
+        venues = globalVenues.map(v => v.id);
       }
     }
 
