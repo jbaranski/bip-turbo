@@ -23,7 +23,7 @@ export class SegueQueryParser {
 
   /**
    * Parse a search query that may contain segue sequences and/or venue names
-   * Example: "new york little shimmy > basis" 
+   * Example: "new york little shimmy > basis" or "shimmy > basis state college"
    */
   async parse(query: string): Promise<ParsedSegueQuery> {
     // Stage 1: Structural parsing - detect segue operator
@@ -47,8 +47,11 @@ export class SegueQueryParser {
       segments.map(segment => this.findEntityMatches(segment))
     );
 
+    // Stage 2.5: Also search the entire query for venue matches
+    const allQueryMatches = await this.findEntityMatches(query.replace(/>/g, ' '));
+
     // Stage 3: Disambiguation through scoring
-    const bestParse = this.selectBestParse(segments, segmentMatches);
+    const bestParse = this.selectBestParse(segments, segmentMatches, allQueryMatches);
 
     // Stage 4: Return structured result
     return bestParse;
@@ -147,38 +150,51 @@ export class SegueQueryParser {
 
   /**
    * Select the best interpretation of the segmented query
-   * This is where we handle "new york little shimmy > basis"
+   * This is where we handle "new york little shimmy > basis" and "shimmy > basis state college"
    */
   private selectBestParse(
     segments: string[],
-    segmentMatches: EntityMatch[][]
+    segmentMatches: EntityMatch[][],
+    allQueryMatches?: EntityMatch[]
   ): ParsedSegueQuery {
-    // For the first segment, check if it could be a venue + song combo
-    const firstSegmentText = segments[0];
-    const firstMatches = segmentMatches[0];
-    
     let venues: string[] = [];
-    const segueStart = 0;
 
-    // Check if first segment has a high-scoring venue match
-    const topVenue = firstMatches.find(m => m.type === "venue" && m.score > 60);
-    
-    if (topVenue && segments.length > 1) {
-      // We might have "venue song > song" pattern
-      // Try to parse the first segment as venue + song
-      const venueAndSong = this.tryParseVenueAndSong(firstSegmentText, firstMatches);
+    // First, check for venues across the entire query (handles "shimmy > basis state college")
+    if (allQueryMatches) {
+      const topGlobalVenue = allQueryMatches
+        .filter(m => m.type === "venue")
+        .sort((a, b) => b.score - a.score)[0];
       
-      if (venueAndSong) {
-        venues = [venueAndSong.venueId];
-        // Replace first segment matches with just the song
-        segmentMatches[0] = [venueAndSong.song];
+      if (topGlobalVenue && topGlobalVenue.score > 40) {
+        venues = [topGlobalVenue.id];
       }
     }
 
-    // Build segue sequence from remaining segments
+    // If no global venue found, check the first segment for venue + song combo
+    if (venues.length === 0) {
+      const firstSegmentText = segments[0];
+      const firstMatches = segmentMatches[0];
+      
+      // Check if first segment has a high-scoring venue match
+      const topVenue = firstMatches.find(m => m.type === "venue" && m.score > 60);
+      
+      if (topVenue && segments.length > 1) {
+        // We might have "venue song > song" pattern
+        // Try to parse the first segment as venue + song
+        const venueAndSong = this.tryParseVenueAndSong(firstSegmentText, firstMatches);
+        
+        if (venueAndSong) {
+          venues = [venueAndSong.venueId];
+          // Replace first segment matches with just the song
+          segmentMatches[0] = [venueAndSong.song];
+        }
+      }
+    }
+
+    // Build segue sequence from all segments
     const segueSequence: string[] = [];
     
-    for (let i = segueStart; i < segments.length; i++) {
+    for (let i = 0; i < segments.length; i++) {
       const matches = segmentMatches[i];
       // Pick the best song match for each segment
       const bestSong = matches

@@ -659,6 +659,7 @@ export class PostgresSearchService {
     // Get the original query for venue matching
     const queryWords = query.toLowerCase().split(/\s+/);
     const nonSegueWords = queryWords.filter(w => w !== '>' && !w.includes('>'));
+    const allNonSegueText = nonSegueWords.join(' ');
     
     // Get show details with the SPECIFIC segue run info and proper scoring
     const results = await this.db.$queryRaw<ShowResult[]>`
@@ -673,12 +674,13 @@ export class PostgresSearchService {
         CASE
           -- If venue was explicitly filtered, give higher score
           WHEN ${parsed.venues.length > 0} THEN 100
-          -- Otherwise calculate score based on venue/location match
+          -- Otherwise calculate score based on venue/location match against ALL non-segue words
           ELSE 
             70 + -- Base score for segue match
             CASE 
-              WHEN v.name IS NOT NULL AND LOWER(v.name) LIKE '%' || LOWER(${nonSegueWords[0] || ''}) || '%' THEN 30
-              WHEN v.city IS NOT NULL AND LOWER(v.city) LIKE '%' || LOWER(${nonSegueWords[0] || ''}) || '%' THEN 30
+              WHEN v.name IS NOT NULL AND LOWER(v.name) LIKE '%' || LOWER(${allNonSegueText}) || '%' THEN 30
+              WHEN v.city IS NOT NULL AND LOWER(v.city) LIKE '%' || LOWER(${allNonSegueText}) || '%' THEN 30
+              WHEN v.state IS NOT NULL AND LOWER(v.state) LIKE '%' || LOWER(${allNonSegueText}) || '%' THEN 25
               ELSE 0
             END
         END as match_score,
