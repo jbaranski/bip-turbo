@@ -1,8 +1,19 @@
 #!/usr/bin/env bun
 
+// Type declarations for Bun environment
+declare global {
+  var Bun: {
+    write(file: string, data: string): Promise<number>;
+  } | undefined;
+  
+  interface ImportMeta {
+    main?: boolean;
+  }
+}
+
 import { PrismaClient } from "@prisma/client";
-import { PostgresSearchService } from "./postgres-search-service.ts";
-import { testLogger as logger } from "../_shared/test-logger.ts";
+import { PostgresSearchService } from "./postgres-search-service";
+import { testLogger as logger } from "../_shared/test-logger";
 import type { SearchResult } from "@bip/domain";
 
 interface TestCase {
@@ -149,13 +160,13 @@ export class SearchTestRunner {
       };
       
     } catch (error) {
-      logger.error(`Test failed for "${testCase.query}":`, error);
+      logger.error(`Test failed for "${testCase.query}":`, error instanceof Error ? error.message : String(error));
       return {
         testCase,
         searchResults: [],
         expectedResults: [],
         passed: false,
-        issues: [`Test execution failed: ${error.message}`],
+        issues: [`Test execution failed: ${error instanceof Error ? error.message : String(error)}`],
         searchTimeMs: 0,
         dbTimeMs: 0,
       };
@@ -422,9 +433,9 @@ export class SearchTestRunner {
       return filtered.map(show => ({
         id: show.id,
         type: 'show' as const,
-        displayName: `${show.date.toISOString().split('T')[0]} • ${show.venue?.name || 'Unknown Venue'}`,
-        date: show.date.toISOString().split('T')[0],
-        venue: show.venue?.name,
+        displayName: `${typeof show.date === 'string' ? show.date : new Date(show.date).toISOString().split('T')[0]} • ${show.venue?.name || 'Unknown Venue'}`,
+        date: typeof show.date === 'string' ? show.date : new Date(show.date).toISOString().split('T')[0],
+        venue: show.venue?.name || undefined,
         relevanceScore: 80,
       }));
     }
@@ -532,20 +543,27 @@ async function main() {
     
     // Save results to file
     const resultsFile = `/tmp/search-test-results-${Date.now()}.json`;
-    await Bun.write(resultsFile, JSON.stringify(summary, null, 2));
+    if (typeof Bun !== 'undefined' && Bun) {
+      await Bun.write(resultsFile, JSON.stringify(summary, null, 2));
+    } else {
+      // Fallback for non-Bun environments
+      const fs = await import('fs/promises');
+      await fs.writeFile(resultsFile, JSON.stringify(summary, null, 2));
+    }
     logger.info(`📄 Full results saved to: ${resultsFile}`);
     
     // Exit with appropriate code
     process.exit(summary.criticalPassRate < 80 ? 1 : 0);
     
   } catch (error) {
-    logger.error("❌ Test suite failed:", error);
+    logger.error("❌ Test suite failed:", error instanceof Error ? error.message : String(error));
     process.exit(1);
   } finally {
     await runner.cleanup();
   }
 }
 
-if (import.meta.main) {
+// Check if this file is being run directly (Bun-specific)
+if (typeof import.meta !== 'undefined' && 'main' in import.meta && import.meta.main) {
   main();
 }

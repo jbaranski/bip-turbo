@@ -705,8 +705,8 @@ export class PostgresSearchService {
       const songQuery = songWords.join(' ');
 
       // Quick check: does the venue part match known venues?
-      const venueMatches = await this.db.$queryRawUnsafe<Array<{ id: string; name: string }>>(
-        `SELECT id, name FROM venues WHERE LOWER(name) LIKE '%' || LOWER($1) || '%' OR LOWER(city) LIKE '%' || LOWER($1) || '%' LIMIT 5`,
+      const venueMatches = await this.db.$queryRawUnsafe<Array<{ id: string; name: string; city: string | null; state: string | null }>>(
+        `SELECT id, name, city, state FROM venues WHERE LOWER(name) LIKE '%' || LOWER($1) || '%' OR LOWER(city) LIKE '%' || LOWER($1) || '%' OR LOWER(state) LIKE '%' || LOWER($1) || '%' LIMIT 5`,
         venueQuery
       );
 
@@ -723,7 +723,10 @@ export class PostgresSearchService {
         const venueWordsRatio = venueWords.length / words.length;
         const hasExactVenueMatch = venueMatches.some(v => v.name.toLowerCase().includes(venueQuery));
         const hasExactSongMatch = songMatches.some(s => s.title.toLowerCase().includes(songQuery));
-        const hasVenueCityMatch = venueMatches.some(v => v.city && v.city.toLowerCase().includes(venueQuery));
+        const hasVenueCityMatch = venueMatches.some(v => 
+          (v.city && v.city.toLowerCase().includes(venueQuery)) ||
+          (v.state && v.state.toLowerCase().includes(venueQuery))
+        );
         
         // Base confidence from matches
         confidence = (hasExactVenueMatch ? 50 : (hasVenueCityMatch ? 40 : 20)) + (hasExactSongMatch ? 50 : 25);
