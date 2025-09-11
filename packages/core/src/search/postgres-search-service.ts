@@ -722,8 +722,22 @@ export class PostgresSearchService {
     const remainingWords: string[] = [];
 
     for (const word of words) {
+      // Check for MM/DD format (e.g., "12/30", "1/15")
+      if (/^\d{1,2}\/\d{1,2}$/.test(word)) {
+        const [monthStr, dayStr] = word.split('/');
+        const parsedMonth = parseInt(monthStr);
+        const parsedDay = parseInt(dayStr);
+        
+        // Validate month (1-12) and day (1-31)
+        if (parsedMonth >= 1 && parsedMonth <= 12 && parsedDay >= 1 && parsedDay <= 31) {
+          month = parsedMonth;
+          day = parsedDay;
+        } else {
+          remainingWords.push(word);
+        }
+      }
       // Check for 4-digit year
-      if (/^(19|20)\d{2}$/.test(word)) {
+      else if (/^(19|20)\d{2}$/.test(word)) {
         year = parseInt(word);
       }
       // Check for month names

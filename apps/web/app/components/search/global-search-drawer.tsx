@@ -12,6 +12,7 @@ import { Input } from "~/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "~/components/ui/sheet";
 import { useGlobalSearch } from "~/hooks/use-global-search";
 import { useVectorSearch } from "~/hooks/use-vector-search";
+import { formatDateShort } from "~/lib/utils";
 import { SearchFeedback } from "./search-feedback";
 
 interface GlobalSearchDrawerProps {
@@ -27,7 +28,9 @@ function SearchResultItem({ result }: SearchResultItemProps) {
   const navigate = useNavigate();
 
   // Use displayText as fallback if individual fields aren't available
-  const displayDate = result.date || result.displayText?.split(" • ")[0] || "Unknown Date";
+  const displayDate = result.date
+    ? formatDateShort(result.date)
+    : result.displayText?.split(" • ")[0] || "Unknown Date";
   const displayVenue = result.venueName || result.displayText?.split(" • ")[1] || "Unknown Venue";
   const displayLocation = result.venueLocation || "";
   const matchDetails = result.metadata?.matchDetails;
@@ -198,7 +201,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg lg:max-w-xl xl:max-w-2xl overflow-y-auto bg-gradient-to-br from-gray-900 via-purple-900/60 to-gray-900 border-l border-purple-500/30 backdrop-blur-md"
+        className="w-full sm:max-w-md lg:max-w-lg xl:max-w-xl overflow-y-auto bg-gradient-to-br from-gray-900 via-purple-900/60 to-gray-900 border-l border-purple-500/30 backdrop-blur-md"
       >
         <SheetHeader className="mb-6 pb-4 border-b border-purple-500/20">
           <SheetTitle className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -209,7 +212,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-purple-400" />
           <Input
-            placeholder="Search shows, songs, venues, or segues (song > song)..."
+            placeholder="Search shows, songs, venues, or segues..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="pl-10 pr-10 h-12 text-base bg-gray-800/50 border-purple-500/30 focus:border-purple-400 focus:ring-purple-400/20"
@@ -229,11 +232,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
 
         {searchHistoryId && results.length > 0 && (
           <div className="mb-6">
-            <SearchFeedback
-              searchId={searchHistoryId}
-              onFeedback={handleFeedback}
-              className="flex justify-center"
-            />
+            <SearchFeedback searchId={searchHistoryId} onFeedback={handleFeedback} className="flex justify-center" />
           </div>
         )}
 
