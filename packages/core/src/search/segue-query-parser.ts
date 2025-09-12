@@ -1,5 +1,4 @@
 import type { PrismaClient } from "@prisma/client";
-import type { Logger } from "@bip/domain";
 
 export interface ParsedSegueQuery {
   venues: string[];      // Venue IDs that matched
@@ -18,7 +17,6 @@ interface EntityMatch {
 export class SegueQueryParser {
   constructor(
     private readonly db: PrismaClient,
-    private readonly _logger: Logger
   ) {}
 
   /**

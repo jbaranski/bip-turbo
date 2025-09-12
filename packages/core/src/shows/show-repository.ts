@@ -260,7 +260,7 @@ export class ShowRepository {
       },
     });
 
-    return results.map((result: any) => {
+    return results.map((result: Record<string, unknown>) => {
       const show = mapShowToDomainEntity(result);
       if (result.venue) {
         show.venue = result.venue;

@@ -135,7 +135,10 @@ export class SegueRunGeneratorService {
       if (!tracksBySet.has(track.set)) {
         tracksBySet.set(track.set, []);
       }
-      tracksBySet.get(track.set)!.push(track);
+      const tracks = tracksBySet.get(track.set);
+      if (tracks) {
+        tracks.push(track);
+      }
     }
     
     return tracksBySet;

@@ -1,6 +1,12 @@
-import type { Annotation, Track } from "@bip/domain";
+import type { Annotation, Song, Track } from "@bip/domain";
 import type { CacheInvalidationService } from "../_shared/cache";
-import type { DbAnnotation, DbClient, DbTrack } from "../_shared/database/models";
+import type { DbAnnotation, DbClient, DbSong, DbTrack } from "../_shared/database/models";
+
+// Database query result that includes song and annotations
+type DbTrackWithSongAndAnnotations = DbTrack & {
+  song?: DbSong | null;
+  annotations?: DbAnnotation[] | null;
+};
 import { buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
 import { slugify } from "../_shared/utils/slugify";
@@ -106,7 +112,7 @@ export class TrackRepository {
       track.annotations = result.annotations.map(mapAnnotationToDomainEntity);
     }
     if (result.song) {
-      track.song = result.song as any;
+      track.song = result.song as Song;
     }
     return track;
   }
@@ -169,7 +175,7 @@ export class TrackRepository {
 
   async update(id: string, data: Partial<Track>): Promise<Track> {
     // Remove relation fields and computed fields that shouldn't be updated directly
-    const { song, annotations, songId, showId, ...updateableData } = data;
+    const { ...updateableData } = data;
     const updateData = this.mapToDbModel(updateableData);
 
     // Get current track info for cache invalidation
@@ -221,13 +227,13 @@ export class TrackRepository {
       return a.position - b.position;
     });
 
-    return sortedResults.map((result: Record<string, unknown>) => {
-      const track = this.mapToDomainEntity(result as DbTrack);
-      if ((result as any).annotations) {
-        track.annotations = (result as any).annotations.map(mapAnnotationToDomainEntity);
+    return sortedResults.map((result: DbTrackWithSongAndAnnotations) => {
+      const track = this.mapToDomainEntity(result);
+      if (result.annotations) {
+        track.annotations = result.annotations.map(mapAnnotationToDomainEntity);
       }
-      if ((result as any).song) {
-        track.song = (result as any).song as any;
+      if (result.song) {
+        track.song = result.song as Song;
       }
       return track;
     });

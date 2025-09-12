@@ -1,13 +1,11 @@
-import type { Annotation, SongPagePerformance, SongPageView } from "@bip/domain";
+import type { SongPagePerformance, SongPageView } from "@bip/domain";
 import type { DbClient } from "../_shared/database/models";
-import type { AnnotationRepository } from "../annotations/annotation-repository";
 import type { SongRepository } from "../songs/song-repository";
 
 export class SongPageComposer {
   constructor(
     private db: DbClient,
     private songRepository: SongRepository,
-    private annotationRepository: AnnotationRepository,
   ) {}
 
   async build(songSlug: string): Promise<SongPageView> {

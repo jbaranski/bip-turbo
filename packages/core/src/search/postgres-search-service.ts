@@ -1,4 +1,4 @@
-import type { Logger, SearchResult } from "@bip/domain";
+import type { Logger, SearchResult, SearchRowResult } from "@bip/domain";
 import type { DbClient } from "../_shared/database/models";
 import { SegueQueryParser } from "./segue-query-parser";
 import type { SearchHistoryService } from "./search-history-service";
@@ -46,12 +46,10 @@ export class PostgresSearchService {
     private readonly logger: Logger,
     private readonly searchHistoryService?: SearchHistoryService,
   ) {
-    this.segueQueryParser = new SegueQueryParser(db, logger);
+    this.segueQueryParser = new SegueQueryParser(db);
   }
 
   async search(query: string, options: SearchOptions = { limit: 30 }): Promise<SearchResponse> {
-    const normalizedQuery = this.normalizeQuery(query);
-
     this.logger.info(`Performing PostgreSQL search for: "${query}"`);
 
     try {
@@ -68,7 +66,7 @@ export class PostgresSearchService {
       this.logger.error(`Search failed for query "${query}":`, error instanceof Error ? error.message : String(error));
       
       // Log the failed search
-      const searchHistoryId = await this.logSearch(query, []);
+      await this.logSearch(query, []);
       
       throw error;
     }
@@ -159,7 +157,7 @@ export class PostgresSearchService {
 
     try {
       // Determine the search type based on the results or query patterns
-      let searchType: "songs" | "venues" | "shows" | "setlists" = "shows";
+      const searchType: "songs" | "venues" | "shows" | "setlists" = "shows";
       
       // For now, we'll default to 'shows' as that's what most searches return
       // This could be enhanced to detect actual search intent
@@ -194,40 +192,6 @@ export class PostgresSearchService {
     }
   }
 
-  private formatShowResults(showResults: ShowResult[]): SearchResult[] {
-    return showResults.map((r) => {
-      const formattedDate = r.show_date.includes("/") ? r.show_date : new Date(r.show_date).toLocaleDateString("en-US");
-
-      // Build venue location string
-      let venueLocation = null;
-      if (r.venue_city && r.venue_state) {
-        venueLocation = `${r.venue_city}, ${r.venue_state}`;
-      } else if (r.venue_country) {
-        venueLocation = r.venue_country;
-      }
-
-      let displayText = `${formattedDate} • ${r.venue_name || "Unknown Venue"}`;
-      if (venueLocation) {
-        displayText += ` • ${venueLocation}`;
-      }
-
-      return {
-        id: r.show_id,
-        entityType: "show" as const,
-        entityId: r.show_id,
-        entitySlug: r.show_slug,
-        displayText,
-        score: r.match_score,
-        url: `/shows/${r.show_slug}`,
-        date: formattedDate,
-        venueName: r.venue_name || undefined,
-        venueLocation: venueLocation || undefined,
-        metadata: {
-          matchDetails: r.match_details,
-        },
-      };
-    });
-  }
 
   private async performVenueSearch(query: string): Promise<VenueResult[]> {
     return this.db.$queryRawUnsafe<VenueResult[]>(
@@ -433,7 +397,7 @@ export class PostgresSearchService {
   }
 
 
-  private formatResult(row: any): SearchResult {
+  private formatResult(row: SearchRowResult): SearchResult {
     const baseResult: SearchResult = {
       id: row.entity_id,
       entityType: row.entity_type,
@@ -456,7 +420,7 @@ export class PostgresSearchService {
 
     // Build display text based on entity type
     if (row.entity_type === "show") {
-      baseResult.displayText = `${row.date_str} • ${row.venue_name || "Unknown Venue"}${row.venue_location ? " • " + row.venue_location : ""}`;
+      baseResult.displayText = `${row.date_str} • ${row.venue_name || "Unknown Venue"}${row.venue_location ? ` • ${row.venue_location}` : ""}`;
     } else if (row.entity_type === "track") {
       // Format: Date • Venue • City, State
       // Song before (segue), Song Name, Song after (segue) (annotation, set info)
@@ -487,7 +451,7 @@ export class PostgresSearchService {
         songContext += ` (${extraInfo})`;
       }
 
-      baseResult.displayText = trackDisplay + "\n" + songContext;
+      baseResult.displayText = `${trackDisplay}\n${songContext}`;
     }
 
     return baseResult;
@@ -527,7 +491,7 @@ export class PostgresSearchService {
         conditions.push(`EXTRACT(DAY FROM s.date::timestamp) = ${dateFilter.day}`);
       }
       if (conditions.length > 0) {
-        dateCondition = ' AND ' + conditions.join(' AND ');
+        dateCondition = ` AND ${conditions.join(' AND ')}`;
       }
     }
 
@@ -808,12 +772,11 @@ export class PostgresSearchService {
       let confidence = 0;
       if (venueMatches.length > 0 && songMatches.length > 0) {
         // Prefer splits where venue part is a substantial portion and has good matches
-        const venueWordsRatio = venueWords.length / words.length;
         const hasExactVenueMatch = venueMatches.some(v => v.name.toLowerCase().includes(venueQuery));
         const hasExactSongMatch = songMatches.some(s => s.title.toLowerCase().includes(songQuery));
         const hasVenueCityMatch = venueMatches.some(v => 
-          (v.city && v.city.toLowerCase().includes(venueQuery)) ||
-          (v.state && v.state.toLowerCase().includes(venueQuery))
+          (v.city?.toLowerCase().includes(venueQuery)) ||
+          (v.state?.toLowerCase().includes(venueQuery))
         );
         
         // Base confidence from matches

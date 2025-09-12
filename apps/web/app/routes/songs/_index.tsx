@@ -18,7 +18,7 @@ interface LoaderData {
   recentShowsCount: number;
 }
 
-export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
+export const loader = publicLoader(async (): Promise<LoaderData> => {
   const cacheKey = "songs:index:full";
   const cacheOptions = { ttl: 3600 }; // 1 hour
 

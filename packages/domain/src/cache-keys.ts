@@ -2,6 +2,10 @@
  * Centralized cache key generation for consistent caching across the application
  */
 
+// Type for filter values that can be serialized into cache keys
+type FilterValue = string | number | boolean | null | undefined;
+type CacheFilters = Record<string, FilterValue>;
+
 export const CacheKeys = {
   /**
    * Show-related cache keys
@@ -21,7 +25,7 @@ export const CacheKeys = {
    */
   shows: {
     /** Paginated show listings with filters */
-    list: (filters: Record<string, any>) => {
+    list: (filters: CacheFilters) => {
       const filterHash = hashFilters(filters);
       return `shows:list:${filterHash}`;
     },
@@ -57,7 +61,7 @@ export const CacheKeys = {
 /**
  * Simple hash function for filter objects to create consistent cache keys
  */
-function hashFilters(filters: Record<string, any>): string {
+function hashFilters(filters: CacheFilters): string {
   const sortedKeys = Object.keys(filters).sort();
   const normalized = sortedKeys.map((key) => `${key}:${filters[key]}`).join("|");
 

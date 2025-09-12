@@ -1,5 +1,26 @@
 import { z } from 'zod';
 
+// Database row from search queries
+export const SearchRowResultSchema = z.object({
+  entity_id: z.string(),
+  entity_type: z.enum(["show", "track"]),
+  entity_slug: z.string(),
+  score: z.number(),
+  show_slug: z.string(),
+  date_str: z.string(),
+  venue_name: z.string().nullable(),
+  venue_location: z.string().nullable(),
+  song_title: z.string().optional(),
+  track_annotation: z.string().optional(),
+  set_info: z.string().optional(),
+  track_position: z.number().optional(),
+  prev_song_title: z.string().optional(),
+  next_song_title: z.string().optional(),
+  track_segue: z.string().optional(),
+});
+
+export type SearchRowResult = z.infer<typeof SearchRowResultSchema>;
+
 // Track match details schema
 export const TrackMatchSchema = z.object({
   song: z.string(),

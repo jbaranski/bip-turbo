@@ -218,7 +218,7 @@ export class SearchTestRunner {
     const cities = ['boston', 'new york', 'ny', 'las vegas', 'amsterdam'];
     const states = ['ma', 'massachusetts', 'new jersey'];
     
-    let venueTerms: string[] = [];
+    const venueTerms: string[] = [];
     for (const venue of venues) {
       if (query.includes(venue)) venueTerms.push(venue);
     }
@@ -231,7 +231,7 @@ export class SearchTestRunner {
 
     // Extract song info
     const songs = ['shimmy', 'basis', 'lunar', 'house dog', 'little shimmy'];
-    let songTerms: string[] = [];
+    const songTerms: string[] = [];
     for (const song of songs) {
       if (query.includes(song)) songTerms.push(song);
     }
@@ -267,7 +267,7 @@ export class SearchTestRunner {
       WHERE LOWER(sr.sequence) LIKE $1
     `;
     
-    const params: any[] = [`%${seguePattern.toLowerCase()}%`];
+    const params: (string | number)[] = [`%${seguePattern.toLowerCase()}%`];
     let paramIndex = 2;
 
     // Add date filters
@@ -300,7 +300,7 @@ export class SearchTestRunner {
 
     sql += ` ORDER BY 5 DESC, 2 DESC LIMIT 50`;
 
-    const results = await this.db.$queryRawUnsafe<any[]>(sql, ...params);
+    const results = await this.db.$queryRawUnsafe<Record<string, unknown>[]>(sql, ...params);
     
     return results.map(row => ({
       id: row.id,
@@ -338,7 +338,7 @@ export class SearchTestRunner {
       `;
 
       const conditions: string[] = [];
-      const params: any[] = [];
+      const params: (string | number)[] = [];
       let paramIndex = 1;
 
       // Add song conditions
@@ -391,7 +391,7 @@ export class SearchTestRunner {
 
       sql += ` ORDER BY 6 DESC, 2 DESC LIMIT 50`;
 
-      const results = await this.db.$queryRawUnsafe<any[]>(sql, ...params);
+      const results = await this.db.$queryRawUnsafe<Record<string, unknown>[]>(sql, ...params);
       
       return results.map(row => ({
         id: row.id,
@@ -478,7 +478,7 @@ export class SearchTestRunner {
   }
 
   private logSummary(summary: TestSummary) {
-    logger.info("\n" + "=".repeat(80));
+    logger.info(`\n${"=".repeat(80)}`);
     logger.info("🏁 TEST SUMMARY");
     logger.info("=".repeat(80));
     logger.info(`📊 Total Tests: ${summary.totalTests}`);
@@ -495,7 +495,7 @@ export class SearchTestRunner {
       });
     }
     
-    logger.info("\n" + "=".repeat(80));
+    logger.info(`\n${"=".repeat(80)}`);
   }
 
   private getTestCases(): TestCase[] {
@@ -548,7 +548,7 @@ async function main() {
       await Bun.write(resultsFile, JSON.stringify(summary, null, 2));
     } else {
       // Fallback for non-Bun environments
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       await fs.writeFile(resultsFile, JSON.stringify(summary, null, 2));
     }
     logger.info(`📄 Full results saved to: ${resultsFile}`);
