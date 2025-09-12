@@ -220,12 +220,12 @@ BEGIN
           -- For segue searches, check if songs are adjacent with segue marker
           CASE
             WHEN EXISTS (
-              SELECT 1 FROM matched_tracks mt1
-              JOIN matched_tracks mt2 ON mt1.next_track_id = mt2.track_id
-              WHERE mt1.show_id = mt.show_id
-                AND mt1.segue = '>'
-                AND mt1.search_position = 1
-                AND mt2.search_position = 2
+              SELECT 1 FROM matched_tracks mt1_inner
+              JOIN matched_tracks mt2_inner ON mt1_inner.next_track_id = mt2_inner.track_id
+              WHERE mt1_inner.show_id = mt.show_id
+                AND mt1_inner.segue = '>'
+                AND mt1_inner.search_position = 1
+                AND mt2_inner.search_position = 2
             ) THEN 100  -- Perfect segue match
             WHEN MIN(ABS(mt2.position - mt1.position)) = 1 THEN 80  -- Adjacent but no segue
             WHEN MIN(ABS(mt2.position - mt1.position)) <= 3 THEN 60  -- Very close
