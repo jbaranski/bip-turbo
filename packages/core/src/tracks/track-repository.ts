@@ -1,4 +1,4 @@
-import type { Annotation, Song, Track } from "@bip/domain";
+import type { Annotation, Track } from "@bip/domain";
 import type { CacheInvalidationService } from "../_shared/cache";
 import type { DbAnnotation, DbClient, DbSong, DbTrack } from "../_shared/database/models";
 
