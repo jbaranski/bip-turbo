@@ -13,4 +13,3 @@ tmp/
 *.DS_Store
 .vscode/chrome-debug-profile
 apps/web/.react-router/*
-
