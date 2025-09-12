@@ -47,7 +47,7 @@ BEGIN
   JOIN songs song ON t.song_id = song.id
   LEFT JOIN tracks next_track ON t.next_track_id = next_track.id
   LEFT JOIN songs next_song ON next_track.song_id = next_song.id
-  WHERE t.show_id = show_id;
+  WHERE t.show_id = build_show_search_text.show_id;
   
   -- Combine all searchable content
   SELECT 
