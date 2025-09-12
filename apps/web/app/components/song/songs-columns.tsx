@@ -1,5 +1,11 @@
-import type { Song } from "@bip/domain";
+import type { Song, Show } from "@bip/domain";
 import type { ColumnDef } from "@tanstack/react-table";
+
+// Enhanced Song type that includes show relationships for the data table
+interface SongWithShows extends Song {
+  firstPlayedShow?: Show | null;
+  lastPlayedShow?: Show | null;
+}
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "~/components/ui/button";
@@ -19,7 +25,7 @@ const getSortIcon = (sortState: false | "asc" | "desc") => {
   return <ArrowUpDown className="ml-2 h-4 w-4" />;
 };
 
-export const songsColumns: ColumnDef<Song>[] = [
+export const songsColumns: ColumnDef<SongWithShows>[] = [
   {
     accessorKey: "title",
     header: ({ column }) => {
@@ -82,7 +88,7 @@ export const songsColumns: ColumnDef<Song>[] = [
     },
     cell: ({ row }) => {
       const date = row.original.dateLastPlayed;
-      const show = (row.original as any).lastPlayedShow;
+      const show = row.original.lastPlayedShow;
       return date ? (
         <div className="text-base">
           {show?.slug ? (
@@ -129,7 +135,7 @@ export const songsColumns: ColumnDef<Song>[] = [
     },
     cell: ({ row }) => {
       const date = row.original.dateFirstPlayed;
-      const show = (row.original as any).firstPlayedShow;
+      const show = row.original.firstPlayedShow;
       return date ? (
         <div className="text-base">
           {show?.slug ? (

@@ -58,6 +58,8 @@ make migrate-create                  # Create new migration
 make db-restore                      # Reset database and restore prod data via pg_restore
 make db-studio                       # Open Prisma Studio
 make db-introspect                   # Introspect database schema
+make db-execute FILE=file.sql        # Execute SQL file against local database
+make db-query SQL="SELECT * FROM t"  # Execute SQL query against local database
 ```
 
 **Package-specific commands:**
@@ -158,3 +160,21 @@ This applies to:
 - ANYTHING that has a definitive answer in the codebase
 
 No assumptions. No guessing. Look it up.
+
+# CRITICAL RULE: NEVER BE LAZY
+
+**DO NOT EVER BE LAZY.** Being lazy leads to:
+- Sloppy solutions that create more problems
+- Using quick hacks instead of understanding the real issue
+- Adding require() instead of proper TypeScript imports
+- Rushing to "fix" things without reading error messages carefully
+- Creating technical debt that wastes everyone's time
+
+When you encounter a problem:
+1. **READ THE ACTUAL ERROR MESSAGE CAREFULLY**
+2. **UNDERSTAND what the problem actually is**
+3. **ANALYZE the root cause** - don't just treat symptoms
+4. **IMPLEMENT the correct solution** - not the fastest hack
+5. **VERIFY it actually fixes the problem** - don't assume
+
+Being thorough and methodical is faster than being lazy and creating more issues.

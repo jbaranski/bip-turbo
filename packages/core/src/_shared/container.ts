@@ -6,8 +6,7 @@ import { BlogPostRepository } from "../blog-posts/blog-post-repository";
 import { FileRepository } from "../files/file-repository";
 import { RatingRepository } from "../ratings/rating-repository";
 import { ReviewRepository } from "../reviews/review-repository";
-import { SearchIndexRepository } from "../search/search-index-repository";
-import { SearchIndexer } from "../search/search-indexer";
+import { SearchHistoryRepository } from "../search/search-history-repository";
 import { SetlistRepository } from "../setlists/setlist-repository";
 import { ShowRepository } from "../shows/show-repository";
 import { SongRepository } from "../songs/song-repository";
@@ -25,7 +24,6 @@ export interface ServiceContainer {
   cache: CacheService;
   cacheInvalidation: CacheInvalidationService;
   logger: Logger;
-  searchIndexer: SearchIndexer;
   repositories: {
     annotations: AnnotationRepository;
     setlists: SetlistRepository;
@@ -39,7 +37,7 @@ export interface ServiceContainer {
     ratings: RatingRepository;
     attendances: AttendanceRepository;
     files: FileRepository;
-    searchIndex: SearchIndexRepository;
+    searchHistories: SearchHistoryRepository;
   };
 }
 
@@ -55,9 +53,6 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
 
   if (!db) throw new Error("Database connection required for container initialization");
   if (!env) throw new Error("Environment required for container initialization");
-
-  // Create search index repository first
-  const searchIndexRepository = new SearchIndexRepository(db);
 
   const redis = new RedisService(env.REDIS_URL);
 
@@ -79,11 +74,8 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
     ratings: new RatingRepository(db),
     attendances: new AttendanceRepository(db),
     files: new FileRepository(db),
-    searchIndex: searchIndexRepository,
+    searchHistories: new SearchHistoryRepository(db),
   };
-
-  // Create SearchIndexer - will be initialized with SearchIndexService later
-  const searchIndexer = new SearchIndexer();
 
   return {
     db,
@@ -91,7 +83,6 @@ export function createContainer(args: ContainerArgs): ServiceContainer {
     cache,
     cacheInvalidation,
     logger,
-    searchIndexer,
     repositories,
   };
 }

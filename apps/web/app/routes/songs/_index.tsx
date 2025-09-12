@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { AdminOnly } from "~/components/admin/admin-only";
 import { songsColumns } from "~/components/song/songs-columns";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import { DataTable } from "~/components/ui/data-table";
 import { useSerializedLoaderData } from "~/hooks/use-serialized-loader-data";
 import { publicLoader } from "~/lib/base-loaders";
@@ -18,7 +18,7 @@ interface LoaderData {
   recentShowsCount: number;
 }
 
-export const loader = publicLoader(async ({ request }): Promise<LoaderData> => {
+export const loader = publicLoader(async (): Promise<LoaderData> => {
   const cacheKey = "songs:index:full";
   const cacheOptions = { ttl: 3600 }; // 1 hour
 

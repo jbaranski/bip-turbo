@@ -4,9 +4,7 @@ import { services } from "~/server/services";
 
 interface SearchRequest {
   query: string;
-  entityTypes?: string[];
   limit?: number;
-  threshold?: number;
 }
 
 interface SearchResponse {
@@ -22,6 +20,7 @@ interface SearchResponse {
   query: string;
   totalResults: number;
   executionTimeMs: number;
+  searchHistoryId?: string;
 }
 
 // POST /api/search - Perform vector search
@@ -34,7 +33,7 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
 
   try {
     const body = (await request.json()) as SearchRequest;
-    const { query, entityTypes, limit = 20, threshold = 0.3 } = body;
+    const { query, limit = 30 } = body;
 
     if (!query || query.trim().length === 0) {
       throw new Response(JSON.stringify({ error: "Query is required" }), {
@@ -50,58 +49,19 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
       });
     }
 
-    // Perform the search
-    const searchResults = await services.search.search({
-      query: query.trim(),
-      entityTypes,
-      limit: Math.min(limit, 100), // Cap at 100 results
-      threshold: Math.max(0, Math.min(1, threshold)), // Ensure threshold is between 0-1
-    });
-
-    // Format results for frontend consumption
-    const formattedResults = searchResults.map((result) => {
-      let url = "/";
-
-      // Generate URLs based on entity type
-      switch (result.entityType) {
-        case "show":
-          url = `/shows/${result.entitySlug}`;
-          break;
-        case "song":
-          url = `/songs/${result.entitySlug}`;
-          break;
-        case "venue":
-          url = `/venues/${result.entitySlug}`;
-          break;
-        case "track":
-          url = `/tracks/${result.entityId}`;
-          break;
-        default:
-          url = `/${result.entityType}s/${result.entityId}`;
-      }
-
-      return {
-        id: result.id,
-        entityType: result.entityType,
-        entityId: result.entityId,
-        displayText: result.displayText,
-        score: result.score,
-        url,
-        metadata: {
-          similarity: result.similarity,
-          createdAt: result.createdAt,
-          updatedAt: result.updatedAt,
-        },
-      };
+    // Perform the search using PostgreSQL search
+    const searchResponse = await services.postgresSearch.search(query.trim(), {
+      limit,
     });
 
     const executionTimeMs = Date.now() - startTime;
 
     const response: SearchResponse = {
-      results: formattedResults,
+      results: searchResponse.results,
       query,
-      totalResults: formattedResults.length,
+      totalResults: searchResponse.results.length,
       executionTimeMs,
+      searchHistoryId: searchResponse.searchHistoryId,
     };
 
     return new Response(JSON.stringify(response), {
@@ -130,39 +90,20 @@ export const action = publicLoader(async ({ request }: ActionFunctionArgs) => {
   }
 });
 
-// GET /api/search/status - Get search index status
+// GET /api/search/status - Get search status
 export const loader = publicLoader(async () => {
-  try {
-    const stats = await services.search.getStats();
-
-    return new Response(
-      JSON.stringify({
-        status: "healthy",
-        vectorExtensionAvailable: stats.isVectorExtensionAvailable,
-        totalIndexedItems: stats.totalCount,
-        itemsByType: stats.countsByType,
-        registeredFormatters: services.search.getRegisteredEntityTypes(),
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "public, max-age=60", // Cache for 1 minute
-        },
+  return new Response(
+    JSON.stringify({
+      status: "healthy",
+      searchProvider: "postgresql",
+      features: ["full-text", "trigram-similarity", "segue-search"],
+    }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=60", // Cache for 1 minute
       },
-    );
-  } catch (error) {
-    console.error("Search status error:", error);
-
-    return new Response(
-      JSON.stringify({
-        status: "error",
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
+    },
+  );
 });

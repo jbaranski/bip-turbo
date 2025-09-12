@@ -16,6 +16,7 @@ export * from "./ratings/rating-repository";
 export * from "./ratings/rating-service";
 export * from "./reviews/review-repository";
 export * from "./reviews/review-service";
+export * from "./search/postgres-search-service";
 export * from "./setlists/setlist-service";
 export * from "./shows/show-service";
 export * from "./shows/show-service";

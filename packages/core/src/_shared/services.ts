@@ -6,8 +6,8 @@ import { FileService } from "../files/file-service";
 import { SongPageComposer } from "../page-composers/song-page-composer";
 import { RatingService } from "../ratings/rating-service";
 import { ReviewService } from "../reviews/review-service";
-import { EmbeddingService } from "../search/embedding-service";
-import { SearchIndexService } from "../search/search-index-service";
+import { PostgresSearchService } from "../search/postgres-search-service";
+import { SearchHistoryService } from "../search/search-history-service";
 import { SetlistService } from "../setlists/setlist-service";
 import { ShowService } from "../shows/show-service";
 import { TourDatesService } from "../shows/tour-dates-service";
@@ -34,26 +34,16 @@ export interface Services {
   songPageComposer: SongPageComposer;
   tourDatesService: TourDatesService;
   files: FileService;
-  search: SearchIndexService;
-  embedding: EmbeddingService;
+  postgresSearch: PostgresSearchService;
   redis: RedisService;
   cache: CacheService;
   logger: Logger;
 }
 
 export function createServices(container: ServiceContainer): Services {
-  // Create embedding service
-  const embeddingService = new EmbeddingService(container.logger);
-
-  // Create search index service with embedding service
-  const searchIndexService = new SearchIndexService(
-    container.repositories.searchIndex,
-    embeddingService,
-    container.logger,
-  );
-
-  // Initialize the SearchIndexer with the SearchIndexService
-  container.searchIndexer.searchIndexService = searchIndexService;
+  // Create search services
+  const searchHistoryService = new SearchHistoryService(container.repositories.searchHistories);
+  const postgresSearchService = new PostgresSearchService(container.db, container.logger, searchHistoryService);
 
   return {
     annotations: new AnnotationService(container.repositories.annotations, container.logger),
@@ -70,12 +60,10 @@ export function createServices(container: ServiceContainer): Services {
     songPageComposer: new SongPageComposer(
       container.db,
       container.repositories.songs,
-      container.repositories.annotations,
     ),
     tourDatesService: new TourDatesService(container.redis),
     files: new FileService(container.repositories.files, container.logger),
-    search: searchIndexService,
-    embedding: embeddingService,
+    postgresSearch: postgresSearchService,
     redis: container.redis,
     cache: container.cache,
     logger: container.logger,

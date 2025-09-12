@@ -76,7 +76,7 @@ export function Header() {
 
           {/* Search */}
           <div className="flex-1 max-w-lg mx-2 md:mx-4">
-            <SearchButton variant="outline" size="sm" className="w-full max-w-md mx-auto" showShortcut={!isMobile} />
+            <SearchButton className="w-full max-w-md mx-auto" showShortcut={!isMobile} />
           </div>
 
           {/* User Profile/Auth & Mobile Menu */}

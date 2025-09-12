@@ -13,7 +13,7 @@ import type {
   PrismaClient,
   Rating as PrismaRating,
   Review as PrismaReview,
-  SearchIndex as PrismaSearchIndex,
+  SearchHistory as PrismaSearchHistory,
   Show as PrismaShow,
   Song as PrismaSong,
   Track as PrismaTrack,
@@ -26,7 +26,7 @@ export type DbAnnotation = PrismaAnnotation;
 export type DbBlogPost = PrismaBlogPost;
 export type DbClient = PrismaClient;
 export type DbReview = PrismaReview;
-export type DbSearchIndex = PrismaSearchIndex;
+export type DbSearchHistory = PrismaSearchHistory;
 export type DbSong = PrismaSong;
 export type DbAuthor = PrismaAuthor;
 export type DbShow = PrismaShow;
@@ -43,7 +43,7 @@ export type ModelName = keyof DbClient;
 export type DbModel =
   | DbSong
   | DbAuthor
-  | DbSearchIndex
+  | DbSearchHistory
   | DbShow
   | DbTrack
   | DbVenue
@@ -52,7 +52,6 @@ export type DbModel =
   | DbBlogPost
   | DbReview
   | DbRating
-  | DbSearchIndex
   | DbAttendance;
 
 // Re-export the Prisma client instance with the generic type

@@ -1,20 +1,12 @@
 import { useCallback, useRef, useState } from "react";
-
-export interface SearchResult {
-  id: string;
-  entityType: string;
-  entityId: string;
-  displayText: string;
-  score: number;
-  url: string;
-  metadata?: Record<string, unknown>;
-}
+import type { SearchResult } from "@bip/domain";
 
 export interface SearchResponse {
   results: SearchResult[];
   query: string;
   totalResults: number;
   executionTimeMs: number;
+  searchHistoryId?: string;
 }
 
 export interface SearchOptions {
@@ -30,6 +22,7 @@ export interface UseVectorSearchReturn {
   query: string;
   totalResults: number;
   executionTimeMs: number | null;
+  searchHistoryId: string | null;
   search: (query: string, options?: SearchOptions) => Promise<void>;
   clear: () => void;
 }
@@ -41,6 +34,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
   const [query, setQuery] = useState("");
   const [totalResults, setTotalResults] = useState(0);
   const [executionTimeMs, setExecutionTimeMs] = useState<number | null>(null);
+  const [searchHistoryId, setSearchHistoryId] = useState<string | null>(null);
 
   // Keep track of the latest request to avoid race conditions
   const latestRequestRef = useRef<number>(0);
@@ -52,6 +46,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
     setQuery("");
     setTotalResults(0);
     setExecutionTimeMs(null);
+    setSearchHistoryId(null);
     // Increment to invalidate any pending requests
     latestRequestRef.current++;
   }, []);
@@ -95,6 +90,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
           setResults(data.results);
           setTotalResults(data.totalResults);
           setExecutionTimeMs(data.executionTimeMs);
+          setSearchHistoryId(data.searchHistoryId || null);
           setError(null);
         }
       } catch (err) {
@@ -105,6 +101,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
           setResults([]);
           setTotalResults(0);
           setExecutionTimeMs(null);
+          setSearchHistoryId(null);
         }
       } finally {
         // Only update loading state if this is still the latest request
@@ -123,6 +120,7 @@ export function useVectorSearch(): UseVectorSearchReturn {
     query,
     totalResults,
     executionTimeMs,
+    searchHistoryId,
     search,
     clear,
   };

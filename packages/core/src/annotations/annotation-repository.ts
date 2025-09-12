@@ -60,9 +60,13 @@ export class AnnotationRepository {
   }
 
   async create(data: Partial<Annotation>): Promise<Annotation> {
+    if (!data.trackId) {
+      throw new Error("trackId is required to create an annotation");
+    }
+    
     const now = new Date();
     const createData = {
-      trackId: data.trackId!,
+      trackId: data.trackId,
       desc: data.desc || null,
       createdAt: now,
       updatedAt: now,

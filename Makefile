@@ -28,6 +28,9 @@ clean:
 web:
 	cd apps/web && bun run dev
 
+docker: 
+	docker compose up -d
+
 dev:
 	bun run dev
 
@@ -73,6 +76,35 @@ db-introspect:
 
 db-studio:
 	cd packages/core && bun prisma:studio
+
+db-execute:
+	@if [ -z "$(FILE)" ]; then \
+		echo "Usage: make db-execute FILE=path/to/file.sql"; \
+		exit 1; \
+	fi
+	@DB_URL=$$(doppler secrets get DATABASE_URL --plain); \
+	if echo "$$DB_URL" | grep -q "localhost\|127.0.0.1\|supabase"; then \
+		echo "Executing SQL file: $(FILE)"; \
+		psql "$$DB_URL" -f $(FILE); \
+	else \
+		echo "ERROR: This command can only be run against localhost/development databases"; \
+		echo "Current DATABASE_URL appears to be production: $$DB_URL"; \
+		exit 1; \
+	fi
+
+db-query:
+	@if [ -z "$(SQL)" ]; then \
+		echo "Usage: make db-query SQL=\"SELECT * FROM table\""; \
+		exit 1; \
+	fi
+	@DB_URL=$$(doppler secrets get DATABASE_URL --plain); \
+	if echo "$$DB_URL" | grep -q "localhost\|127.0.0.1\|supabase"; then \
+		psql "$$DB_URL" -c "$(SQL)"; \
+	else \
+		echo "ERROR: This command can only be run against localhost/development databases"; \
+		echo "Current DATABASE_URL appears to be production: $$DB_URL"; \
+		exit 1; \
+	fi
 
 # Vector search indexing
 index-songs:

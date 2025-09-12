@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type User } from "@supabase/supabase-js";
 import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
 
@@ -51,7 +51,7 @@ async function syncSupabaseUsers() {
     // Get all users from Supabase Auth with proper pagination
     console.log("🔍 Fetching all Supabase users...");
 
-    let allUsers: any[] = [];
+    let allUsers: User[] = [];
     let page = 1;
     let hasMore = true;
 

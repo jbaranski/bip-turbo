@@ -312,32 +312,36 @@ model ShowYoutube {
 }
 
 model Show {
-  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  slug              String?       @unique(map: "shows_slug_unique") @db.VarChar
-  date              String        @db.VarChar
-  venueId           String?       @map("venue_id") @db.Uuid
-  bandId            String?       @map("band_id") @db.Uuid
+  id                String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug              String?                  @unique(map: "shows_slug_unique") @db.VarChar
+  date              String                   @db.VarChar
+  venueId           String?                  @map("venue_id") @db.Uuid
+  bandId            String?                  @map("band_id") @db.Uuid
   notes             String?
-  legacyId          Int?          @map("legacy_id")
-  createdAt         DateTime      @map("created_at") @db.Timestamp(6)
-  updatedAt         DateTime      @map("updated_at") @db.Timestamp(6)
-  likesCount        Int           @default(0) @map("likes_count")
-  relistenUrl       String?       @map("relisten_url") @db.VarChar
-  averageRating     Float?        @default(0) @map("average_rating")
-  ratingsCount      Int           @default(0) @map("ratings_count")
-  showPhotosCount   Int           @default(0) @map("show_photos_count")
-  showYoutubesCount Int           @default(0) @map("show_youtubes_count")
-  reviewsCount      Int           @default(0) @map("reviews_count")
+  legacyId          Int?                     @map("legacy_id")
+  createdAt         DateTime                 @map("created_at") @db.Timestamp(6)
+  updatedAt         DateTime                 @map("updated_at") @db.Timestamp(6)
+  likesCount        Int                      @default(0) @map("likes_count")
+  relistenUrl       String?                  @map("relisten_url") @db.VarChar
+  averageRating     Float?                   @default(0) @map("average_rating")
+  ratingsCount      Int                      @default(0) @map("ratings_count")
+  showPhotosCount   Int                      @default(0) @map("show_photos_count")
+  showYoutubesCount Int                      @default(0) @map("show_youtubes_count")
+  reviewsCount      Int                      @default(0) @map("reviews_count")
+  searchText        String?                  @map("search_text") @db.Text
+  searchVector      Unsupported("tsvector")? @map("search_vector")
   attendances       Attendance[]
   favorites         Favorite[]
   reviews           Review[]
   showPhotos        ShowPhoto[]
   showYoutubes      ShowYoutube[]
-  band              Band?         @relation(fields: [bandId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_bands_band_id")
-  venue             Venue?        @relation(fields: [venueId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_venues_venue_id")
+  band              Band?                    @relation(fields: [bandId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_bands_band_id")
+  venue             Venue?                   @relation(fields: [venueId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_shows_venues_venue_id")
   tracks            Track[]
+  segueRuns         SegueRun[]
 
   @@index([likesCount])
+  @@index([date])
   @@map("shows")
 }
 
@@ -359,31 +363,53 @@ model SideProject {
   @@map("side_projects")
 }
 
+model SegueRun {
+  id           String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  showId       String                   @map("show_id") @db.Uuid
+  set          String                   @db.VarChar
+  trackIds     String[]                 @map("track_ids") @db.Uuid
+  sequence     String                   @db.Text
+  length       Int
+  searchText   String?                  @map("search_text") @db.Text
+  searchVector Unsupported("tsvector")? @map("search_vector")
+  createdAt    DateTime                 @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime                 @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  show Show @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_segue_runs_shows_show_id")
+
+  @@unique([showId, trackIds])
+  @@index([showId])
+  @@index([set])
+  @@map("segue_runs")
+}
+
 model Song {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title           String    @db.VarChar
-  slug            String    @unique(map: "songs_slug_unique") @db.VarChar
-  createdAt       DateTime  @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime  @map("updated_at") @db.Timestamp(6)
+  id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String                   @db.VarChar
+  slug            String                   @unique(map: "songs_slug_unique") @db.VarChar
+  createdAt       DateTime                 @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime                 @map("updated_at") @db.Timestamp(6)
   lyrics          String?
   tabs            String?
   notes           String?
-  legacyAbbr      String?   @map("legacy_abbr") @db.VarChar
-  legacyId        Int?      @map("legacy_id")
-  cover           Boolean?  @default(false)
-  authorId        String?   @map("author_id") @db.Uuid
-  legacyAuthor    String?   @map("legacy_author")
+  legacyAbbr      String?                  @map("legacy_abbr") @db.VarChar
+  legacyId        Int?                     @map("legacy_id")
+  cover           Boolean?                 @default(false)
+  authorId        String?                  @map("author_id") @db.Uuid
+  legacyAuthor    String?                  @map("legacy_author")
   history         String?
-  featuredLyric   String?   @map("featured_lyric")
-  timesPlayed     Int       @default(0) @map("times_played")
-  dateLastPlayed  DateTime? @map("date_last_played") @db.Date
-  dateFirstPlayed DateTime? @map("date_first_played") @db.Date
-  yearlyPlayData  Json      @default("{}") @map("yearly_play_data")
-  longestGapsData Json      @default("{}") @map("longest_gaps_data")
-  mostCommonYear  Int?      @map("most_common_year")
-  leastCommonYear Int?      @map("least_common_year")
-  guitarTabsUrl   String?   @map("guitar_tabs_url")
-  author          Author?   @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_songs_authors_author_id")
+  featuredLyric   String?                  @map("featured_lyric")
+  timesPlayed     Int                      @default(0) @map("times_played")
+  dateLastPlayed  DateTime?                @map("date_last_played") @db.Date
+  dateFirstPlayed DateTime?                @map("date_first_played") @db.Date
+  yearlyPlayData  Json                     @default("{}") @map("yearly_play_data")
+  longestGapsData Json                     @default("{}") @map("longest_gaps_data")
+  mostCommonYear  Int?                     @map("most_common_year")
+  leastCommonYear Int?                     @map("least_common_year")
+  guitarTabsUrl   String?                  @map("guitar_tabs_url")
+  searchText      String?                  @map("search_text") @db.Text
+  searchVector    Unsupported("tsvector")? @map("search_vector")
+  author          Author?                  @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_songs_authors_author_id")
   tracks          Track[]
 
   @@index([longestGapsData], type: Gin)
@@ -428,25 +454,27 @@ model Tag {
 }
 
 model Track {
-  id              String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  showId          String       @map("show_id") @db.Uuid
-  songId          String       @map("song_id") @db.Uuid
-  set             String       @db.VarChar
+  id              String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  showId          String                   @map("show_id") @db.Uuid
+  songId          String                   @map("song_id") @db.Uuid
+  set             String                   @db.VarChar
   position        Int
-  segue           String?      @db.VarChar
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
-  likesCount      Int          @default(0) @map("likes_count")
-  slug            String?      @unique(map: "tracks_slug_unique") @db.VarChar
-  note            String?      @db.VarChar
-  allTimer        Boolean?     @default(false) @map("all_timer")
-  previousTrackId String?      @map("previous_track_id") @db.Uuid
-  nextTrackId     String?      @map("next_track_id") @db.Uuid
-  averageRating   Float?       @default(0) @map("average_rating")
-  ratingsCount    Int          @default(0) @map("ratings_count")
+  segue           String?                  @db.VarChar
+  createdAt       DateTime                 @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime                 @updatedAt @map("updated_at") @db.Timestamp(6)
+  likesCount      Int                      @default(0) @map("likes_count")
+  slug            String?                  @unique(map: "tracks_slug_unique") @db.VarChar
+  note            String?                  @db.VarChar
+  allTimer        Boolean?                 @default(false) @map("all_timer")
+  previousTrackId String?                  @map("previous_track_id") @db.Uuid
+  nextTrackId     String?                  @map("next_track_id") @db.Uuid
+  averageRating   Float?                   @default(0) @map("average_rating")
+  ratingsCount    Int                      @default(0) @map("ratings_count")
+  searchText      String?                  @map("search_text") @db.Text
+  searchVector    Unsupported("tsvector")? @map("search_vector")
   annotations     Annotation[]
-  show            Show         @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_shows_show_id")
-  song            Song         @relation(fields: [songId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_songs_song_id")
+  show            Show                     @relation(fields: [showId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_shows_show_id")
+  song            Song                     @relation(fields: [songId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tracks_songs_song_id")
 
   @@index([likesCount])
   @@index([nextTrackId])
@@ -494,23 +522,25 @@ model UserRole {
 }
 
 model Venue {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String?  @db.VarChar
-  slug        String   @db.VarChar
-  street      String?  @db.VarChar
-  city        String?  @db.VarChar
-  state       String?  @db.VarChar
-  country     String?  @db.VarChar
-  postalCode  String?  @map("postal_code") @db.VarChar
-  latitude    Float?
-  longitude   Float?
-  phone       String?  @db.VarChar
-  website     String?  @db.VarChar
-  legacyId    Int?     @map("legacy_id")
-  createdAt   DateTime @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime @map("updated_at") @db.Timestamp(6)
-  timesPlayed Int      @default(0) @map("times_played")
-  shows       Show[]
+  id           String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String?                  @db.VarChar
+  slug         String                   @db.VarChar
+  street       String?                  @db.VarChar
+  city         String?                  @db.VarChar
+  state        String?                  @db.VarChar
+  country      String?                  @db.VarChar
+  postalCode   String?                  @map("postal_code") @db.VarChar
+  latitude     Float?
+  longitude    Float?
+  phone        String?                  @db.VarChar
+  website      String?                  @db.VarChar
+  legacyId     Int?                     @map("legacy_id")
+  createdAt    DateTime                 @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime                 @map("updated_at") @db.Timestamp(6)
+  timesPlayed  Int                      @default(0) @map("times_played")
+  searchText   String?                  @map("search_text") @db.Text
+  searchVector Unsupported("tsvector")? @map("search_vector")
+  shows        Show[]
 
   @@index([slug])
   @@map("venues")
@@ -556,21 +586,18 @@ model BlogPostToFile {
   @@map("blog_post_files")
 }
 
-model SearchIndex {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  entityType       String   @map("entity_type") @db.VarChar
-  entityId         String   @map("entity_id") @db.Uuid
-  entitySlug       String   @map("entity_slug") @db.VarChar
-  displayText      String   @map("display_text")
-  content          String
-  embeddingSmall   Unsupported("vector(1536)") @map("embedding_small")
-  embeddingLarge   Unsupported("vector(3072)")?  @map("embedding_large")
-  modelUsed        String   @default("text-embedding-3-small") @map("model_used") @db.VarChar
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+model SearchHistory {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  searchQuery     String   @map("search_query")
+  resultCount     Int      @default(0) @map("result_count")
+  searchType      String   @map("search_type")
+  sentiment       String?
+  feedbackMessage String?  @map("feedback_message")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
-  @@unique([entityType, entityId])
-  @@index([entityType])
-  @@map("search_indexes")
+  @@index([searchQuery], map: "idx_search_histories_query")
+  @@index([createdAt], map: "idx_search_histories_created_at")
+  @@index([searchType], map: "idx_search_histories_type")
+  @@map("search_histories")
 }
-

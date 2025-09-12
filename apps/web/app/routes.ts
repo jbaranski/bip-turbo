@@ -100,6 +100,7 @@ export default [
     route("tracks", "routes/api/tracks.tsx"),
     route("tracks/reorder", "routes/api/tracks/reorder.tsx"),
     route("search", "routes/api/search.tsx"),
+    route("search/feedback", "routes/api/search/feedback.tsx"),
     route("users", "routes/api/users.tsx"),
     route("contact", "routes/api/contact.tsx"),
     route("cron/:action", "routes/api/cron/$action.tsx"),
