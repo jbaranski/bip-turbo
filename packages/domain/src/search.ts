@@ -13,7 +13,7 @@ export const SearchRowResultSchema = z.object({
   song_title: z.string().optional(),
   track_annotation: z.string().optional(),
   set_info: z.string().optional(),
-  track_position: z.number().optional(),
+  track_position: z.number().nullable(),
   prev_song_title: z.string().optional(),
   next_song_title: z.string().optional(),
   track_segue: z.string().optional(),

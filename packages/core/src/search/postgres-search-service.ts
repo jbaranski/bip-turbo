@@ -363,7 +363,7 @@ export class PostgresSearchService {
         NULL::TEXT as song_title,
         NULL::TEXT as track_annotation,
         NULL::TEXT as set_info,
-        NULL::TEXT as track_position,
+        NULL::INTEGER as track_position,
         NULL::TEXT as prev_song_title,
         NULL::TEXT as next_song_title,
         NULL::TEXT as track_segue,
@@ -375,7 +375,7 @@ export class PostgresSearchService {
 
     const results = await this.db.$queryRawUnsafe<
       Array<{
-        entity_type: string;
+        entity_type: "show" | "track";
         entity_id: string;
         entity_slug: string;
         score: number;
@@ -385,7 +385,7 @@ export class PostgresSearchService {
         song_title: string | null;
         track_annotation: string | null;
         set_info: string | null;
-        track_position: string | null;
+        track_position: number | null;
         prev_song_title: string | null;
         next_song_title: string | null;
         track_segue: string | null;
@@ -393,7 +393,7 @@ export class PostgresSearchService {
       }>
     >(sql, query, limit);
 
-    return results.map((r) => this.formatResult(r));
+    return results.map((r) => this.formatResult(r as SearchRowResult));
   }
 
 
@@ -407,12 +407,12 @@ export class PostgresSearchService {
       score: Math.min(100, Math.round(row.score)),
       url: `/shows/${row.show_slug || row.entity_slug}`,
       date: row.date_str,
-      venueName: row.venue_name,
-      venueLocation: row.venue_location,
+      venueName: row.venue_name ?? undefined,
+      venueLocation: row.venue_location ?? undefined,
       songTitle: row.song_title,
       annotation: row.track_annotation,
       setInfo: row.set_info,
-      trackPosition: row.track_position,
+      trackPosition: row.track_position?.toString(),
       prevSong: row.prev_song_title,
       nextSong: row.next_song_title,
       segueType: row.track_segue,

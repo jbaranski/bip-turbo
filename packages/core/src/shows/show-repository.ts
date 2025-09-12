@@ -5,6 +5,7 @@ import type { DbClient, DbShow } from "../_shared/database/models";
 import { buildIncludeClause, buildOrderByClause, buildWhereClause } from "../_shared/database/query-utils";
 import type { QueryOptions } from "../_shared/database/types";
 import { slugify } from "../_shared/utils/slugify";
+import { mapVenueToDomainEntity } from "../venues/venue-repository";
 
 export type ShowCreateInput = Prisma.ShowCreateInput;
 
@@ -260,10 +261,10 @@ export class ShowRepository {
       },
     });
 
-    return results.map((result: Record<string, unknown>) => {
+    return results.map((result) => {
       const show = mapShowToDomainEntity(result);
       if (result.venue) {
-        show.venue = result.venue;
+        show.venue = mapVenueToDomainEntity(result.venue);
       }
       return show;
     });

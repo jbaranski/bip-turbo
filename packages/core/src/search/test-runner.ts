@@ -303,12 +303,12 @@ export class SearchTestRunner {
     const results = await this.db.$queryRawUnsafe<Record<string, unknown>[]>(sql, ...params);
     
     return results.map(row => ({
-      id: row.id,
+      id: row.id as string,
       type: 'show' as const,
       displayName: `${row.date} • ${row.venue_name || 'Unknown Venue'}`,
-      date: row.date,
-      venue: row.venue_name,
-      relevanceScore: row.relevance_score,
+      date: row.date as string,
+      venue: row.venue_name as string,
+      relevanceScore: row.relevance_score as number,
     }));
   }
 
@@ -394,12 +394,12 @@ export class SearchTestRunner {
       const results = await this.db.$queryRawUnsafe<Record<string, unknown>[]>(sql, ...params);
       
       return results.map(row => ({
-        id: row.id,
+        id: row.id as string,
         type: 'show' as const,
         displayName: `${row.date} • ${row.venue_name || 'Unknown Venue'}`,
-        date: row.date,
-        venue: row.venue_name,
-        relevanceScore: row.relevance_score,
+        date: row.date as string,
+        venue: row.venue_name as string,
+        relevanceScore: row.relevance_score as number,
       }));
       
     } else {

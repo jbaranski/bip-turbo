@@ -1,4 +1,4 @@
-import type { SongPagePerformance, SongPageView } from "@bip/domain";
+import type { SongPagePerformance, SongPageView, Annotation } from "@bip/domain";
 import type { DbClient } from "../_shared/database/models";
 import type { SongRepository } from "../songs/song-repository";
 
@@ -162,11 +162,7 @@ export class SongPageComposer {
     const annotationsByTrackId = new Map<string, Annotation[]>();
     for (const annotation of annotations) {
       const trackAnnotations = annotationsByTrackId.get(annotation.trackId) || [];
-      trackAnnotations.push({
-        ...annotation,
-        createdAt: new Date(annotation.createdAt),
-        updatedAt: new Date(annotation.updatedAt),
-      });
+      trackAnnotations.push(annotation);
       annotationsByTrackId.set(annotation.trackId, trackAnnotations);
     }
 

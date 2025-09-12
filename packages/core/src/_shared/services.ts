@@ -60,7 +60,6 @@ export function createServices(container: ServiceContainer): Services {
     songPageComposer: new SongPageComposer(
       container.db,
       container.repositories.songs,
-      container.repositories.annotations,
     ),
     tourDatesService: new TourDatesService(container.redis),
     files: new FileService(container.repositories.files, container.logger),

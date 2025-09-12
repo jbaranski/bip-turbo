@@ -281,7 +281,7 @@ export class SongRepository {
         timesPlayed,
         dateFirstPlayed: firstShow.show?.date ? new Date(firstShow.show.date) : null,
         dateLastPlayed: lastShow.show?.date ? new Date(lastShow.show.date) : null,
-        yearlyPlayData: yearlyPlayData as Record<string, unknown>,
+        yearlyPlayData: yearlyPlayData,
         updatedAt: new Date(),
       },
     });

@@ -111,9 +111,8 @@ export class TrackRepository {
     if (result.annotations) {
       track.annotations = result.annotations.map(mapAnnotationToDomainEntity);
     }
-    if (result.song) {
-      track.song = result.song as Song;
-    }
+    // Note: song is excluded here - computed fields like actualLastPlayedDate 
+    // should be populated by song-page-composer when needed
     return track;
   }
 
@@ -232,9 +231,8 @@ export class TrackRepository {
       if (result.annotations) {
         track.annotations = result.annotations.map(mapAnnotationToDomainEntity);
       }
-      if (result.song) {
-        track.song = result.song as Song;
-      }
+      // Note: song is excluded here - computed fields like actualLastPlayedDate 
+      // should be populated by song-page-composer when needed
       return track;
     });
   }
