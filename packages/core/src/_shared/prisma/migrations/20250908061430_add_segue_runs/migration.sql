@@ -1,15 +1,3 @@
--- DropIndex
-DROP INDEX "idx_songs_search_text_trgm";
-
--- DropIndex
-DROP INDEX "idx_songs_search_vector";
-
--- DropIndex
-DROP INDEX "idx_venues_search_text_trgm";
-
--- DropIndex
-DROP INDEX "idx_venues_search_vector";
-
 -- CreateTable
 CREATE TABLE "segue_runs" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
