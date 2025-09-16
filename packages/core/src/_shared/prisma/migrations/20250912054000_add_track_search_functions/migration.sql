@@ -1,3 +1,10 @@
+-- Drop existing broken track functions and triggers first
+DROP TRIGGER IF EXISTS track_search_fields_trigger ON tracks;
+DROP TRIGGER IF EXISTS annotation_change_update_track_search ON annotations;
+DROP FUNCTION IF EXISTS build_track_search_text(uuid) CASCADE;
+DROP FUNCTION IF EXISTS update_track_search_fields() CASCADE;
+DROP FUNCTION IF EXISTS update_track_search_on_annotation_change() CASCADE;
+
 -- Function to build track search text with full context
 CREATE OR REPLACE FUNCTION build_track_search_text(input_track_id UUID)
 RETURNS TEXT AS $$
