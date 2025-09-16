@@ -1,3 +1,12 @@
+-- Drop existing broken functions first
+DROP FUNCTION IF EXISTS build_show_search_text(uuid);
+DROP FUNCTION IF EXISTS update_show_search_fields();
+DROP FUNCTION IF EXISTS update_show_search_on_track_change();
+DROP FUNCTION IF EXISTS update_shows_on_venue_change();
+DROP TRIGGER IF EXISTS show_search_fields_trigger ON shows;
+DROP TRIGGER IF EXISTS track_change_update_show_search ON tracks;
+DROP TRIGGER IF EXISTS venue_change_update_shows_search ON venues;
+
 -- Function to build show search text with date variations
 CREATE OR REPLACE FUNCTION build_show_search_text(input_show_id UUID)
 RETURNS TEXT AS $$
