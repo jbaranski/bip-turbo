@@ -22,10 +22,19 @@ interface GlobalSearchDrawerProps {
 
 interface SearchResultItemProps {
   result: SearchResult;
+  onClose?: () => void;
 }
 
-function SearchResultItem({ result }: SearchResultItemProps) {
+function SearchResultItem({ result, onClose }: SearchResultItemProps) {
   const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(result.url);
+    // Only close on mobile/touch devices
+    if (onClose && window.matchMedia('(max-width: 768px)').matches) {
+      onClose();
+    }
+  };
 
   // Use displayText as fallback if individual fields aren't available
   const displayDate = result.date
@@ -110,8 +119,8 @@ function SearchResultItem({ result }: SearchResultItemProps) {
   return (
     <button
       type="button"
-      onClick={() => navigate(result.url)}
-      className="block w-full text-left p-3 hover:bg-purple-900/20 rounded-lg transition-colors group cursor-pointer"
+      onClick={handleClick}
+      className="block w-full text-left p-3 hover:bg-purple-900/20 active:bg-purple-900/30 rounded-lg transition-colors group cursor-pointer"
     >
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
@@ -263,7 +272,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
                 {[...results]
                   .sort((a, b) => (b.score || 0) - (a.score || 0))
                   .map((result) => (
-                    <SearchResultItem key={result.id} result={result} />
+                    <SearchResultItem key={result.id} result={result} onClose={() => onOpenChange(false)} />
                   ))}
               </div>
 

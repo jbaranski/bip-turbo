@@ -272,7 +272,7 @@ export default function Show() {
   };
 
   return (
-    <div className="space-y-6 md:space-y-8">
+    <div className="space-y-4 md:space-y-6">
       {/* Structured Data */}
       <script
         type="application/ld+json"
