@@ -154,7 +154,7 @@ export function GlobalSearchDrawer({ open, onOpenChange }: GlobalSearchDrawerPro
 
     const timeoutId = setTimeout(() => {
       search(query);
-    }, 300);
+    }, 800);
 
     return () => clearTimeout(timeoutId);
   }, [query, search, clear]);
