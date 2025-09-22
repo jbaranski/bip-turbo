@@ -9,9 +9,10 @@ import { Label } from "~/components/ui/label";
 type ForgotPasswordFormProps = {
   className?: string;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  isLoading?: boolean;
 };
 
-export function ForgotPasswordForm({ className, onSubmit, ...props }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ className, onSubmit, isLoading = false, ...props }: ForgotPasswordFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="relative border border-brand/10 bg-content-bg/90 backdrop-blur-2xl transition-colors duration-300 hover:border-brand/30">
@@ -49,9 +50,10 @@ export function ForgotPasswordForm({ className, onSubmit, ...props }: ForgotPass
               <Button
                 type="submit"
                 variant="outline"
-                className="w-full text-content-text-secondary border-content-bg-secondary hover:bg-content-bg-secondary/50"
+                disabled={isLoading}
+                className="w-full text-content-text-secondary border-content-bg-secondary hover:bg-content-bg-secondary/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send reset link
+                {isLoading ? "Sending..." : "Send reset link"}
               </Button>
             </div>
 

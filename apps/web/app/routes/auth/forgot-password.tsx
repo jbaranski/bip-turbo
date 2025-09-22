@@ -1,7 +1,8 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { LoaderFunctionArgs } from "react-router-dom";
-import { useNavigate, useRouteLoaderData } from "react-router-dom";
+import { useNavigate, useRouteLoaderData, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { ForgotPasswordForm } from "~/components/forgot-password-form";
 import type { RootData } from "~/root";
 import { getServerClient } from "~/server/supabase";
@@ -25,12 +26,26 @@ export default function ForgotPassword() {
   const navigate = useNavigate();
   const rootData = useRouteLoaderData("root") as RootData;
   const { SUPABASE_URL, SUPABASE_ANON_KEY } = rootData.env;
+  const [searchParams] = useSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Show error message if redirected back with an error
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error === "expired_link") {
+      toast.error("Your password reset link has expired. Please request a new one.");
+    }
+  }, [searchParams]);
 
   const handleResetPassword = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (isLoading) return; // Prevent double submission
+
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email") as string;
 
+    setIsLoading(true);
     const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     try {
@@ -44,16 +59,34 @@ export default function ForgotPassword() {
 
       toast.success("Check your email for the password reset link");
       navigate("/auth/login");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error:", error);
-      toast.error("Failed to send reset password email");
+
+      // Provide more specific error messages based on the error type
+      if (error?.message?.includes("Email not confirmed")) {
+        toast.error("Please check your email and confirm your account first before resetting your password.");
+      } else if (error?.message?.includes("Invalid email")) {
+        toast.error("Please enter a valid email address.");
+      } else if (error?.message?.includes("Email rate limit exceeded")) {
+        toast.error("Too many requests. Please wait a few minutes before requesting another reset email.");
+      } else if (error?.message?.includes("User not found")) {
+        // For security, we don't want to reveal if an email exists or not
+        // So we show the same success message as if it worked
+        toast.success("Check your email for the password reset link");
+        navigate("/auth/login");
+        return;
+      } else {
+        toast.error("Failed to send reset password email. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <ForgotPasswordForm onSubmit={handleResetPassword} />
+        <ForgotPasswordForm onSubmit={handleResetPassword} isLoading={isLoading} />
       </div>
     </div>
   );

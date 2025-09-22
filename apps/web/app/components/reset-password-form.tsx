@@ -9,9 +9,10 @@ import { Label } from "~/components/ui/label";
 type ResetPasswordFormProps = {
   className?: string;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  isLoading?: boolean;
 };
 
-export function ResetPasswordForm({ className, onSubmit, ...props }: ResetPasswordFormProps) {
+export function ResetPasswordForm({ className, onSubmit, isLoading = false, ...props }: ResetPasswordFormProps) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="relative border border-brand/20 bg-content-bg/90 backdrop-blur-2xl transition-colors duration-300 hover:border-brand/30">
@@ -68,9 +69,10 @@ export function ResetPasswordForm({ className, onSubmit, ...props }: ResetPasswo
               <Button
                 type="submit"
                 variant="outline"
-                className="w-full text-content-text-secondary border-content-bg-secondary hover:bg-content-bg-secondary/50"
+                disabled={isLoading}
+                className="w-full text-content-text-secondary border-content-bg-secondary hover:bg-content-bg-secondary/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Update password
+                {isLoading ? "Updating..." : "Update password"}
               </Button>
             </div>
 
